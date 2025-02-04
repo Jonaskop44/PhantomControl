@@ -28,7 +28,7 @@ This project requires NodeJS (version 20 or later), Yarn VScode. Node, Yarn and 
 
   ```sh
   node -v
-  v18.5.0
+  v22.11.0
   ```
 
 ## Installation Development
