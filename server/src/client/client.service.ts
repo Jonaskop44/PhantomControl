@@ -1,9 +1,13 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ClientGateway } from './client.gateway';
 
 @Injectable()
 export class ClientService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private clientGateway: ClientGateway,
+  ) {}
 
   async getClientsByUserId(userId: number) {
     return this.prisma.client.findMany({
@@ -23,6 +27,6 @@ export class ClientService {
 
     if (!client) throw new ConflictException('Client not found');
 
-    //Send command TODO
+    return this.clientGateway.sendCommandToClient(clientId, command);
   }
 }
