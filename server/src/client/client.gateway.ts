@@ -33,10 +33,18 @@ export class ClientGateway
   }
 
   @SubscribeMessage('register')
-  handleRegister(client: Socket, clientId: number) {
-    console.log(`Received register event from client: ${clientId}`);
-    this.clients.set(clientId, client);
-    console.log(`Client ${clientId} registered with socket ID: ${client.id}`);
+  handleRegister(client: Socket, data: { client_id: number }) {
+    console.log(`Received register event:`, data);
+
+    if (!data || !data.client_id) {
+      console.error('Invalid register data:', data);
+      return;
+    }
+
+    this.clients.set(data.client_id, client);
+    console.log(
+      `Client ${data.client_id} registered with socket ID: ${client.id}`,
+    );
   }
 
   sendCommandToClient(clientId: number, command: string) {

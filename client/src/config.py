@@ -1,1 +1,1 @@
-SERVER_URL = "ws://localhost:3002"
+SERVER_URL = "ws://localhost:3001"
