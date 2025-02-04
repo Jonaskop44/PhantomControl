@@ -13,7 +13,6 @@ export class ClientGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
-
   private clients: Map<number, Socket> = new Map();
 
   afterInit(server: Server) {
