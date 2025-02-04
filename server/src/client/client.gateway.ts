@@ -34,6 +34,7 @@ export class ClientGateway
 
   @SubscribeMessage('register')
   handleRegister(client: Socket, clientId: number) {
+    console.log(`Received register event from client: ${clientId}`);
     this.clients.set(clientId, client);
     console.log(`Client ${clientId} registered with socket ID: ${client.id}`);
   }
