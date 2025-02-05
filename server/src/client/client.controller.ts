@@ -23,12 +23,12 @@ export class ClientController {
 
   @Post(':clientId/command')
   async sendCommand(
-    @Param('id') clientId: number,
+    @Param('hwid') hwid: string,
     @Request() request,
     @Body() dto: SendCommandDto,
   ) {
     return this.clientService.sendCommandToClient(
-      clientId,
+      hwid,
       request.user.sub.id,
       dto.command,
     );

@@ -17,16 +17,16 @@ export class ClientService {
     });
   }
 
-  async sendCommandToClient(clientId: number, userId: number, command: string) {
-    const client = await this.prisma.client.findUnique({
+  async sendCommandToClient(hwid: string, userId: number, command: string) {
+    const client = await this.prisma.client.findFirst({
       where: {
-        id: clientId,
+        hwid: hwid,
         userId: userId,
       },
     });
 
     if (!client) throw new ConflictException('Client not found');
 
-    return this.clientGateway.sendCommandToClient(clientId, command);
+    return this.clientGateway.sendCommandToClient(client, command);
   }
 }
