@@ -27,14 +27,14 @@ model User {
 }
 
 model Client {
-  id Int @id @default(autoincrement())
-  hwid String
-  ip String
-  os String
-  online Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  hwid      String   @unique
+  ip        String
+  os        String
+  online    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   userId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
