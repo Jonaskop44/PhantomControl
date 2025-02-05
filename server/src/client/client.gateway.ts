@@ -8,6 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Client } from './entities/client.entity';
+import { ClientService } from './client.service';
+import { forwardRef, Inject } from '@nestjs/common';
 
 @WebSocketGateway()
 export class ClientGateway
@@ -15,9 +17,13 @@ export class ClientGateway
 {
   @WebSocketServer() server: Server;
   private clients: Map<string, Socket> = new Map();
+  constructor(
+    @Inject(forwardRef(() => ClientService))
+    private clientService: ClientService,
+  ) {}
 
   afterInit(server: Server) {
-    console.log('WebSocket Server initialized', server);
+    console.log('WebSocket Server initialized');
   }
 
   handleConnection(client: Socket) {
@@ -37,10 +43,12 @@ export class ClientGateway
   handleRegister(client: Socket, data: Client) {
     console.log(`Received register event:`, data);
 
-    if (!data) {
+    if (!data || !data.hwid || !data.ip || !data.os) {
       console.error('Invalid register data:', data);
       return;
     }
+
+    this.clientService.registerClient(data);
 
     this.clients.set(data.hwid, client);
     console.log(`Client ${data.hwid} registered with socket ID: ${client.id}`);

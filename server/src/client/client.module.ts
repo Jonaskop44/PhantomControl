@@ -8,5 +8,6 @@ import { ClientGateway } from './client.gateway';
 @Module({
   controllers: [ClientController],
   providers: [ClientService, JwtService, PrismaService, ClientGateway],
+  exports: [ClientService],
 })
 export class ClientModule {}

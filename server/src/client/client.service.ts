@@ -30,4 +30,24 @@ export class ClientService {
 
     return this.clientGateway.sendCommandToClient(client, command);
   }
+
+  async registerClient(data: Client) {
+    return this.prisma.client.upsert({
+      where: {
+        hwid: data.hwid,
+      },
+      update: {
+        ip: data.ip,
+        os: data.os,
+        online: true,
+      },
+      create: {
+        hwid: data.hwid,
+        ip: data.ip,
+        os: data.os,
+        online: true,
+        userId: 1,
+      },
+    });
+  }
 }

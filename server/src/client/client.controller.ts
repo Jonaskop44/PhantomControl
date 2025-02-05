@@ -21,7 +21,7 @@ export class ClientController {
     return this.clientService.getClientsByUserId(request.user.sub.id);
   }
 
-  @Post(':clientId/command')
+  @Post(':hwid/command')
   async sendCommand(
     @Param('hwid') hwid: string,
     @Request() request,
