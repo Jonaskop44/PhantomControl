@@ -76,9 +76,8 @@ export class ClientGateway
 
     if (!clientSocket) throw new ConflictException('Client not connected');
 
-    // Event-Handler für die Antwort
     clientSocket.once('commandResponse', (data) => {
-      callback(data); // Antwort direkt zurückgeben
+      callback(data);
     });
 
     clientSocket.emit('sendCommand', command);
