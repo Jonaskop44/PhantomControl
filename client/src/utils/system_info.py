@@ -18,9 +18,3 @@ def get_ip():
         return response.text.strip()
     except Exception as error:
         return f"Error: {str(error)}"
-    
-
-if __name__ == "__main__":
-    print(f"HWID: {get_hwid()}")
-    print(f"Public IP: {get_ip()}")
-    print(f"OS: {get_os()}")

@@ -31,6 +31,19 @@ export class ClientService {
     return this.clientGateway.sendCommandToClient(client, command);
   }
 
+  async destroyConnection(hwid: string, userId: number) {
+    const client = await this.prisma.client.findFirst({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.destroyConnection(client.hwid);
+  }
+
   async registerClient(data: Client) {
     return this.prisma.client.upsert({
       where: {

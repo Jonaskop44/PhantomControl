@@ -27,10 +27,16 @@ export class ClientController {
     @Request() request,
     @Body() dto: SendCommandDto,
   ) {
-    return this.clientService.sendCommandToClient(
+    const result = await this.clientService.sendCommandToClient(
       hwid,
       request.user.sub.id,
       dto.command,
     );
+    return result;
+  }
+
+  @Post(':hwid/destroy')
+  async destroyConnection(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.destroyConnection(hwid, request.user.sub.id);
   }
 }

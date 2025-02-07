@@ -15,14 +15,16 @@ import { forwardRef, Inject } from '@nestjs/common';
 export class ClientGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer() server: Server;
+  @WebSocketServer()
+  server: Server;
+
   private clients: Map<string, Socket> = new Map();
   constructor(
     @Inject(forwardRef(() => ClientService))
     private clientService: ClientService,
   ) {}
 
-  afterInit(server: Server) {
+  afterInit() {
     console.log('WebSocket Server initialized');
   }
 
@@ -39,6 +41,8 @@ export class ClientGateway
     });
   }
 
+  //Main functions
+
   @SubscribeMessage('register')
   handleRegister(client: Socket, data: Client) {
     console.log(`Received register event:`, data);
@@ -54,14 +58,31 @@ export class ClientGateway
     console.log(`Client ${data.hwid} registered with socket ID: ${client.id}`);
   }
 
+  destroyConnection(hwid: string) {
+    const clientSocket = this.clients.get(hwid);
+    if (clientSocket) {
+      clientSocket.emit('destroy');
+      clientSocket.disconnect();
+      this.clients.delete(hwid);
+    }
+  }
+
   sendCommandToClient(data: Client, command: string) {
     const clientSocket = this.clients.get(data.hwid);
     if (clientSocket) {
-      clientSocket.emit('command', command);
-      return {
-        message: 'Command sent to client ${clientId}',
-        status: 'success',
-      };
+      return new Promise((resolve, reject) => {
+        clientSocket.emit('command', command, (response) => {
+          if (response) {
+            resolve({
+              message: `Command executed successfully on client ${data.hwid}`,
+              status: 'success',
+              result: response,
+            });
+          } else {
+            reject({ message: 'No response from client', status: 'error' });
+          }
+        });
+      });
     } else {
       return { message: 'Client not found', status: 'error' };
     }
