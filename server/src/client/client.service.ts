@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientGateway } from './client.gateway';
 import { Client } from './entities/client.entity';
+import { SendCommandDto } from './dto/client.dto';
 
 @Injectable()
 export class ClientService {
@@ -16,19 +17,6 @@ export class ClientService {
         userId: userId,
       },
     });
-  }
-
-  async sendCommandToClient(hwid: string, userId: number, command: string) {
-    const client = await this.prisma.client.findFirst({
-      where: {
-        hwid: hwid,
-        userId: userId,
-      },
-    });
-
-    if (!client) throw new ConflictException('Client not found');
-
-    return this.clientGateway.sendCommandToClient(client, command);
   }
 
   async destroyConnection(hwid: string, userId: number) {
@@ -62,5 +50,18 @@ export class ClientService {
         userId: 1,
       },
     });
+  }
+
+  async sendCommandToClient(hwid: string, userId: number, dto: SendCommandDto) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.sendCommandToClient(client, dto.command);
   }
 }

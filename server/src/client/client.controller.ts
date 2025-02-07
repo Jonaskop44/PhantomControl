@@ -30,7 +30,7 @@ export class ClientController {
     const result = await this.clientService.sendCommandToClient(
       hwid,
       request.user.sub.id,
-      dto.command,
+      dto,
     );
     return result;
   }

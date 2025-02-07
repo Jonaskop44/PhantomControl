@@ -9,7 +9,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Client } from './entities/client.entity';
 import { ClientService } from './client.service';
-import { forwardRef, Inject } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject } from '@nestjs/common';
+import { Cipher } from 'crypto';
 
 @WebSocketGateway()
 export class ClientGateway
@@ -67,24 +68,16 @@ export class ClientGateway
     }
   }
 
-  sendCommandToClient(data: Client, command: string) {
-    const clientSocket = this.clients.get(data.hwid);
-    if (clientSocket) {
-      return new Promise((resolve, reject) => {
-        clientSocket.emit('command', command, (response) => {
-          if (response) {
-            resolve({
-              message: `Command executed successfully on client ${data.hwid}`,
-              status: 'success',
-              result: response,
-            });
-          } else {
-            reject({ message: 'No response from client', status: 'error' });
-          }
-        });
-      });
-    } else {
-      return { message: 'Client not found', status: 'error' };
-    }
+  sendCommandToClient(client: Client, command: string) {
+    const clientSocket = this.clients.get(client.hwid);
+
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    clientSocket.emit('sendCommand', command);
+  }
+
+  @SubscribeMessage('commandResponse')
+  handleCommandResponse(client: Socket, data: any) {
+    console.log(`Received command response:`, data);
   }
 }
