@@ -6,6 +6,7 @@ import {
   Post,
   Param,
   Body,
+  Response,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
@@ -25,12 +26,19 @@ export class ClientController {
   async sendCommand(
     @Param('hwid') hwid: string,
     @Request() request,
+    @Response() response,
     @Body() dto: SendCommandDto,
   ) {
     const result = await this.clientService.sendCommandToClient(
       hwid,
       request.user.sub.id,
       dto,
+      (commandResponse) => {
+        const data = commandResponse
+          .split('\n')
+          .filter((line) => line.trim() !== '');
+        response.json({ output: data });
+      },
     );
     return result;
   }

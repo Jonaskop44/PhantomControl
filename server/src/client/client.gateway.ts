@@ -10,7 +10,6 @@ import { Server, Socket } from 'socket.io';
 import { Client } from './entities/client.entity';
 import { ClientService } from './client.service';
 import { ConflictException, forwardRef, Inject } from '@nestjs/common';
-import { Cipher } from 'crypto';
 
 @WebSocketGateway()
 export class ClientGateway
@@ -68,16 +67,20 @@ export class ClientGateway
     }
   }
 
-  sendCommandToClient(client: Client, command: string) {
+  sendCommandToClient(
+    client: Client,
+    command: string,
+    callback: (response: string) => void,
+  ) {
     const clientSocket = this.clients.get(client.hwid);
 
     if (!clientSocket) throw new ConflictException('Client not connected');
 
-    clientSocket.emit('sendCommand', command);
-  }
+    // Event-Handler für die Antwort
+    clientSocket.once('commandResponse', (data) => {
+      callback(data); // Antwort direkt zurückgeben
+    });
 
-  @SubscribeMessage('commandResponse')
-  handleCommandResponse(client: Socket, data: any) {
-    console.log(`Received command response:`, data);
+    clientSocket.emit('sendCommand', command);
   }
 }

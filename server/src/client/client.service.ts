@@ -52,7 +52,12 @@ export class ClientService {
     });
   }
 
-  async sendCommandToClient(hwid: string, userId: number, dto: SendCommandDto) {
+  async sendCommandToClient(
+    hwid: string,
+    userId: number,
+    dto: SendCommandDto,
+    callback: (response: string) => void,
+  ) {
     const client = await this.prisma.client.findUnique({
       where: {
         hwid: hwid,
@@ -62,6 +67,10 @@ export class ClientService {
 
     if (!client) throw new ConflictException('Client not found');
 
-    return this.clientGateway.sendCommandToClient(client, dto.command);
+    return this.clientGateway.sendCommandToClient(
+      client,
+      dto.command,
+      callback,
+    );
   }
 }
