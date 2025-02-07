@@ -55,6 +55,20 @@ This project requires NodeJS (version 20 or later), Yarn VScode. Node, Yarn and 
    npm run dev
    ```
 
+3. Generate RSA key for the server
+
+   ```sh
+   openssl genpkey -algorithm RSA -out server_private.pem
+   openssl rsa -pubout -in server_private.pem -out server_public.pem
+   ```
+
+4. Generate RSA key for the client
+
+   ```sh
+   openssl genpkey -algorithm RSA -out client_private.pem
+   openssl rsa -pubout -in client_private.pem -out client_public.pem
+   ```
+
 <!-- ROADMAP -->
 
 # Roadmap
