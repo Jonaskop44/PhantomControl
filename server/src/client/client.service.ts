@@ -120,7 +120,24 @@ export class ClientService {
         this.clientGateway.uploadFileToClient(client, filename);
       });
 
-      return { message: 'Upload erfolgreich!', filenames: uploadedFiles };
+      // Delete the files from the server after sending them to the client
+      uploadedFiles.forEach((filename) => {
+        const filePath = path.join(this.uploadPath, filename);
+        try {
+          fs.unlinkSync(filePath);
+          console.log(`File ${filename} deleted from the server.`);
+        } catch (error) {
+          console.log(
+            `The was an error while deleting the file: ${filename}`,
+            error,
+          );
+        }
+      });
+
+      return {
+        message: 'Files uploaded successfully',
+        filenames: uploadedFiles,
+      };
     } catch (error) {
       console.log(error);
       throw new ConflictException('File upload failed');
