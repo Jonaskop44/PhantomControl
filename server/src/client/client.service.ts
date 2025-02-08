@@ -14,8 +14,8 @@ export class ClientService {
     private clientGateway: ClientGateway,
   ) {}
 
-  private readonly uploadPath = path.join(__dirname, '../../uploads');
-  private readonly downloadPath = path.join(__dirname, '../../downloads');
+  public readonly uploadPath = path.join(__dirname, '../../uploads');
+  public readonly downloadPath = path.join(__dirname, '../../downloads');
   private readonly maxFileSize = 2 * 1024 * 1024 * 1024;
 
   async getClientsByUserId(userId: number) {
@@ -94,14 +94,9 @@ export class ClientService {
     });
 
     if (!client) throw new ConflictException('Client not found');
-
-    if (!file) {
-      throw new ConflictException('No file uploaded');
-    }
-
-    if (file.size > this.maxFileSize) {
+    if (!file) throw new ConflictException('No file uploaded');
+    if (file.size > this.maxFileSize)
       throw new ConflictException('File is too large');
-    }
 
     try {
       await fse.ensureDir(this.uploadPath);
@@ -112,9 +107,9 @@ export class ClientService {
       const filePath = path.join(this.uploadPath, safeFilename);
 
       await fse.writeFile(filePath, file.buffer);
-      return { message: 'Upload erfolgreich!', filename: safeFilename };
 
-      //return this.clientGateway.sendFileToClient(client, filePath);
+      this.clientGateway.uploadFileToClient(client, safeFilename);
+      return { message: 'Upload erfolgreich!', filename: safeFilename };
     } catch (error) {
       console.log(error);
       throw new ConflictException('File upload failed');
@@ -138,7 +133,6 @@ export class ClientService {
       const file = fs.createWriteStream(filePath);
 
       return file;
-      //return this.clientGateway.downloadFileFromClient(client, filePath);
     } catch (error) {
       console.log(error);
       throw new ConflictException('File download failed');

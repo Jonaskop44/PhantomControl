@@ -10,6 +10,8 @@ import { Server, Socket } from 'socket.io';
 import { Client } from './entities/client.entity';
 import { ClientService } from './client.service';
 import { ConflictException, forwardRef, Inject } from '@nestjs/common';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @WebSocketGateway()
 export class ClientGateway
@@ -81,5 +83,15 @@ export class ClientGateway
     });
 
     clientSocket.emit('sendCommand', command);
+  }
+
+  uploadFileToClient(client: Client, filename: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    const filePath = path.join(this.clientService.uploadPath, filename);
+    const fileBuffer = fs.readFileSync(filePath);
+
+    clientSocket.emit('receiveFile', { filename, fileBuffer });
   }
 }

