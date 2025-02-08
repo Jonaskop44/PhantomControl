@@ -84,7 +84,7 @@ export class ClientService {
   async uploadFileToClient(
     hwid: string,
     userId: number,
-    file: Express.Multer.File,
+    files: Express.Multer.File[],
   ) {
     const client = await this.prisma.client.findUnique({
       where: {
@@ -94,22 +94,33 @@ export class ClientService {
     });
 
     if (!client) throw new ConflictException('Client not found');
-    if (!file) throw new ConflictException('No file uploaded');
-    if (file.size > this.maxFileSize)
-      throw new ConflictException('File is too large');
+    if (!files || files.length === 0)
+      throw new ConflictException('No files uploaded');
+    files.forEach((file) => {
+      if (file.size > this.maxFileSize) {
+        throw new ConflictException('One or more files are too large');
+      }
+    });
 
     try {
       await fse.ensureDir(this.uploadPath);
 
-      const safeFilename = path
-        .basename(file.originalname)
-        .replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = path.join(this.uploadPath, safeFilename);
+      const uploadedFiles = [];
+      for (const file of files) {
+        const safeFilename = path
+          .basename(file.originalname)
+          .replace(/[^a-zA-Z0-9._-]/g, '_');
+        const filePath = path.join(this.uploadPath, safeFilename);
+        await fse.writeFile(filePath, file.buffer);
+        uploadedFiles.push(safeFilename);
+      }
 
-      await fse.writeFile(filePath, file.buffer);
+      //Send the files to the client
+      uploadedFiles.forEach((filename) => {
+        this.clientGateway.uploadFileToClient(client, filename);
+      });
 
-      this.clientGateway.uploadFileToClient(client, safeFilename);
-      return { message: 'Upload erfolgreich!', filename: safeFilename };
+      return { message: 'Upload erfolgreich!', filenames: uploadedFiles };
     } catch (error) {
       console.log(error);
       throw new ConflictException('File upload failed');

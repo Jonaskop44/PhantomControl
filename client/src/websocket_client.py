@@ -44,12 +44,16 @@ def handle_command(command):
 
 @sio.on('receiveFile')
 def receive_File(data):
-    filename = data["filename"]
-    filebuffer = data["fileBuffer"]
+    if 'filename' in data and 'fileBuffer' in data:
+        filename = data['filename']
+        filebuffer = data['fileBuffer']
 
-    file_path = os.path.join(DOWNLOAD_PATH, filename)
+        file_path = os.path.join(DOWNLOAD_PATH, filename)
 
-    with open(file_path, "wb") as f:
-        f.write(filebuffer)
-    
-    print(f"File {filename} received and saved in {DOWNLOAD_PATH}")
+        with open(file_path, "wb") as f:
+            f.write(filebuffer)
+
+        print(f"File {filename} received and saved in {DOWNLOAD_PATH}")
+    else:
+        print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
+

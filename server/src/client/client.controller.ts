@@ -9,11 +9,12 @@ import {
   Response,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { SendCommandDto } from './dto/client.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('clients')
 @UseGuards(JwtGuard)
@@ -52,16 +53,18 @@ export class ClientController {
   }
 
   @Post(':hwid/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('file'))
   async uploadFileToClient(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @Param('hwid') hwid: string,
     @Request() request,
   ) {
+    console.log(files);
+
     return this.clientService.uploadFileToClient(
       hwid,
       request.user.sub.id,
-      file,
+      files,
     );
   }
 
