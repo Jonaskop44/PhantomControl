@@ -17,6 +17,7 @@ export class ClientService {
   public readonly uploadPath = path.join(__dirname, '../../uploads');
   public readonly downloadPath = path.join(__dirname, '../../downloads');
   public readonly maxFileSize = 2 * 1024 * 1024 * 1024;
+  public readonly massDownloadZipName = 'download.zip';
 
   async getClientsByUserId(userId: number) {
     return this.prisma.client.findMany({

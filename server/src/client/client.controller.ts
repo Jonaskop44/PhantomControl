@@ -98,10 +98,13 @@ export class ClientController {
         disposition: 'attachment',
       });
 
-      fs.unlinkSync(path.join(this.clientService.downloadPath, filename));
+      const fileToDelete =
+        filename === '*' ? this.clientService.massDownloadZipName : filename;
+      fs.unlinkSync(path.join(this.clientService.downloadPath, fileToDelete));
 
       return streamableFile;
     } catch (error) {
+      console.log(error);
       if (error instanceof ConflictException) {
         throw new NotFoundException(`File ${filename} not found.`);
       } else {
