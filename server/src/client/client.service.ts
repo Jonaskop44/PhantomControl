@@ -135,7 +135,9 @@ export class ClientService {
         filenames: uploadedFiles,
       };
     } catch (error) {
-      throw new ConflictException('File upload failed');
+      throw new ConflictException(
+        error.response.message || 'File upload failed',
+      );
     }
   }
 

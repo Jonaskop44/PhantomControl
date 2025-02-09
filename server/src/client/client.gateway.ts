@@ -67,6 +67,8 @@ export class ClientGateway
       clientSocket.emit('destroy');
       clientSocket.disconnect();
       this.clients.delete(hwid);
+    } else {
+      throw new ConflictException('Client not connected');
     }
   }
 

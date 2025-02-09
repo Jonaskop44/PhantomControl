@@ -14,6 +14,7 @@ import {
   InternalServerErrorException,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
@@ -79,6 +80,10 @@ export class ClientController {
     @Query('filename') filename: string,
     @Request() request,
   ) {
+    if (!filePath || !filename) {
+      throw new BadRequestException('File path and filename are required');
+    }
+
     const fileBuffer = await this.clientService.downloadFileFromClient(
       hwid,
       request.user.sub.id,
