@@ -1,5 +1,4 @@
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
-
 export class CreateClientDto {
   @IsInt()
   @IsNotEmpty()
@@ -17,9 +16,14 @@ export class CreateClientDto {
   @IsNotEmpty()
   readonly os: string;
 }
-
 export class SendCommandDto {
   @IsString()
   @IsNotEmpty()
   readonly command: string;
+}
+
+export class CreateFileDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly content: string;
 }

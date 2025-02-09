@@ -158,4 +158,94 @@ export class ClientGateway
       });
     });
   }
+
+  createFile(client: Client, filePath: string, content: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('createFile', { filePath, content });
+      clientSocket.once('createFileResponse', async (data) => {
+        if (data.status) {
+          try {
+            resolve(data);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(
+              new ConflictException('Failed to save file after receiving.'),
+            );
+          }
+        } else {
+          reject(new ConflictException('There was an error while uploading'));
+        }
+      });
+    });
+  }
+
+  readFile(client: Client, filePath: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('readFile', { filePath });
+      clientSocket.once('readFileResponse', async (data) => {
+        if (data.status && data.content) {
+          try {
+            resolve(data.content);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(new ConflictException('Failed to read file.'));
+          }
+        } else {
+          reject(new ConflictException('File not found or other error'));
+        }
+      });
+    });
+  }
+
+  updateFile(client: Client, filePath: string, content: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('updateFile', { filePath, content });
+      clientSocket.once('updateFileResponse', async (data) => {
+        if (data.status) {
+          try {
+            resolve(data);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(
+              new ConflictException('Failed to save file after receiving.'),
+            );
+          }
+        } else {
+          reject(new ConflictException('There was an error while uploading'));
+        }
+      });
+    });
+  }
+
+  deleteFile(client: Client, filePath: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('deleteFile', { filePath });
+      clientSocket.once('deleteFileResponse', async (data) => {
+        if (data.status) {
+          try {
+            resolve(data);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(
+              new ConflictException('Failed to save file after receiving.'),
+            );
+          }
+        } else {
+          reject(new ConflictException('There was an error while uploading'));
+        }
+      });
+    });
+  }
 }

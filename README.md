@@ -12,6 +12,9 @@ This **Next.js & NestJS** project allows users to **create accounts, download th
   - [NestJS](https://nestjs.com/)
   - [typescript](https://www.npmjs.com/package/typescript)
   - [Prisma](https://www.npmjs.com/package/prisma)
+- Client
+  - [Python](https://www.python.org/)
+  - [Socket.IO](https://socket.io/)
 
 <!-- GETTING STARTED DEVELOPMENT  -->
 

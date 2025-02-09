@@ -15,10 +15,12 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
-import { SendCommandDto } from './dto/client.dto';
+import { CreateFileDto, SendCommandDto } from './dto/client.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -114,5 +116,61 @@ export class ClientController {
         throw new InternalServerErrorException('Failed to download file');
       }
     }
+  }
+
+  @Post(':hwid/file/create')
+  async createFile(
+    @Param('hwid') hwid: string,
+    @Request() request,
+    @Query('filepath') filePath: string,
+    @Body() dto: CreateFileDto,
+  ) {
+    if (!filePath) throw new BadRequestException('File path is required');
+
+    return this.clientService.createFile(
+      hwid,
+      request.user.sub.id,
+      filePath,
+      dto,
+    );
+  }
+
+  @Get(':hwid/file/read')
+  async readFile(
+    @Param('hwid') hwid: string,
+    @Query('filepath') filePath: string,
+    @Request() request,
+  ) {
+    if (!filePath) throw new BadRequestException('File path is required');
+
+    return this.clientService.readFile(hwid, request.user.sub.id, filePath);
+  }
+
+  @Patch(':hwid/file/update')
+  async updateFile(
+    @Param('hwid') hwid: string,
+    @Request() request,
+    @Query('filepath') filePath: string,
+    @Body() dto: CreateFileDto,
+  ) {
+    if (!filePath) throw new BadRequestException('File path is required');
+
+    return this.clientService.updateFile(
+      hwid,
+      request.user.sub.id,
+      filePath,
+      dto,
+    );
+  }
+
+  @Delete(':hwid/file/delete')
+  async deleteFile(
+    @Param('hwid') hwid: string,
+    @Request() request,
+    @Query('filepath') filePath: string,
+  ) {
+    if (!filePath) throw new BadRequestException('File path is required');
+
+    return this.clientService.deleteFile(hwid, request.user.sub.id, filePath);
   }
 }
