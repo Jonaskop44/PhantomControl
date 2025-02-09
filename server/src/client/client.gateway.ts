@@ -110,6 +110,13 @@ export class ClientGateway
               this.clientService.downloadPath,
               filename,
             );
+
+            //Check if the file is bigger than the max file size
+            if (data.fileBuffer.length > this.clientService.maxFileSize) {
+              reject(new ConflictException('File is too large.'));
+              return;
+            }
+
             fs.writeFileSync(filePath, data.fileBuffer);
             resolve(data.fileBuffer);
           } catch (error) {
