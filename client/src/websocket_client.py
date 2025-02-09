@@ -83,7 +83,7 @@ def send_file(data):
                         arcname = os.path.relpath(file_path, filepath)
                         zipf.write(file_path, arcname)
 
-            zip_buffer.seek(0)  # Zurück an den Anfang des Buffers
+            zip_buffer.seek(0)
 
             sio.emit("fileResponse", {
                 "status": True,
