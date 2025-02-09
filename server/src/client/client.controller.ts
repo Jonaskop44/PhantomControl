@@ -64,12 +64,16 @@ export class ClientController {
   async uploadFileToClient(
     @UploadedFiles() files: Express.Multer.File[],
     @Param('hwid') hwid: string,
+    @Query('destination') destination: string,
     @Request() request,
   ) {
+    if (!destination) throw new BadRequestException('Destination is required');
+
     return this.clientService.uploadFileToClient(
       hwid,
       request.user.sub.id,
       files,
+      destination,
     );
   }
 
@@ -80,9 +84,8 @@ export class ClientController {
     @Query('filename') filename: string,
     @Request() request,
   ) {
-    if (!filePath || !filename) {
+    if (!filePath || !filename)
       throw new BadRequestException('File path and filename are required');
-    }
 
     const fileBuffer = await this.clientService.downloadFileFromClient(
       hwid,

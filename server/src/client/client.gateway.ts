@@ -88,7 +88,7 @@ export class ClientGateway
     clientSocket.emit('sendCommand', command);
   }
 
-  uploadFileToClient(client: Client, filename: string) {
+  uploadFileToClient(client: Client, filename: string, destination: string) {
     const clientSocket = this.clients.get(client.hwid);
     if (!clientSocket) throw new ConflictException('Client not connected');
 

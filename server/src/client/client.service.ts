@@ -86,6 +86,7 @@ export class ClientService {
     hwid: string,
     userId: number,
     files: Express.Multer.File[],
+    destination: string,
   ) {
     const client = await this.prisma.client.findUnique({
       where: {
@@ -95,6 +96,7 @@ export class ClientService {
     });
 
     if (!client) throw new ConflictException('Client not found');
+
     if (!files || files.length === 0)
       throw new ConflictException('No files uploaded');
     files.forEach((file) => {
@@ -118,7 +120,7 @@ export class ClientService {
 
       //Send the files to the client
       uploadedFiles.forEach((filename) => {
-        this.clientGateway.uploadFileToClient(client, filename);
+        this.clientGateway.uploadFileToClient(client, filename, destination);
       });
 
       // Delete the files from the server after sending them to the client
