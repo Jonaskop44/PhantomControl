@@ -62,7 +62,7 @@ def receive_File(data):
                 f.write(filebuffer)
 
             print(f"File {filename} received and saved in {destination}")
-            sio.emit("receiveFileResponse", {"status": True, "filename": filename, "message": "File received successfully"})
+            sio.emit("receiveFileResponse", {"status": True, "filename": filename, "message": f"File {filename} received successfully"})
         else:
             print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
             sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "Expected keys 'filename' and 'fileBuffer' not found in the received data."})

@@ -123,12 +123,12 @@ export class ClientService {
       //Send the files to the client
       for (const filename of uploadedFiles) {
         try {
-          const result = await this.clientGateway.uploadFileToClient(
+          const result = (await this.clientGateway.uploadFileToClient(
             client,
             filename,
             destination,
-          );
-          uploadResults.push(result);
+          )) as { message: string };
+          uploadResults.push(result.message);
         } catch (error) {
           console.error('Error sending file to client:', error.message);
           uploadResults.push(`Failed to upload ${filename}: ${error.message}`);
