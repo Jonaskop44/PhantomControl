@@ -111,13 +111,14 @@ export class ClientGateway
               filename,
             );
             fs.writeFileSync(filePath, data.fileBuffer);
-            console.log(`File ${filename} saved to ${filePath}`);
             resolve(data.fileBuffer);
           } catch (error) {
-            console.error(`Failed to save file ${filename}`);
+            reject(
+              new ConflictException('Failed to save file after receiving.'),
+            );
           }
         } else {
-          console.error(`Failed to download file ${filename}`);
+          reject(new ConflictException('File not found or other error'));
         }
       });
     });

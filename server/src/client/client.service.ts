@@ -125,12 +125,8 @@ export class ClientService {
         const filePath = path.join(this.uploadPath, filename);
         try {
           fs.unlinkSync(filePath);
-          console.log(`File ${filename} deleted from the server.`);
         } catch (error) {
-          console.log(
-            `The was an error while deleting the file: ${filename}`,
-            error,
-          );
+          console.error(`Failed to delete file ${filename}`, error);
         }
       });
 
@@ -139,7 +135,6 @@ export class ClientService {
         filenames: uploadedFiles,
       };
     } catch (error) {
-      console.log(error);
       throw new ConflictException('File upload failed');
     }
   }

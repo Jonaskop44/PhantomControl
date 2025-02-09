@@ -60,20 +60,24 @@ def receive_File(data):
 
 @sio.on('requestFile')
 def send_file(data):
-    filepath = data['filePath']
-    filename = data['filename']
+    try:
+        filepath = data['filePath']
+        filename = data['filename']
 
-    if not filepath or not filename:
-        print("Error: Missing required keys 'filePath' or 'filename'")
-        sio.emit("fileResponse", {"status": False, "filename": filename})
-        return
+        if not filepath or not filename:
+            print("Error: Missing required keys 'filePath' or 'filename'")
+            sio.emit("fileResponse", {"status": False, "filename": filename})
+            return
 
-    full_file_path = os.path.join(filepath, filename)
-    if os.path.exists(full_file_path):
-        with open(full_file_path, "rb") as f:
-            filebuffer = f.read()
-            sio.emit("fileResponse", {"status": True, "filename": filename, "fileBuffer": filebuffer})
-            print(f"File {filename} sent to server")
-    else:
-        print(f"Error: File {filename} not found in {filepath}")
+        full_file_path = os.path.join(filepath, filename)
+        if os.path.exists(full_file_path):
+            with open(full_file_path, "rb") as f:
+                filebuffer = f.read()
+                sio.emit("fileResponse", {"status": True, "filename": filename, "fileBuffer": filebuffer})
+                print(f"File {filename} sent to server")
+        else:
+            print(f"Error: File {filename} not found in {filepath}")
+            sio.emit("fileResponse", {"status": False, "filename": filename})
+    except Exception as e:
+        print(f"An error occurred: {e}")
         sio.emit("fileResponse", {"status": False, "filename": filename})

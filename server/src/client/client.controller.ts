@@ -8,15 +8,19 @@ import {
   Body,
   Response,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
   Query,
   StreamableFile,
+  InternalServerErrorException,
+  ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { SendCommandDto } from './dto/client.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('clients')
 @UseGuards(JwtGuard)
@@ -61,8 +65,6 @@ export class ClientController {
     @Param('hwid') hwid: string,
     @Request() request,
   ) {
-    console.log(files);
-
     return this.clientService.uploadFileToClient(
       hwid,
       request.user.sub.id,
@@ -84,11 +86,22 @@ export class ClientController {
       filename,
     );
 
-    // Umwandlung des Buffers in Uint8Array
-    const uint8Array = new Uint8Array(fileBuffer);
+    try {
+      const uint8Array = new Uint8Array(fileBuffer);
 
-    return new StreamableFile(uint8Array, {
-      disposition: 'attachment',
-    });
+      const streamableFile = new StreamableFile(uint8Array, {
+        disposition: 'attachment',
+      });
+
+      fs.unlinkSync(path.join(this.clientService.downloadPath, filename));
+
+      return streamableFile;
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new NotFoundException(`File ${filename} not found.`);
+      } else {
+        throw new InternalServerErrorException('Failed to download file');
+      }
+    }
   }
 }
