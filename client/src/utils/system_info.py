@@ -14,7 +14,7 @@ def get_os():
 
 def get_ip():
     try:
-        response = requests.get('https://api64.ipify.org?format=text', timeout=5)
+        response = requests.get('https://api64.ipify.org?format=text', timeout=10)
         return response.text.strip()
     except Exception as error:
         return f"Error: {str(error)}"

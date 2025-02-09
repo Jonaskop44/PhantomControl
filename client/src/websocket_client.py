@@ -60,8 +60,8 @@ def receive_File(data):
 
 @sio.on('requestFile')
 def send_file(data):
-    filepath = data.get('filePath')
-    filename = data.get('filename')
+    filepath = data['filePath']
+    filename = data['filename']
 
     if not filepath or not filename:
         print("Error: Missing required keys 'filePath' or 'filename'")
