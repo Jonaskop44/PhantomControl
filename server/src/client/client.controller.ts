@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
+  Query,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
@@ -68,15 +69,17 @@ export class ClientController {
     );
   }
 
-  @Get(':hwid/download/:filename')
+  @Get(':hwid/download')
   async downloadFileFromClient(
     @Param('hwid') hwid: string,
-    @Param('filename') filename: string,
+    @Query('filepath') filePath: string,
+    @Query('filename') filename: string,
     @Request() request,
   ) {
     const file = await this.clientService.downloadFileFromClient(
       hwid,
       request.user.sub.id,
+      filePath,
       filename,
     );
     return file;

@@ -6,7 +6,8 @@ import sys
 import os
 
 sio = socketio.Client()
-DOWNLOAD_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
+UPLOAD_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
+DOWNLOAD_PATH = os.path.join(os.path.expanduser("~"), "Desktop")
 
 @sio.event
 def connect():
@@ -48,12 +49,31 @@ def receive_File(data):
         filename = data['filename']
         filebuffer = data['fileBuffer']
 
-        file_path = os.path.join(DOWNLOAD_PATH, filename)
+        file_path = os.path.join(UPLOAD_PATH, filename)
 
         with open(file_path, "wb") as f:
             f.write(filebuffer)
 
-        print(f"File {filename} received and saved in {DOWNLOAD_PATH}")
+        print(f"File {filename} received and saved in {UPLOAD_PATH}")
     else:
         print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
 
+@sio.on('requestFile')
+def send_file(data):
+    filepath = data.get('filePath')
+    filename = data.get('filename')
+
+    if not filepath or not filename:
+        print("Error: Missing required keys 'filePath' or 'filename'")
+        sio.emit("fileResponse", {"status": False, "filename": filename})
+        return
+
+    full_file_path = os.path.join(filepath, filename)
+    if os.path.exists(full_file_path):
+        with open(full_file_path, "rb") as f:
+            filebuffer = f.read()
+            sio.emit("fileResponse", {"status": True, "filename": filename, "fileBuffer": filebuffer})
+            print(f"File {filename} sent to server")
+    else:
+        print(f"Error: File {filename} not found in {filepath}")
+        sio.emit("fileResponse", {"status": False, "filename": filename})

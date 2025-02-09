@@ -12,6 +12,7 @@ import { ClientService } from './client.service';
 import { ConflictException, forwardRef, Inject } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 
 @WebSocketGateway()
 export class ClientGateway
@@ -93,5 +94,26 @@ export class ClientGateway
     const fileBuffer = fs.readFileSync(filePath);
 
     clientSocket.emit('receiveFile', { filename, fileBuffer });
+  }
+
+  downloadFileFromClient(client: Client, filePath: string, filename: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    clientSocket.emit('requestFile', { filePath, filename });
+    clientSocket.once('fileResponse', async (data) => {
+      if (data.status && data.fileBuffer) {
+        try {
+          await fse.ensureDir(this.clientService.downloadPath);
+          const filePath = path.join(this.clientService.downloadPath, filename);
+          fs.writeFileSync(filePath, data.fileBuffer);
+          console.log(`File ${filename} saved to ${filePath}`);
+        } catch (error) {
+          console.error(`Failed to save file ${filename}`);
+        }
+      } else {
+        console.error(`Failed to download file ${filename}`);
+      }
+    });
   }
 }

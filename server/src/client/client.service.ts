@@ -144,7 +144,12 @@ export class ClientService {
     }
   }
 
-  async downloadFileFromClient(hwid: string, userId: number, filename: string) {
+  async downloadFileFromClient(
+    hwid: string,
+    userId: number,
+    filePath: string,
+    filename: string,
+  ) {
     const client = await this.prisma.client.findUnique({
       where: {
         hwid: hwid,
@@ -154,16 +159,10 @@ export class ClientService {
 
     if (!client) throw new ConflictException('Client not found');
 
-    try {
-      await fse.ensureDir(this.downloadPath);
-
-      const filePath = path.join(this.downloadPath, filename);
-      const file = fs.createWriteStream(filePath);
-
-      return file;
-    } catch (error) {
-      console.log(error);
-      throw new ConflictException('File download failed');
-    }
+    return this.clientGateway.downloadFileFromClient(
+      client,
+      filePath,
+      filename,
+    );
   }
 }
