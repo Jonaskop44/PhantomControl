@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UploadedFiles,
   Query,
+  StreamableFile,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
@@ -76,12 +77,18 @@ export class ClientController {
     @Query('filename') filename: string,
     @Request() request,
   ) {
-    const file = await this.clientService.downloadFileFromClient(
+    const fileBuffer = await this.clientService.downloadFileFromClient(
       hwid,
       request.user.sub.id,
       filePath,
       filename,
     );
-    return file;
+
+    // Umwandlung des Buffers in Uint8Array
+    const uint8Array = new Uint8Array(fileBuffer);
+
+    return new StreamableFile(uint8Array, {
+      disposition: 'attachment',
+    });
   }
 }

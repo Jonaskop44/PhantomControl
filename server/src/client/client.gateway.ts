@@ -100,20 +100,26 @@ export class ClientGateway
     const clientSocket = this.clients.get(client.hwid);
     if (!clientSocket) throw new ConflictException('Client not connected');
 
-    clientSocket.emit('requestFile', { filePath, filename });
-    clientSocket.once('fileResponse', async (data) => {
-      if (data.status && data.fileBuffer) {
-        try {
-          await fse.ensureDir(this.clientService.downloadPath);
-          const filePath = path.join(this.clientService.downloadPath, filename);
-          fs.writeFileSync(filePath, data.fileBuffer);
-          console.log(`File ${filename} saved to ${filePath}`);
-        } catch (error) {
-          console.error(`Failed to save file ${filename}`);
+    return new Promise<Buffer>((resolve, reject) => {
+      clientSocket.emit('requestFile', { filePath, filename });
+      clientSocket.once('fileResponse', async (data) => {
+        if (data.status && data.fileBuffer) {
+          try {
+            await fse.ensureDir(this.clientService.downloadPath);
+            const filePath = path.join(
+              this.clientService.downloadPath,
+              filename,
+            );
+            fs.writeFileSync(filePath, data.fileBuffer);
+            console.log(`File ${filename} saved to ${filePath}`);
+            resolve(data.fileBuffer);
+          } catch (error) {
+            console.error(`Failed to save file ${filename}`);
+          }
+        } else {
+          console.error(`Failed to download file ${filename}`);
         }
-      } else {
-        console.error(`Failed to download file ${filename}`);
-      }
+      });
     });
   }
 }
