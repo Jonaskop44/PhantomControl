@@ -95,7 +95,27 @@ export class ClientGateway
     const filePath = path.join(this.clientService.uploadPath, filename);
     const fileBuffer = fs.readFileSync(filePath);
 
-    clientSocket.emit('receiveFile', { filename, fileBuffer });
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('receiveFile', { filename, fileBuffer, destination });
+      clientSocket.once('receiveFileResponse', async (data) => {
+        if (data.status) {
+          try {
+            resolve(data);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(
+              new ConflictException('Failed to save file after receiving.'),
+            );
+          }
+        } else {
+          if (data.message.includes('Destination')) {
+            reject(new ConflictException(data.message));
+          } else {
+            reject(new ConflictException('There was an error while uploading'));
+          }
+        }
+      });
+    });
   }
 
   downloadFileFromClient(client: Client, filePath: string, filename: string) {
@@ -104,7 +124,7 @@ export class ClientGateway
 
     return new Promise<Buffer>((resolve, reject) => {
       clientSocket.emit('requestFile', { filePath, filename });
-      clientSocket.once('fileResponse', async (data) => {
+      clientSocket.once('requestFileResponse', async (data) => {
         if (data.status && data.fileBuffer) {
           try {
             await fse.ensureDir(this.clientService.downloadPath);

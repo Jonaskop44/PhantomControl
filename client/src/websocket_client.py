@@ -8,8 +8,6 @@ import zipfile
 import io
 
 sio = socketio.Client()
-UPLOAD_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
-DOWNLOAD_PATH = os.path.join(os.path.expanduser("~"), "Desktop")
 
 @sio.event
 def connect():
@@ -47,18 +45,30 @@ def handle_command(command):
 
 @sio.on('receiveFile')
 def receive_File(data):
-    if 'filename' in data and 'fileBuffer' in data:
-        filename = data['filename']
-        filebuffer = data['fileBuffer']
+    try:
+        if 'filename' in data and 'fileBuffer' in data:
+            filename = data['filename']
+            filebuffer = data['fileBuffer']
+            destination = data['destination']
 
-        file_path = os.path.join(UPLOAD_PATH, filename)
+            if not os.path.exists(destination):
+                print(f"Error: Destination {destination} does not exist")
+                sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "Destination does not exist"})
+                return
 
-        with open(file_path, "wb") as f:
-            f.write(filebuffer)
+            file_path = os.path.join(destination, filename)
 
-        print(f"File {filename} received and saved in {UPLOAD_PATH}")
-    else:
-        print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
+            with open(file_path, "wb") as f:
+                f.write(filebuffer)
+
+            print(f"File {filename} received and saved in {destination}")
+            sio.emit("receiveFileResponse", {"status": True, "filename": filename, "message": "File received successfully"})
+        else:
+            print("Error: Expected keys 'filename' and 'fileBuffer' not found in the received data.")
+            sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "Expected keys 'filename' and 'fileBuffer' not found in the received data."})
+    except Exception as e:
+        print(f"An error occurred while receiving the file: {e}")
+        sio.emit("receiveFileResponse", {"status": False, "filename": filename, "message": "There was an error while receiving the file"})
 
 @sio.on('requestFile')
 def send_file(data):
@@ -70,7 +80,7 @@ def send_file(data):
 
         if not filepath or not filename:
             print("Error: Missing required keys 'filePath' or 'filename'")
-            sio.emit("fileResponse", {"status": False, "filename": filename})
+            sio.emit("requestFileResponse", {"status": False, "filename": filename})
             return
 
         if filename == "*":
@@ -85,7 +95,7 @@ def send_file(data):
 
             zip_buffer.seek(0)
 
-            sio.emit("fileResponse", {
+            sio.emit("requestFileResponse", {
                 "status": True,
                 "filename": "all_files.zip",
                 "fileBuffer": zip_buffer.getvalue()
@@ -97,7 +107,7 @@ def send_file(data):
             if os.path.exists(full_file_path):
                 with open(full_file_path, "rb") as f:
                     filebuffer = f.read()
-                    sio.emit("fileResponse", {
+                    sio.emit("requestFileResponse", {
                         "status": True,
                         "filename": filename,
                         "fileBuffer": filebuffer
@@ -105,8 +115,8 @@ def send_file(data):
                     print(f"File {filename} sent to server")
             else:
                 print(f"Error: File {filename} not found in {filepath}")
-                sio.emit("fileResponse", {"status": False, "filename": filename})
+                sio.emit("requestFileResponse", {"status": False, "filename": filename})
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        sio.emit("fileResponse", {"status": False, "filename": filename})
+        sio.emit("requestFileResponse", {"status": False, "filename": filename})

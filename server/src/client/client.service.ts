@@ -109,6 +109,8 @@ export class ClientService {
       await fse.ensureDir(this.uploadPath);
 
       const uploadedFiles = [];
+      const uploadResults = [];
+
       for (const file of files) {
         const safeFilename = path
           .basename(file.originalname)
@@ -119,9 +121,19 @@ export class ClientService {
       }
 
       //Send the files to the client
-      uploadedFiles.forEach((filename) => {
-        this.clientGateway.uploadFileToClient(client, filename, destination);
-      });
+      for (const filename of uploadedFiles) {
+        try {
+          const result = await this.clientGateway.uploadFileToClient(
+            client,
+            filename,
+            destination,
+          );
+          uploadResults.push(result);
+        } catch (error) {
+          console.error('Error sending file to client:', error.message);
+          uploadResults.push(`Failed to upload ${filename}: ${error.message}`);
+        }
+      }
 
       // Delete the files from the server after sending them to the client
       uploadedFiles.forEach((filename) => {
@@ -134,7 +146,7 @@ export class ClientService {
       });
 
       return {
-        message: 'Files uploaded successfully',
+        message: uploadResults.join(', '),
         filenames: uploadedFiles,
       };
     } catch (error) {
