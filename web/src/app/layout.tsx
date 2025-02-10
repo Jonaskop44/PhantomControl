@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "",
-  description: "",
+  title: "PhantomControl",
+  description: "PhantomControl is a web-based control panel for the Client",
 };
 
 export default function RootLayout({
@@ -28,6 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <StyleProvider>
           <SessionProvider>{children}</SessionProvider>

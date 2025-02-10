@@ -179,7 +179,7 @@ const Home = () => {
               />
 
               <Input
-                label="Passwort"
+                label="Password"
                 isRequired
                 variant="underlined"
                 type={isVisible ? "text" : "password"}
