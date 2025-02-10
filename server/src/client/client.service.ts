@@ -48,14 +48,12 @@ export class ClientService {
       update: {
         ip: data.ip,
         os: data.os,
-        online: true,
       },
       create: {
         hwid: data.hwid,
         ip: data.ip,
         os: data.os,
-        online: true,
-        userId: 1,
+        userId: data.userId,
       },
     });
   }

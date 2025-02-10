@@ -70,8 +70,12 @@ export class AuthService {
   }
 
   async verifyToken(token: string) {
-    return this.jwtService.verifyAsync(token, {
-      secret: process.env.JWT_SECRET,
-    });
+    try {
+      return await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

@@ -31,7 +31,6 @@ model Client {
   hwid      String   @unique
   ip        String
   os        String
-  online    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

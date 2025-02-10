@@ -3,9 +3,15 @@ certifi==2025.1.31
 charset-normalizer==3.4.1
 h11==0.14.0
 idna==3.10
+jaraco.classes==3.4.0
+jaraco.context==6.0.1
+jaraco.functools==4.1.0
+keyring==25.6.0
+more-itertools==10.6.0
 pycryptodome==3.21.0
 python-engineio==4.11.2
 python-socketio==5.12.1
+pywin32-ctypes==0.2.3
 requests==2.32.3
 simple-websocket==1.1.0
 urllib3==2.3.0
