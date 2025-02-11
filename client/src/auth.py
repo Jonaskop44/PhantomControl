@@ -1,87 +1,42 @@
-import json
-import os
 import requests
 import keyring
-import sys
-from config import REST_API_URL, SERVICE_NAME, APPDATA_DIR, AUTH_FILE
+from config import REST_API_URL, SERVICE_NAME
 
+def load_client_key():
+    return keyring.get_password(SERVICE_NAME, "clientKey")
 
+def save_client_key(client_key):
+    keyring.set_password(SERVICE_NAME, "clientKey", client_key)
 
-# Erstelle den AppData-Ordner, falls er nicht existiert
-os.makedirs(APPDATA_DIR, exist_ok=True)
+def is_client_key_valid(client_key):
+    try:
+        response = requests.get(f"{REST_API_URL}/user/client-key/{client_key}", timeout=5)
+        if response.status_code == 200:
+            print("Client key successfully verified.")
+            return True
+        return False
+    except requests.RequestException:
+        print("Error connecting to the server. Please check your internet connection.")
+        return False
 
-def save_auth_data(email, token):
-    with open(AUTH_FILE, "w") as f:
-        json.dump({"email": email, "token": token}, f)
+def get_client_key():
+    client_key = load_client_key()
 
-def load_auth_data():
-    if os.path.exists(AUTH_FILE):
-        with open(AUTH_FILE, "r") as f:
-            return json.load(f)
-    return None
+    if client_key and is_client_key_valid(client_key):
+        return client_key
 
-def get_stored_password(email):
-    return keyring.get_password(SERVICE_NAME, email)
-
-def store_password(email, password):
-    keyring.set_password(SERVICE_NAME, email, password)
-
-def get_valid_token():
-    auth_data = load_auth_data()
-
-    if not auth_data:
-        return login_and_save_token()
-
-    token = auth_data.get("token")
-    response = requests.post(f"{REST_API_URL}/auth/verify", json={"token": token})
-
-    if response.status_code == 201:
-        return token
-    else:
-        return login_and_save_token()
-
-def login_and_save_token():
-    auth_data = load_auth_data()
-
-    if auth_data:
-        email = auth_data["email"]
-        password = get_stored_password(email)
-        if not password:
-            print("[❌] Kein gespeichertes Passwort gefunden.")
-            return None
-    else:
-        email = input("Email: ")
-        password = input("Passwort: ")
-
-    response = requests.post(f"{REST_API_URL}/auth/login", json={"email": email, "password": password})
-
-    if response.status_code == 201:
-        token = response.json()["backendTokens"]["accessToken"]
-        save_auth_data(email, token)
-        store_password(email, password)  
-        print("[✅] Erfolgreich eingeloggt!")
-        return token
-    else:
-        print("[❌] Login fehlgeschlagen! Falsche Daten?")
-        return None
+    while True:
+        client_key = input("Enter your client key: ").strip()
+        if is_client_key_valid(client_key):
+            save_client_key(client_key)
+            return client_key
+        print("This client key is invalid. Please try again.")
 
 def get_user_id():
-    token = get_valid_token()
-
-    if not token:
-        print("[❌] Kein gültiges Token erhalten! Beende...")
-        sys.exit(1)
-
-    url = f"{REST_API_URL}/user/token/data/{token}"
-
+    client_key = get_client_key()
+    
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            return data.get("id")
-        else:
-            print(f"[❌] Fehler bei der API-Abfrage: {response.text}")
-            sys.exit(1)
-    except requests.RequestException as e:
-        print(f"[❌] Netzwerkfehler: {e}")
-        sys.exit(1)
+        response = requests.get(f"{REST_API_URL}/user/client-key/{client_key}", timeout=5)
+        return response.json().get("id")
+    except requests.RequestException:
+        return None

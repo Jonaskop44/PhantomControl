@@ -21,12 +21,11 @@ export class UserService {
     if (user)
       throw new ConflictException('There is already a user with this email');
 
-    
-
     const newUser = await this.prisma.user.create({
       data: {
         ...dto,
         password: await hash(dto.password, 12),
+        clientKey: { create: { key: crypto.randomUUID() } },
       },
     });
 
@@ -49,6 +48,26 @@ export class UserService {
         id: id,
       },
     });
+  }
+
+  async findUserByClientKey(clientKey: string) {
+    const key = await this.prisma.clientKey.findUnique({
+      where: {
+        key: clientKey,
+      },
+    });
+
+    if (!key) throw new ConflictException('Client key not found');
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: key.userId,
+      },
+    });
+
+    const { password, ...result } = user;
+
+    return result;
   }
 
   async getUserDataFromToken(token: string) {

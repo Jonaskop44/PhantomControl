@@ -23,7 +23,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  clients Client[]
+  clients   Client[]
+  clientKey ClientKey?
 }
 
 model Client {
@@ -35,5 +36,14 @@ model Client {
   updatedAt DateTime @updatedAt
 
   userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ClientKey {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  createdAt DateTime @default(now())
+
+  userId Int  @unique
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

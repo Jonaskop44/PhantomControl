@@ -10,4 +10,9 @@ export class UserController {
   async getUserDataFromToken(@Param() dto: GetUserDataFromTokenDto) {
     return this.userService.getUserDataFromToken(dto.token);
   }
+
+  @Get('client-key/:clientKey')
+  async findUserByClientKey(@Param('clientKey') clientKey: string) {
+    return this.userService.findUserByClientKey(clientKey);
+  }
 }
