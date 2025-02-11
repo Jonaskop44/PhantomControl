@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 const ErrorPage = () => {
+  const previousPage = document.referrer || "/";
+
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       <motion.h1
@@ -21,7 +23,7 @@ const ErrorPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        Diese Seite existiert nicht.
+        The page you are looking for does not exist
       </motion.p>
 
       <motion.div
@@ -36,10 +38,10 @@ const ErrorPage = () => {
           transition={{ type: "spring", stiffness: 300 }}
         >
           <Link
-            href="/"
+            href={previousPage}
             className="rounded-lg bg-gray-800 px-6 py-3 text-lg font-semibold text-white shadow-lg transition hover:bg-gray-700"
           >
-            Zur Startseite
+            Go back
           </Link>
         </motion.div>
       </motion.div>
