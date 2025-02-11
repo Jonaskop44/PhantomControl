@@ -7,6 +7,7 @@ import { Button, Checkbox, Input } from "@heroui/react";
 import Link from "next/link";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { Icon } from "@iconify/react";
 
 const apiClient = new ApiClient();
 type Variant = "LOGIN" | "SIGNUP";
@@ -197,6 +198,19 @@ const Home = () => {
                     ))}
                   </ul>
                 )}
+                endContent={
+                  <button
+                    type="button"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Icon
+                      icon={isVisible ? "mdi:eye-off" : "mdi:eye"}
+                      className="text-gray-500"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                }
               />
 
               <div className="flex items-center justify-between">
