@@ -1,4 +1,6 @@
-export const NAV_DATA = [
+import { NavSection } from "@/types/sidebar";
+
+export const NAV_DATA: NavSection[] = [
   {
     label: "MAIN MENU",
     items: [{ title: "Home", icon: "mdi:home", url: "/dashboard", items: [] }],

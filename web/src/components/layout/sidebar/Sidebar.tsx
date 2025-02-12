@@ -10,6 +10,7 @@ import SidebarItem from "./SidebarItem";
 import { useSidebarContext } from "@/context/SidebarProvider";
 import { Icon } from "@iconify/react";
 import { clsx } from "clsx";
+import { NavItem } from "@/types/sidebar";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -154,11 +155,13 @@ const Sidebar = () => {
                           </div>
                         ) : (
                           (() => {
-                            const href =
-                              "url" in item
-                                ? item.url + ""
-                                : "/" +
-                                  item.title.toLowerCase().split(" ").join("-");
+                            const href = (item as NavItem).url
+                              ? (item as NavItem).url
+                              : "/" +
+                                (item as NavItem).title
+                                  .toLowerCase()
+                                  .split(" ")
+                                  .join("-");
 
                             return (
                               <SidebarItem
