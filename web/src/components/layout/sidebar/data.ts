@@ -1,50 +1,28 @@
 export const NAV_DATA = [
   {
     label: "MAIN MENU",
-    items: [
-      { title: "Home", icon: "mdi:home", url: "/dashboard", items: [] },
-      { title: "Calendar", icon: "mdi:calendar", url: "/calendar", items: [] },
-      { title: "Profile", icon: "mdi:account", url: "/profile", items: [] },
-      {
-        title: "Forms",
-        icon: "mdi:form-textbox",
-        items: [
-          { title: "Form Elements", url: "/forms/form-elements" },
-          { title: "Form Layout", url: "/forms/form-layout" },
-        ],
-      },
-      {
-        title: "Tables",
-        icon: "mdi:table",
-        items: [{ title: "Tables", url: "/tables" }],
-      },
-      {
-        title: "Pages",
-        icon: "mdi:file",
-        items: [{ title: "Settings", url: "/pages/settings" }],
-      },
-    ],
+    items: [{ title: "Home", icon: "mdi:home", url: "/dashboard", items: [] }],
   },
   {
-    label: "OTHERS",
+    label: "CLIENT MANAGEMENT",
     items: [
       {
-        title: "Charts",
-        icon: "mdi:chart-pie",
-        items: [{ title: "Basic Chart", url: "/charts/basic-chart" }],
+        title: "Clients",
+        icon: "mdi:devices",
+        url: "/dashboard/clients",
+        items: [],
       },
       {
-        title: "UI Elements",
-        icon: "mdi:view-grid",
-        items: [
-          { title: "Alerts", url: "/ui-elements/alerts" },
-          { title: "Buttons", url: "/ui-elements/buttons" },
-        ],
+        title: "Console",
+        icon: "mdi:console",
+        url: "/dashboard/commands",
+        items: [],
       },
       {
-        title: "Authentication",
-        icon: "mdi:lock",
-        items: [{ title: "Sign In", url: "/auth/sign-in" }],
+        title: "File Explorer",
+        icon: "mdi:file",
+        url: "/clients/:hwid/files",
+        items: [],
       },
     ],
   },
