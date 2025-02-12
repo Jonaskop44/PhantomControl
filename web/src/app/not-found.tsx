@@ -7,7 +7,7 @@ const ErrorPage = () => {
   const previousPage = document.referrer || "/";
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div className="flex h-screen flex-col items-center justify-center bg-gray-100 text-gray-800">
       <motion.h1
         className="text-8xl font-bold"
         initial={{ scale: 0.5, opacity: 0 }}
@@ -18,7 +18,7 @@ const ErrorPage = () => {
       </motion.h1>
 
       <motion.p
-        className="mt-4 text-xl text-gray-600 dark:text-gray-400"
+        className="mt-4 text-xl text-gray-600"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
