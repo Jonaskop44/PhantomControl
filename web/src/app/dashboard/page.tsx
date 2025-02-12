@@ -1,6 +1,6 @@
 const Dashboard = () => {
   return (
-    <div>
+    <div className="flex justify-center items-center h-full">
       <h1>Dashboard</h1>
     </div>
   );
