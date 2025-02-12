@@ -1,4 +1,3 @@
-import platform
 import subprocess
 import requests
 
@@ -10,7 +9,16 @@ def get_hwid():
         return f"Error: {str(error)}"
 
 def get_os():
-    return platform.system()
+    try:
+        output = subprocess.check_output("systeminfo", shell=True, encoding="utf-8", errors="ignore")
+        for line in output.split("\n"):
+            if "Betriebssystemname" in line:
+                return line.split(":", 1)[1].strip()
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+print(get_os())
+
 
 def get_ip():
     try:
