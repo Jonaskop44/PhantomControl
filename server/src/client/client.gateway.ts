@@ -50,7 +50,14 @@ export class ClientGateway
   handleRegister(client: Socket, data: Client) {
     console.log(`Received register event:`, data);
 
-    if (!data || !data.hwid || !data.ip || !data.os) {
+    if (
+      !data ||
+      !data.hwid ||
+      !data.ip ||
+      !data.os ||
+      !data.hostname ||
+      !data.username
+    ) {
       console.error('Invalid register data:', data);
       return;
     }

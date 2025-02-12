@@ -48,11 +48,15 @@ export class ClientService {
       update: {
         ip: data.ip,
         os: data.os,
+        hostname: data.hostname,
+        username: data.username,
       },
       create: {
         hwid: data.hwid,
         ip: data.ip,
         os: data.os,
+        hostname: data.hostname,
+        username: data.username,
         userId: data.userId,
       },
     });

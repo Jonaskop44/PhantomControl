@@ -17,8 +17,17 @@ def get_os():
     except Exception as e:
         return f"Error: {str(e)}"
 
-print(get_os())
-
+def get_hostname():
+    try:
+        return subprocess.check_output("hostname", shell=True, encoding="utf-8", errors="ignore").strip()
+    except Exception as error:
+        return f"Error: {str(error)}"
+    
+def get_username():
+    try:
+        return subprocess.check_output("whoami", shell=True, encoding="utf-8", errors="ignore").strip()
+    except Exception as error:
+        return f"Error: {str(error)}"
 
 def get_ip():
     try:
@@ -26,3 +35,11 @@ def get_ip():
         return response.text.strip()
     except Exception as error:
         return f"Error: {str(error)}"
+
+
+if __name__ == "__main__":
+    print(get_hwid())
+    print(get_os())
+    print(get_hostname())
+    print(get_username())
+    print(get_ip())
