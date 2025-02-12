@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import cookie from "cookie";
+import * as cookie from "cookie";
 import ApiClient from "./api";
 
 const apiClient = new ApiClient();
