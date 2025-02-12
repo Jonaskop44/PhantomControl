@@ -4,9 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSidebarContext } from "@/context/SidebarProvider";
 import { Icon } from "@iconify/react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  User,
+  DropdownSection,
+} from "@heroui/react";
+import { userStore } from "@/data/userStore";
+import { useHandleLogout } from "@/hooks/user";
 
 const Navbar = () => {
   const { toggleSidebar, isMobile } = useSidebarContext();
+  const { user } = userStore();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
@@ -38,20 +49,49 @@ const Navbar = () => {
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
-          <input
-            type="search"
-            placeholder="Search"
-            className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
-          />
-
-          <Icon
-            icon="fe:search"
-            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5"
-          />
+        <div className="shrink-0">
+          <Dropdown showArrow backdrop="opaque">
+            <DropdownTrigger>
+              <User
+                as="button"
+                avatarProps={{
+                  src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                }}
+                className="transition-transform"
+                description={
+                  "@" + (user.email ? user.email.split("@")[0] : "Guest")
+                }
+                name={user.username}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="User Actions" variant="flat">
+              <DropdownSection showDivider>
+                <DropdownItem isReadOnly key="profile" className="h-14 gap-2">
+                  <p className="font-bold">Signed in as</p>
+                  <p className="font-bold">{user.username}</p>
+                </DropdownItem>
+              </DropdownSection>
+              <DropdownSection showDivider>
+                <DropdownItem
+                  key="settings"
+                  startContent={<Icon icon="line-md:cog" fontSize={20} />}
+                >
+                  Settings
+                </DropdownItem>
+              </DropdownSection>
+              <DropdownSection>
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  startContent={<Icon icon="line-md:logout" />}
+                  onPress={useHandleLogout()}
+                >
+                  Log Out
+                </DropdownItem>
+              </DropdownSection>
+            </DropdownMenu>
+          </Dropdown>
         </div>
-
-        <div className="shrink-0">{/* <UserInfo /> */}</div>
       </div>
     </header>
   );

@@ -2,7 +2,7 @@ export const NAV_DATA = [
   {
     label: "MAIN MENU",
     items: [
-      { title: "Dashboard", icon: "mdi:home", url: "/dashboard", items: [] },
+      { title: "Home", icon: "mdi:home", url: "/dashboard", items: [] },
       { title: "Calendar", icon: "mdi:calendar", url: "/calendar", items: [] },
       { title: "Profile", icon: "mdi:account", url: "/profile", items: [] },
       {
