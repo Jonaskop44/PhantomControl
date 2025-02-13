@@ -39,7 +39,7 @@ const ClientsPage = () => {
   const [clients, setClients] = useState<Clients[]>([]);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(-1);
   const [statusFilter, setStatusFilter] = useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -57,6 +57,12 @@ const ClientsPage = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (clients.length > 0) {
+      setPage(1);
+    }
+  }, [clients]);
 
   const hasSearchFilter = Boolean(filterValue);
 
