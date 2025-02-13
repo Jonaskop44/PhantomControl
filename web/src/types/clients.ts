@@ -10,3 +10,5 @@ export interface Clients {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type Client = Clients;
