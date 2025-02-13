@@ -35,11 +35,3 @@ def get_ip():
         return response.text.strip()
     except Exception as error:
         return f"Error: {str(error)}"
-
-
-if __name__ == "__main__":
-    print(get_hwid())
-    print(get_os())
-    print(get_hostname())
-    print(get_username())
-    print(get_ip())
