@@ -5,6 +5,7 @@ export interface Client {
   hwid?: string;
   ip?: string;
   os?: string;
+  online?: boolean;
   userId?: number;
   createdAt?: Date;
   updatedAt?: Date;

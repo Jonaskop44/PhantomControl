@@ -52,6 +52,7 @@ def register_client():
         'os': get_os(),
         'hostname': get_hostname(),
         'username': get_username(),
+        'online': True,
         'userId': user_id
     }
     sio.emit("register", client_info)

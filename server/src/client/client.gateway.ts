@@ -37,11 +37,28 @@ export class ClientGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+
+    let disconnectedClientHwid: string | undefined;
     this.clients.forEach((value, key) => {
       if (value.id === client.id) {
-        this.clients.delete(key);
+        disconnectedClientHwid = key;
       }
     });
+
+    if (disconnectedClientHwid) {
+      this.server.emit('updateClientStatus', {
+        disconnectedClientHwid,
+        online: false,
+      });
+      this.clientService.updateClientStatus(disconnectedClientHwid, false);
+
+      this.clients.delete(disconnectedClientHwid);
+      console.log(
+        `Client with hwid ${disconnectedClientHwid} removed from clients map.`,
+      );
+    } else {
+      console.log('Client not found in clients map.');
+    }
   }
 
   //Main functions
@@ -50,19 +67,26 @@ export class ClientGateway
   handleRegister(client: Socket, data: Client) {
     console.log(`Received register event:`, data);
 
+    if (this.clients.has(data.hwid)) {
+      console.log(`Client ${data.hwid} already registered`);
+      return;
+    }
+
     if (
       !data ||
       !data.hwid ||
       !data.ip ||
       !data.os ||
       !data.hostname ||
-      !data.username
+      !data.username ||
+      !data.online
     ) {
       console.error('Invalid register data:', data);
       return;
     }
 
     this.clientService.registerClient(data);
+    this.server.emit('updateClientStatus', { hwid: data.hwid, online: true });
 
     this.clients.set(data.hwid, client);
     console.log(`Client ${data.hwid} registered with socket ID: ${client.id}`);

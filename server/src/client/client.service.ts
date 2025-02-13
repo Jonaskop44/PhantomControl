@@ -28,7 +28,7 @@ export class ClientService {
   }
 
   async destroyConnection(hwid: string, userId: number) {
-    const client = await this.prisma.client.findFirst({
+    const client = await this.prisma.client.findUnique({
       where: {
         hwid: hwid,
         userId: userId,
@@ -50,6 +50,7 @@ export class ClientService {
         os: data.os,
         hostname: data.hostname,
         username: data.username,
+        online: true,
       },
       create: {
         hwid: data.hwid,
@@ -58,6 +59,18 @@ export class ClientService {
         hostname: data.hostname,
         username: data.username,
         userId: data.userId,
+        online: true,
+      },
+    });
+  }
+
+  async updateClientStatus(hwid: string, online: boolean) {
+    await this.prisma.client.update({
+      where: {
+        hwid: hwid,
+      },
+      data: {
+        online: online,
       },
     });
   }
