@@ -4,7 +4,7 @@
 import { Selection, ChipProps, SortDescriptor } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ApiClient from "@/api";
-import { Clients } from "@/types/clients";
+import { Clients, Client } from "@/types/clients";
 import ClientTable from "@/components/dashboard/clients/ClientTable";
 
 const columns = [
@@ -31,9 +31,6 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 const INITIAL_VISIBLE_COLUMNS = ["username", "hwid", "ip", "status", "actions"];
 
 const apiClient = new ApiClient();
-
-//Types
-type Client = Clients;
 
 const ClientsPage = () => {
   const [clients, setClients] = useState<Clients[]>([]);
