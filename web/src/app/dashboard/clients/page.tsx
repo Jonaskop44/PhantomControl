@@ -50,23 +50,25 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const INITIAL_VISIBLE_COLUMNS = ["username", "hwid", "ip", "status", "actions"];
 
-type Client = Clients;
-
 const apiClient = new ApiClient();
+
+//Types
+type Client = Clients;
 
 const ClientsPage = () => {
   const [clients, setClients] = useState<Clients[]>([]);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  );
+  const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "age",
+    column: "id",
     direction: "ascending",
   });
+  const [visibleColumns, setVisibleColumns] = useState<Selection>(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
 
   useEffect(() => {
     apiClient.clients.helper.getAllClients().then((response) => {
@@ -75,8 +77,6 @@ const ClientsPage = () => {
       }
     });
   }, []);
-
-  const [page, setPage] = useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -126,6 +126,28 @@ const ClientsPage = () => {
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
+
+  const onRowsPerPageChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setRowsPerPage(Number(e.target.value));
+      setPage(1);
+    },
+    []
+  );
+
+  const onSearchChange = useCallback((value?: string) => {
+    if (value) {
+      setFilterValue(value);
+      setPage(1);
+    } else {
+      setFilterValue("");
+    }
+  }, []);
+
+  const onClear = useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
 
   const renderCell = useCallback((client: Client, columnKey: React.Key) => {
     switch (columnKey) {
@@ -209,28 +231,6 @@ const ClientsPage = () => {
           </div>
         );
     }
-  }, []);
-
-  const onRowsPerPageChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setRowsPerPage(Number(e.target.value));
-      setPage(1);
-    },
-    []
-  );
-
-  const onSearchChange = useCallback((value?: string) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue("");
-    }
-  }, []);
-
-  const onClear = useCallback(() => {
-    setFilterValue("");
-    setPage(1);
   }, []);
 
   const topContent = useMemo(() => {
