@@ -118,10 +118,15 @@ const ClientsPage = () => {
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a: Client, b: Client) => {
-      const first = a[sortDescriptor.column as keyof Client] as number;
-      const second = b[sortDescriptor.column as keyof Client] as number;
-      const cmp = first < second ? -1 : first > second ? 1 : 0;
+      let first = a[sortDescriptor.column as keyof Client] as number;
+      let second = b[sortDescriptor.column as keyof Client] as number;
 
+      if (sortDescriptor.column === "status") {
+        first = a.online ? 0 : 1;
+        second = b.online ? 0 : 1;
+      }
+
+      const cmp = first < second ? -1 : first > second ? 1 : 0;
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
