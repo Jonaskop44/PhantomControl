@@ -130,7 +130,12 @@ export class ClientService {
         const safeFilename = path
           .basename(file.originalname)
           .replace(/[^a-zA-Z0-9._-]/g, '_');
-        const filePath = path.join(this.uploadPath, safeFilename);
+
+        const filePath = path.resolve(this.uploadPath, safeFilename);
+        if (!filePath.startsWith(this.uploadPath)) {
+          throw new ConflictException('Invalid file path detected');
+        }
+
         await fse.writeFile(filePath, file.buffer);
         uploadedFiles.push(safeFilename);
       }
@@ -151,10 +156,10 @@ export class ClientService {
       }
 
       // Delete the files from the server after sending them to the client
-      uploadedFiles.forEach((filename) => {
+      uploadedFiles.forEach(async (filename) => {
         const filePath = path.join(this.uploadPath, filename);
         try {
-          fs.unlinkSync(filePath);
+          await fs.promises.unlink(filePath);
         } catch (error) {
           console.error(`Failed to delete file ${filename}`, error);
         }
