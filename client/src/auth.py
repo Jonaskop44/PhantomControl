@@ -31,12 +31,3 @@ def get_client_key():
             save_client_key(client_key)
             return client_key
         print("This client key is invalid. Please try again.")
-
-def get_user_id():
-    client_key = get_client_key()
-    
-    try:
-        response = requests.get(f"{REST_API_URL}/user/client-key/{client_key}", timeout=5)
-        return response.json().get("id")
-    except requests.RequestException:
-        return None

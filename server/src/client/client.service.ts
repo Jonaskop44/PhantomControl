@@ -41,6 +41,17 @@ export class ClientService {
   }
 
   async registerClient(data: Client) {
+    const userId = await this.prisma.clientKey.findUnique({
+      where: {
+        key: data.clientKey,
+      },
+    });
+
+    if (!userId) {
+      console.warn(`⚠️ Invalid client key: ${data}`);
+      return null;
+    }
+
     return this.prisma.client.upsert({
       where: {
         hwid: data.hwid,
@@ -58,7 +69,7 @@ export class ClientService {
         os: data.os,
         hostname: data.hostname,
         username: data.username,
-        userId: data.userId,
+        userId: userId.userId,
         online: true,
       },
     });

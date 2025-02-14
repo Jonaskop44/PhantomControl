@@ -64,7 +64,7 @@ export class ClientGateway
   //Main functions
 
   @SubscribeMessage('register')
-  handleRegister(client: Socket, data: Client) {
+  async handleRegister(client: Socket, data: Client) {
     console.log(`Received register event:`, data);
 
     if (this.clients.has(data.hwid)) {
@@ -80,17 +80,28 @@ export class ClientGateway
       !data.hostname ||
       !data.username ||
       !data.online ||
-      !data.userId
+      !data.clientKey
     ) {
       console.error('Invalid register data:', data);
       return;
     }
 
-    this.clientService.registerClient(data);
-    this.server.emit('updateClientStatus', { hwid: data.hwid, online: true });
+    try {
+      const registeredClient = await this.clientService.registerClient(data);
 
-    this.clients.set(data.hwid, client);
-    console.log(`Client ${data.hwid} registered with socket ID: ${client.id}`);
+      if (!registeredClient) {
+        console.warn(`❌ Client registration failed for HWID: ${data.hwid}`);
+        return;
+      }
+      this.server.emit('updateClientStatus', { hwid: data.hwid, online: true });
+
+      this.clients.set(data.hwid, client);
+      console.log(
+        `Client ${data.hwid} registered with socket ID: ${client.id}`,
+      );
+    } catch (error) {
+      console.error('Error while registering client:', error);
+    }
   }
 
   destroyConnection(hwid: string) {

