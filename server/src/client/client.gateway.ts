@@ -14,7 +14,20 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 
-@WebSocketGateway({ maxHttpBufferSize: 2e9 })
+const allowedOrigins = ['http://localhost:3000'];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+
+@WebSocketGateway({ cors: corsOptions, maxHttpBufferSize: 2e9 })
 export class ClientGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -47,7 +60,7 @@ export class ClientGateway
 
     if (disconnectedClientHwid) {
       this.server.emit('updateClientStatus', {
-        disconnectedClientHwid,
+        hwid: disconnectedClientHwid,
         online: false,
       });
       this.clientService.updateClientStatus(disconnectedClientHwid, false);

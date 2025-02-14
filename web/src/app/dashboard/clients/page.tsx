@@ -71,6 +71,24 @@ const ClientsPage = () => {
   }, [clients]);
 
   useEffect(() => {
+    const updateClientStatus = (data: { hwid: string; online: boolean }) => {
+      setClients((prevClients) =>
+        prevClients.map((client) =>
+          client.hwid === data.hwid
+            ? { ...client, online: data.online }
+            : client
+        )
+      );
+    };
+
+    apiClient.clients.helper.initSocket(updateClientStatus);
+
+    return () => {
+      apiClient.clients.helper.disconnectSocket();
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(Array.from(visibleColumns))
