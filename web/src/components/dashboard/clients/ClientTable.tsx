@@ -218,11 +218,13 @@ const ClientTable: FC<ClientTableProps> = ({
                 selectionMode="multiple"
                 onSelectionChange={setVisibleColumns}
               >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {column.name}
-                  </DropdownItem>
-                ))}
+                {columns
+                  .filter((column) => column.uid !== "actions")
+                  .map((column) => (
+                    <DropdownItem key={column.uid} className="capitalize">
+                      {column.name}
+                    </DropdownItem>
+                  ))}
               </DropdownMenu>
             </Dropdown>
           </div>
