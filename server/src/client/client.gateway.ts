@@ -79,7 +79,8 @@ export class ClientGateway
       !data.os ||
       !data.hostname ||
       !data.username ||
-      !data.online
+      !data.online ||
+      !data.userId
     ) {
       console.error('Invalid register data:', data);
       return;
