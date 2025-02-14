@@ -29,6 +29,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 };
 
 const INITIAL_VISIBLE_COLUMNS = ["username", "hwid", "ip", "status", "actions"];
+const STORAGE_KEY = "visibleColumns";
 
 const apiClient = new ApiClient();
 
@@ -43,8 +44,16 @@ const ClientsPage = () => {
     column: "id",
     direction: "ascending",
   });
+
+  const getStoredColumns = (): Set<string> => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored
+      ? new Set(JSON.parse(stored))
+      : new Set(INITIAL_VISIBLE_COLUMNS);
+  };
+
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
+    new Set(getStoredColumns())
   );
 
   useEffect(() => {
@@ -60,6 +69,13 @@ const ClientsPage = () => {
       setPage(1);
     }
   }, [clients]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(Array.from(visibleColumns))
+    );
+  }, [visibleColumns]);
 
   const hasSearchFilter = Boolean(filterValue);
 
