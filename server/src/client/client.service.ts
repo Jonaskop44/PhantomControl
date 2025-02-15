@@ -6,6 +6,7 @@ import { CreateFileDto, SendCommandDto } from './dto/client.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class ClientService {
@@ -18,6 +19,18 @@ export class ClientService {
   public readonly downloadPath = path.join(__dirname, '../../downloads');
   public readonly maxFileSize = 2 * 1024 * 1024 * 1024;
   public readonly massDownloadZipName = 'download.zip';
+
+  private getMaxClientsByRole(role: Role): number {
+    switch (role) {
+      case Role.PREMIUM:
+        return 10;
+      case Role.VIP:
+        return 50;
+      case Role.USER:
+      default:
+        return 1;
+    }
+  }
 
   async getClientsByUserId(userId: number) {
     return this.prisma.client.findMany({
@@ -41,15 +54,40 @@ export class ClientService {
   }
 
   async registerClient(data: Client) {
-    const userId = await this.prisma.clientKey.findUnique({
+    const user = await this.prisma.clientKey.findUnique({
       where: {
         key: data.clientKey,
       },
+      include: {
+        user: {
+          include: {
+            clients: true,
+          },
+        },
+      },
     });
 
-    if (!userId) {
-      console.warn(`⚠️ Invalid client key: ${data}`);
+    if (!user) {
+      console.warn(`⚠️ Invalid client key: ${data.clientKey}`);
       return null;
+    }
+
+    const existingClient = await this.prisma.client.findUnique({
+      where: {
+        hwid: data.hwid,
+      },
+    });
+
+    if (!existingClient) {
+      const clientCount = user.user.clients.length;
+      const maxClients = this.getMaxClientsByRole(user.user.role);
+
+      if (clientCount >= maxClients) {
+        console.warn(
+          `⚠️ Client limit reached for user ${user.user.id} (Role: ${user.user.role})`,
+        );
+        return null;
+      }
     }
 
     return this.prisma.client.upsert({
@@ -69,7 +107,7 @@ export class ClientService {
         os: data.os,
         hostname: data.hostname,
         username: data.username,
-        userId: userId.userId,
+        userId: user.userId,
         online: true,
       },
     });
