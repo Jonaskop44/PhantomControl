@@ -73,11 +73,9 @@ const Sidebar = () => {
             >
               <div className="relative h-8 max-w-[10.847rem]">
                 <Image
-                  src={
-                    "https://demo.nextadmin.co/_next/static/media/main.31abb9ac.svg"
-                  }
+                  src={"/images/banner.png"}
                   fill
-                  alt="NextAdmin logo"
+                  alt="PhantomControl"
                   role="presentation"
                   quality={100}
                 />
