@@ -302,6 +302,7 @@ const ClientTable: FC<ClientTableProps> = ({
       topContentPlacement="outside"
       onSelectionChange={setSelectedKeys}
       onSortChange={setSortDescriptor}
+      aria-label="Client Table"
     >
       <TableHeader columns={headerColumns}>
         {(column) => (

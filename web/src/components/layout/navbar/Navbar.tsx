@@ -24,6 +24,7 @@ const Navbar = () => {
       <button
         onClick={toggleSidebar}
         className="rounded-lg border px-1.5 py-1 lg:hidden"
+        aria-label="Toggle Sidebar"
       >
         <Icon icon="mdi:menu" className="text-xl" />
         <span className="sr-only">Toggle Sidebar</span>
@@ -66,7 +67,12 @@ const Navbar = () => {
             </DropdownTrigger>
             <DropdownMenu aria-label="User Actions" variant="flat">
               <DropdownSection showDivider>
-                <DropdownItem isReadOnly key="profile" className="h-14 gap-2">
+                <DropdownItem
+                  isReadOnly
+                  key="profile"
+                  className="h-14 gap-2"
+                  textValue={`Signed in as ${user.username}`}
+                >
                   <p className="font-bold">Signed in as</p>
                   <p className="font-bold">{user.username}</p>
                 </DropdownItem>
@@ -75,6 +81,7 @@ const Navbar = () => {
                 <DropdownItem
                   key="settings"
                   startContent={<Icon icon="line-md:cog" fontSize={20} />}
+                  textValue="Settings"
                 >
                   Settings
                 </DropdownItem>
@@ -85,6 +92,7 @@ const Navbar = () => {
                   color="danger"
                   startContent={<Icon icon="line-md:logout" />}
                   onPress={useHandleLogout()}
+                  textValue="Log Out"
                 >
                   Log Out
                 </DropdownItem>
