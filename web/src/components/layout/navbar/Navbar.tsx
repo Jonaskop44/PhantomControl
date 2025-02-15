@@ -46,12 +46,12 @@ const Navbar = () => {
         <h1 className="mb-0.5 text-heading-5 font-semibold text-dark">
           Dashboard
         </h1>
-        <p className="font-medium">Next.js Admin Dashboard Solution</p>
+        <p className="font-medium">Control all your clients in one place</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
         <div className="shrink-0">
-          <Dropdown showArrow backdrop="opaque">
+          <Dropdown showArrow backdrop="transparent">
             <DropdownTrigger>
               <User
                 as="button"
@@ -73,8 +73,14 @@ const Navbar = () => {
                   className="h-14 gap-2"
                   textValue={`Signed in as ${user.username}`}
                 >
-                  <p className="font-bold">Signed in as</p>
-                  <p className="font-bold">{user.username}</p>
+                  <User
+                    avatarProps={{
+                      size: "sm",
+                      src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                    }}
+                    description={user.email}
+                    name={user.username}
+                  />
                 </DropdownItem>
               </DropdownSection>
               <DropdownSection showDivider>
