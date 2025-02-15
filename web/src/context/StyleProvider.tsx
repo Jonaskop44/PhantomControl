@@ -13,7 +13,7 @@ const StyleProvider: React.FC<StyleProviderProps> = ({ children }) => {
   return (
     <>
       <HeroUIProvider>
-        <NextTopLoader />
+        <NextTopLoader showSpinner={false} color="#006bff" />
         {children}
         <Toaster position="bottom-right" richColors />
       </HeroUIProvider>
