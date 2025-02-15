@@ -17,7 +17,7 @@ export const NAV_DATA: NavSection[] = [
       {
         title: "Console",
         icon: "mdi:console",
-        url: "/dashboard/commands",
+        url: "/dashboard/console",
         items: [],
       },
       {

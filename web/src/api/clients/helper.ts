@@ -20,6 +20,25 @@ export class Helper {
       });
   }
 
+  async sendCommand(hwid: string, command: string) {
+    return axios
+      .post(`clients/${hwid}/command`, {
+        command: command,
+      })
+      .then((response) => {
+        if (response.status !== 201) return { data: null, status: false };
+
+        const data = response.data;
+
+        console.log(data);
+
+        return { data: data, status: true };
+      })
+      .catch(() => {
+        return { data: null, status: false };
+      });
+  }
+
   initSocket(callback: (data: { hwid: string; online: boolean }) => void) {
     if (!this.socket) {
       this.socket = io("http://localhost:3001");

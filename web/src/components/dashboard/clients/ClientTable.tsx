@@ -75,6 +75,27 @@ const ClientTable: FC<ClientTableProps> = ({
   headerColumns,
   sortedItems,
 }) => {
+  const actionList = [
+    {
+      name: "Open Console",
+      key: "console",
+      icon: "mdi:console",
+      color: "primary" as const,
+    },
+    {
+      name: "Open File Explorer",
+      key: "fileExplorer",
+      icon: "mdi:folder",
+      color: "primary" as const,
+    },
+    {
+      name: "Delete",
+      key: "delete",
+      icon: "mdi:trash-can",
+      color: "danger" as const,
+    },
+  ];
+
   const renderCell = useCallback((client: Client, columnKey: React.Key) => {
     switch (columnKey) {
       case "id":
@@ -149,9 +170,15 @@ const ClientTable: FC<ClientTableProps> = ({
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem key="view">View</DropdownItem>
-                <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete">Delete</DropdownItem>
+                {actionList.map((action) => (
+                  <DropdownItem
+                    key={action.key}
+                    startContent={<Icon icon={action.icon} />}
+                    color={action.color}
+                  >
+                    {action.name}
+                  </DropdownItem>
+                ))}
               </DropdownMenu>
             </Dropdown>
           </div>
