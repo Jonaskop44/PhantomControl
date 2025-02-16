@@ -16,6 +16,7 @@ const ConsolePage = () => {
   const [messages, setMessages] = useState<Messages[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedHwid, setSelectedHwid] = useState<string | null>(null);
+  const [commandInput, setCommandInput] = useState<string>("");
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
@@ -35,7 +36,6 @@ const ConsolePage = () => {
 
   useEffect(() => {
     if (selectedHwid) {
-      // Nachrichten für den aktuell ausgewählten Tab laden
       apiClient.clients.helper
         .getConsoleByHwid(selectedHwid)
         .then((response) => {
@@ -83,6 +83,15 @@ const ConsolePage = () => {
     apiClient.clients.helper.sendCommand(hwid, command).then((response) => {
       if (response.status) {
         toast.success("Command sent successfully");
+        console.log(response.data);
+
+        const newMessage: Messages = {
+          content: command,
+          response: response.data.output,
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, newMessage]);
       } else {
         toast.error("Failed to send command");
       }
@@ -132,15 +141,36 @@ const ConsolePage = () => {
           </Tabs>
           <div className="flex-grow" />
           <div className="flex justify-start">
-            <Input placeholder="Enter your command" className="w-1/3" />
+            <Input
+              placeholder="Enter your command"
+              className="w-1/3"
+              value={commandInput}
+              onChange={(e) => setCommandInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  sendCommand(selectedHwid!, commandInput);
+                  setCommandInput("");
+                }
+              }}
+            />
           </div>
           {/* Nachrichten des aktuellen Consoles anzeigen */}
           <div className="mt-4 overflow-y-auto max-h-48">
             {messages.length > 0 ? (
               messages.map((message, index) => (
                 <div key={index} className="mb-2">
-                  <p>{message.content}</p>
-                  <p>{message.response}</p>
+                  <p>
+                    <strong>Command:</strong> {message.content}
+                  </p>
+                  <p>
+                    <strong>Response:</strong> {message.response}
+                  </p>
+                  {message.timestamp && (
+                    <p className="text-sm text-gray-500">
+                      <strong>Timestamp:</strong>{" "}
+                      {new Date(message.timestamp).toLocaleString()}
+                    </p>
+                  )}
                 </div>
               ))
             ) : (
