@@ -15,6 +15,7 @@ const ConsolePage = () => {
   const [consoles, setConsoles] = useState<Consoles[]>([]);
   const [messages, setMessages] = useState<Messages[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedHwid, setSelectedHwid] = useState<string | null>(null);
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
@@ -31,6 +32,21 @@ const ConsolePage = () => {
         setIsLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (selectedHwid) {
+      // Nachrichten für den aktuell ausgewählten Tab laden
+      apiClient.clients.helper
+        .getConsoleByHwid(selectedHwid)
+        .then((response) => {
+          if (response.status && response.data?.messages) {
+            setMessages(response.data.messages);
+          } else {
+            setMessages([]);
+          }
+        });
+    }
+  }, [selectedHwid]);
 
   const closeConsole = (hwid: string) => {
     if (!confirmClose[hwid]) {
@@ -102,17 +118,34 @@ const ConsolePage = () => {
         </div>
       ) : consoles.length > 0 ? (
         <>
-          <Tabs className="flex justify-center items-center">
+          <Tabs
+            className="flex justify-center items-center"
+            onSelectionChange={(hwid) => setSelectedHwid(hwid.toString())}
+          >
             {consoles.map((console) => (
               <Tab
                 key={console.hwid}
                 title={renderTabTitle(console.name, console.hwid)}
+                value={console.hwid}
               />
             ))}
           </Tabs>
           <div className="flex-grow" />
           <div className="flex justify-start">
             <Input placeholder="Enter your command" className="w-1/3" />
+          </div>
+          {/* Nachrichten des aktuellen Consoles anzeigen */}
+          <div className="mt-4 overflow-y-auto max-h-48">
+            {messages.length > 0 ? (
+              messages.map((message, index) => (
+                <div key={index} className="mb-2">
+                  <p>{message.content}</p>
+                  <p>{message.response}</p>
+                </div>
+              ))
+            ) : (
+              <p>No messages available</p>
+            )}
           </div>
         </>
       ) : (
