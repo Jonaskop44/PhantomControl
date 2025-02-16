@@ -1,14 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { Selection, ChipProps, SortDescriptor } from "@heroui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Input,
+  Button,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  Chip,
+  Pagination,
+  Selection,
+  ChipProps,
+  SortDescriptor,
+  Avatar,
+  Spinner,
+} from "@heroui/react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
 import ApiClient from "@/api";
 import { Clients, Client } from "@/types/clients";
-import ClientTable from "@/components/dashboard/clients/ClientTable";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
 const columns = [
-  { name: "ID", uid: "id", sortable: true },
   { name: "USERNAME", uid: "username", sortable: true },
   { name: "OS", uid: "os", sortable: true },
   { name: "HWID", uid: "hwid", sortable: true },
@@ -30,8 +51,43 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const INITIAL_VISIBLE_COLUMNS = ["username", "hwid", "ip", "status", "actions"];
 const STORAGE_KEY = "visibleColumns";
-
 const apiClient = new ApiClient();
+
+const actionList = [
+  {
+    name: "Open Console",
+    key: "console",
+    icon: "mdi:console",
+    color: "primary" as const,
+    onClick: async (client: Client) => {
+      if (client.username && client.hwid) {
+        const result = await apiClient.clients.helper.createConsole(
+          client.username,
+          client.hwid
+        );
+        if (result.status) {
+          toast.success("Console opened successfully");
+        } else {
+          toast.error("Failed to open console");
+        }
+      }
+    },
+  },
+  {
+    name: "Open File Explorer",
+    key: "fileExplorer",
+    icon: "mdi:folder",
+    color: "primary" as const,
+    onClick: (client: Client) => console.log("Open File Explorer: ", client),
+  },
+  {
+    name: "Delete",
+    key: "delete",
+    icon: "mdi:trash-can",
+    color: "danger" as const,
+    onClick: (client: Client) => console.log("Delete: ", client),
+  },
+];
 
 const ClientsPage = () => {
   const [clients, setClients] = useState<Clients[]>([]);
@@ -40,8 +96,9 @@ const ClientsPage = () => {
   const [page, setPage] = useState(-1);
   const [statusFilter, setStatusFilter] = useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [isLoading, setIsLoading] = useState(true);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "id",
+    column: "username",
     direction: "ascending",
   });
 
@@ -51,17 +108,25 @@ const ClientsPage = () => {
       ? new Set(JSON.parse(stored))
       : new Set(INITIAL_VISIBLE_COLUMNS);
   };
-
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(getStoredColumns())
   );
 
   useEffect(() => {
-    apiClient.clients.helper.getAllClients().then((response) => {
-      if (response.status) {
-        setClients(response.data);
-      }
-    });
+    console.log(selectedKeys);
+  }, [selectedKeys]);
+
+  useEffect(() => {
+    apiClient.clients.helper
+      .getAllClients()
+      .then((response) => {
+        if (response.status) {
+          setClients(response.data);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -69,6 +134,13 @@ const ClientsPage = () => {
       setPage(1);
     }
   }, [clients]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(Array.from(visibleColumns))
+    );
+  }, [visibleColumns]);
 
   useEffect(() => {
     const updateClientStatus = (data: { hwid: string; online: boolean }) => {
@@ -87,13 +159,6 @@ const ClientsPage = () => {
       apiClient.clients.helper.disconnectSocket();
     };
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(Array.from(visibleColumns))
-    );
-  }, [visibleColumns]);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -149,6 +214,14 @@ const ClientsPage = () => {
     });
   }, [sortDescriptor, items]);
 
+  const onRowsPerPageChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setRowsPerPage(Number(e.target.value));
+      setPage(1);
+    },
+    []
+  );
+
   const onSearchChange = useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
@@ -163,32 +236,241 @@ const ClientsPage = () => {
     setPage(1);
   }, []);
 
+  const renderCell = useCallback((client: Client, columnKey: React.Key) => {
+    switch (columnKey) {
+      case "id":
+        return <p className="text-bold text-small">{client.id}</p>;
+
+      case "username":
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar
+              classNames={{
+                base: "bg-gradient-to-br from-[#006bff] to-[#00aaff]",
+                icon: "text-black/80",
+              }}
+              icon={
+                <Icon icon="mdi:account" className="text-black" fontSize={25} />
+              }
+            />
+            <p className="text-bold text-small capitalize">{client.username}</p>
+          </div>
+        );
+
+      case "os":
+        if (typeof client.os === "string") {
+          return (
+            <div className="flex flex-col">
+              <p className="text-bold text-small capitalize">{client.os}</p>
+              <p className="text-bold text-tiny capitalize text-default-400">
+                {client.hostname}
+              </p>
+            </div>
+          );
+        }
+
+      case "hwid":
+        return <p className="text-bold text-small">{client.hwid}</p>;
+
+      case "ip":
+        return <p className="text-bold text-small">{client.ip}</p>;
+
+      case "status":
+        const statusText =
+          client.online !== undefined
+            ? client.online
+              ? "Online"
+              : "Offline"
+            : "N/A";
+
+        return (
+          <Chip
+            className="capitalize"
+            color={statusColorMap[client.online ? "online" : "offline"]}
+            size="sm"
+            variant="flat"
+          >
+            {statusText}
+          </Chip>
+        );
+
+      case "createdAt":
+        if (typeof client.createdAt === "string") {
+          const date = new Date(client.createdAt);
+          return format(date, "dd MMM yyyy, HH:mm");
+        }
+
+      case "actions":
+        return (
+          <div className="relative flex justify-end items-center gap-2">
+            <Dropdown>
+              <DropdownTrigger>
+                <Button isIconOnly size="sm" variant="light">
+                  <Icon icon="mdi:dots-vertical" className="text-black" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                {actionList.map((action) => (
+                  <DropdownItem
+                    key={action.key}
+                    startContent={<Icon icon={action.icon} />}
+                    color={action.color}
+                    onPress={() => {
+                      action.onClick(client);
+                    }}
+                  >
+                    {action.name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        );
+    }
+  }, []);
+
+  const topContent = useMemo(() => {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between gap-3 items-end">
+          <Input
+            isClearable
+            className="w-full sm:max-w-[44%]"
+            placeholder="Search by name..."
+            startContent={<Icon icon="mdi:magnify" />}
+            value={filterValue}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+          <div className="flex gap-3">
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={
+                    <Icon icon="mdi:chevron-down" className="text-small" />
+                  }
+                  variant="flat"
+                >
+                  Status
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={statusFilter}
+                selectionMode="multiple"
+                onSelectionChange={setStatusFilter}
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className="capitalize">
+                    {status.name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={
+                    <Icon icon="mdi:chevron-down" className="text-small" />
+                  }
+                  variant="flat"
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
+              >
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className="capitalize">
+                    {column.name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        </div>
+        <span className="text-default-400 text-small">
+          Total {clients.length} clients
+        </span>
+      </div>
+    );
+  }, [
+    filterValue,
+    statusFilter,
+    visibleColumns,
+    onSearchChange,
+    onRowsPerPageChange,
+    clients.length,
+    hasSearchFilter,
+  ]);
+
+  const bottomContent = useMemo(() => {
+    return (
+      <div className="py-2 px-2 flex justify-center items-center">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={pages}
+          onChange={setPage}
+        />
+      </div>
+    );
+  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
   return (
-    <ClientTable
-      statusColorMap={statusColorMap}
-      filterValue={filterValue}
-      onClear={onClear}
-      onSearchChange={onSearchChange}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      statusOptions={statusOptions}
+    <Table
+      isHeaderSticky
+      bottomContent={bottomContent}
+      bottomContentPlacement="outside"
+      classNames={{
+        wrapper: "max-h-[565px]",
+      }}
       selectedKeys={selectedKeys}
-      setSelectedKeys={setSelectedKeys}
-      visibleColumns={visibleColumns}
-      setVisibleColumns={setVisibleColumns}
-      onRowsPerPageChange={setRowsPerPage}
-      clients={clients}
-      hasSearchFilter={hasSearchFilter}
-      page={page}
-      setPage={setPage}
-      pages={pages}
+      selectionMode="multiple"
       sortDescriptor={sortDescriptor}
-      columns={columns}
-      items={items}
-      setSortDescriptor={setSortDescriptor}
-      headerColumns={headerColumns}
-      sortedItems={sortedItems}
-    />
+      topContent={topContent}
+      topContentPlacement="outside"
+      onSelectionChange={setSelectedKeys}
+      onSortChange={setSortDescriptor}
+      aria-label="Client Table"
+    >
+      <TableHeader columns={headerColumns}>
+        {(column) => (
+          <TableColumn
+            key={column.uid}
+            align={column.uid === "actions" ? "center" : "start"}
+            allowsSorting={column.sortable}
+          >
+            {column.name}
+          </TableColumn>
+        )}
+      </TableHeader>
+      <TableBody
+        emptyContent={"No clients found"}
+        items={sortedItems}
+        isLoading={isLoading}
+        loadingContent={<Spinner label="Loading..." />}
+      >
+        {(item) => (
+          <TableRow key={item.hwid}>
+            {(columnKey) => (
+              <TableCell>{renderCell(item, columnKey)}</TableCell>
+            )}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 };
 

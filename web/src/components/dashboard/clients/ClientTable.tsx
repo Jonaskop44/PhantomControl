@@ -98,9 +98,6 @@ const ClientTable: FC<ClientTableProps> = ({
 
   const renderCell = useCallback((client: Client, columnKey: React.Key) => {
     switch (columnKey) {
-      case "id":
-        return <p className="text-bold text-small">{client.id}</p>;
-
       case "username":
         return (
           <div className="flex items-center gap-2">

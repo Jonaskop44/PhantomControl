@@ -20,7 +20,11 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
-import { CreateFileDto, SendCommandDto } from './dto/client.dto';
+import {
+  CreateConsoleDto,
+  CreateFileDto,
+  SendCommandDto,
+} from './dto/client.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -172,6 +176,30 @@ export class ClientController {
     if (!filePath) throw new BadRequestException('File path is required');
 
     return this.clientService.deleteFile(hwid, request.user.sub.id, filePath);
+  }
+
+  @Post(':hwid/console/create')
+  async createConsole(
+    @Param('hwid') hwid: string,
+    @Request() request,
+    @Body() dto: CreateConsoleDto,
+  ) {
+    return this.clientService.createConsole(request.user.sub.id, hwid, dto);
+  }
+
+  @Get('consoles')
+  async getConsolesByUserId(@Request() request) {
+    return this.clientService.getConsolesByUserId(request.user.sub.id);
+  }
+
+  @Get(':hwid/console')
+  async getConsoleByHwid(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.getConsoleByHwid(request.user.sub.id, hwid);
+  }
+
+  @Delete(':hwid/console/delete')
+  async deleteConsole(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.deleteConsole(request.user.sub.id, hwid);
   }
 
   @Get('registrations-last-30-days')

@@ -1,8 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientGateway } from './client.gateway';
 import { Client } from './entities/client.entity';
-import { CreateFileDto, SendCommandDto } from './dto/client.dto';
+import {
+  CreateConsoleDto,
+  CreateFileDto,
+  SendCommandDto,
+} from './dto/client.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
@@ -48,7 +56,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.destroyConnection(client.hwid);
   }
@@ -137,12 +145,37 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
+
+    const console = await this.getConsoleByHwid(userId, hwid);
+
+    if (!console) throw new NotFoundException('Console not found');
+
+    const createdMessage = await this.prisma.message.create({
+      data: {
+        content: dto.command,
+        response: '',
+        consoleId: console.id,
+      },
+    });
+
+    if (!createdMessage) throw new ConflictException('Failed to save command');
 
     return this.clientGateway.sendCommandToClient(
       client,
       dto.command,
-      callback,
+      async (response: string) => {
+        await this.prisma.message.update({
+          where: {
+            id: createdMessage.id,
+          },
+          data: {
+            response: JSON.stringify(response),
+          },
+        });
+
+        callback(response);
+      },
     );
   }
 
@@ -238,7 +271,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.downloadFileFromClient(
       client,
@@ -260,7 +293,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.createFile(client, filePath, dto.content);
   }
@@ -273,7 +306,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.readFile(client, filePath);
   }
@@ -291,7 +324,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.updateFile(client, filePath, dto.content);
   }
@@ -304,7 +337,7 @@ export class ClientService {
       },
     });
 
-    if (!client) throw new ConflictException('Client not found');
+    if (!client) throw new NotFoundException('Client not found');
 
     return this.clientGateway.deleteFile(client, filePath);
   }
@@ -323,5 +356,98 @@ export class ClientService {
     }));
 
     return data;
+  }
+
+  async createConsole(userId: number, hwid: string, dto: CreateConsoleDto) {
+    const existingClient = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!existingClient) throw new NotFoundException('Client not found');
+
+    return this.prisma.console.upsert({
+      where: {
+        hwid: hwid,
+      },
+      update: {
+        name: dto.name,
+      },
+      create: {
+        name: dto.name,
+        hwid: hwid,
+        clientId: existingClient.id,
+      },
+    });
+  }
+
+  async getConsolesByUserId(userId: number) {
+    const clients = await this.prisma.client.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!clients) throw new NotFoundException('Client not found');
+
+    const consoles = [];
+
+    for (const client of clients) {
+      const console = await this.prisma.console.findUnique({
+        where: {
+          hwid: client.hwid,
+        },
+      });
+
+      if (console) consoles.push(console);
+    }
+
+    return consoles;
+  }
+
+  async getConsoleByHwid(userId: number, hwid: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new NotFoundException('Client not found');
+
+    const console = await this.prisma.console.findUnique({
+      where: {
+        hwid: hwid,
+        clientId: client.id,
+      },
+      include: {
+        messages: true,
+      },
+    });
+
+    if (!console)
+      throw new NotFoundException('There is no open console for this client');
+
+    return console;
+  }
+
+  async deleteConsole(userId: number, hwid: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new NotFoundException('Console not found');
+
+    return this.prisma.console.delete({
+      where: {
+        hwid: hwid,
+        clientId: client.id,
+      },
+    });
   }
 }
