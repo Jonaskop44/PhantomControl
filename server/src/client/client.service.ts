@@ -308,4 +308,20 @@ export class ClientService {
 
     return this.clientGateway.deleteFile(client, filePath);
   }
+
+  async getClientRegistrationsLast30Days(userId: number) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const registrations = await this.prisma.client.findMany({
+      where: { userId: userId, createdAt: { gte: thirtyDaysAgo } },
+    });
+
+    const data = registrations.map((reg) => ({
+      x: reg.createdAt.toISOString().split('T')[0], // Datum extrahieren
+      y: 1, // Jede Registrierung als "1" zählen
+    }));
+
+    return data;
+  }
 }

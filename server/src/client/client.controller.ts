@@ -173,4 +173,11 @@ export class ClientController {
 
     return this.clientService.deleteFile(hwid, request.user.sub.id, filePath);
   }
+
+  @Get('registrations-last-30-days')
+  async getClientRegistrationsLast30Days(@Request() request) {
+    return this.clientService.getClientRegistrationsLast30Days(
+      request.user.sub.id,
+    );
+  }
 }
