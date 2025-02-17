@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import * as cookie from "cookie";
-import ApiClient from "./api";
+import { Auth } from "./api/auth";
 
-const apiClient = new ApiClient();
+const authClient = new Auth();
 
 export default async function middleware(req: NextRequest) {
   // Parse cookies from the request headers
@@ -19,13 +19,13 @@ export default async function middleware(req: NextRequest) {
     }
 
     // Verify the token
-    const response = await apiClient.auth.helper.verifyToken(token);
+    const response = await authClient.helper.verifyToken(token);
     if (response.status === false) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   } else if (path.startsWith("/")) {
     if (token) {
-      const response = await apiClient.auth.helper.verifyToken(token);
+      const response = await authClient.helper.verifyToken(token);
 
       if (response.status === true) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
