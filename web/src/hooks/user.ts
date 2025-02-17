@@ -11,7 +11,11 @@ export const useHandleLogout = () => {
     if (accessToken) Cookies.remove("accessToken");
     if (refreshToken) Cookies.remove("refreshToken");
 
-    router.push("/");
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    } else {
+      router.push("/");
+    }
   };
 
   return handleLogout;

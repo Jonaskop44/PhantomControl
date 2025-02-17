@@ -1,5 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import io, { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
+
+let io: any;
+if (typeof window !== "undefined") {
+  import("socket.io-client").then((module) => {
+    io = module.default;
+  });
+}
 
 export class Helper {
   constructor() {}
@@ -112,13 +120,15 @@ export class Helper {
   }
 
   initSocket(callback: (data: { hwid: string; online: boolean }) => void) {
-    if (!this.socket) {
+    if (typeof window !== "undefined" && !this.socket && io) {
       this.socket = io("http://localhost:3001");
     }
 
-    this.socket.on("updateClientStatus", (data) => {
-      callback(data);
-    });
+    if (this.socket) {
+      this.socket.on("updateClientStatus", (data) => {
+        callback(data);
+      });
+    }
   }
 
   disconnectSocket() {
