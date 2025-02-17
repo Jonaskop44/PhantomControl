@@ -142,8 +142,8 @@ const ConsolePage = () => {
                     />
                   }
                 />
-                <div className="ml-2 flex-1">
-                  <p className="ml-2 text-ellipsis overflow-hidden whitespace-nowrap">
+                <div className="ml-2 flex-1 min-w-0">
+                  <p className="text-ellipsis overflow-hidden whitespace-nowrap">
                     {console.name}
                   </p>
                   <Chip
