@@ -1,6 +1,6 @@
 export interface Clients {
   id?: number;
-  username: string;
+  username?: string;
   hostname?: string;
   hwid?: string;
   ip?: string;

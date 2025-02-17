@@ -5,7 +5,7 @@ import ApiClient from "@/api";
 import { Consoles } from "@/types/consoles";
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Input, Spinner } from "@heroui/react";
+import { Chip, Input, Spinner } from "@heroui/react";
 import { toast } from "sonner";
 import { Messages } from "@/types/message";
 
@@ -48,6 +48,22 @@ const ConsolePage = () => {
     }
   }, [selectedHwid]);
 
+  useEffect(() => {
+    apiClient.clients.helper.initSocket((data) => {
+      setConsoles((prevConsoles) => {
+        return prevConsoles.map((console) =>
+          console.hwid === data.hwid
+            ? { ...console, client: { ...console.client, online: data.online } }
+            : console
+        );
+      });
+    });
+
+    return () => {
+      apiClient.clients.helper.disconnectSocket();
+    };
+  }, []);
+
   const closeConsole = (hwid: string) => {
     if (!confirmClose[hwid]) {
       toast.info("Press again to confirm close");
@@ -83,7 +99,6 @@ const ConsolePage = () => {
     apiClient.clients.helper.sendCommand(hwid, command).then((response) => {
       if (response.status) {
         toast.success("Command sent successfully");
-        console.log(response.data);
 
         const newMessage: Messages = {
           content: command,
@@ -99,9 +114,18 @@ const ConsolePage = () => {
   };
 
   const renderTabTitle = (title: string, hwid: string) => {
+    const isOnline = consoles.find((console) => console.hwid === hwid)?.client
+      ?.online;
+
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center capitalize">
         {title}
+        <Chip
+          className="border-none"
+          color={isOnline ? "success" : "danger"}
+          size="sm"
+          variant="dot"
+        />
         <Icon
           icon="mdi:close"
           width={16}
@@ -139,8 +163,35 @@ const ConsolePage = () => {
               />
             ))}
           </Tabs>
+          <div className="mt-12 overflow-y-auto">
+            {messages.length > 0 ? (
+              messages.map((message, index) => (
+                <div key={index} className="mb-2 flex flex-col">
+                  <div className="flex justify-end">
+                    <p className="text-sm bg-blue-500 text-white p-2 rounded-lg">
+                      <strong>Command:</strong> {message.content}
+                    </p>
+                  </div>
+                  <div className="flex justify-start mt-1">
+                    <p className="text-sm bg-gray-200 p-2 rounded-lg">
+                      <strong>Response:</strong> {message.response}
+                    </p>
+                  </div>
+                  {message.timestamp && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      <strong>Timestamp:</strong>{" "}
+                      {new Date(message.timestamp).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No messages available</p>
+            )}
+          </div>
           <div className="flex-grow" />
-          <div className="flex justify-start">
+
+          <div className="flex justify-start mb-4">
             <Input
               placeholder="Enter your command"
               className="w-1/3"
@@ -153,29 +204,6 @@ const ConsolePage = () => {
                 }
               }}
             />
-          </div>
-          {/* Nachrichten des aktuellen Consoles anzeigen */}
-          <div className="mt-4 overflow-y-auto max-h-48">
-            {messages.length > 0 ? (
-              messages.map((message, index) => (
-                <div key={index} className="mb-2">
-                  <p>
-                    <strong>Command:</strong> {message.content}
-                  </p>
-                  <p>
-                    <strong>Response:</strong> {message.response}
-                  </p>
-                  {message.timestamp && (
-                    <p className="text-sm text-gray-500">
-                      <strong>Timestamp:</strong>{" "}
-                      {new Date(message.timestamp).toLocaleString()}
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>No messages available</p>
-            )}
           </div>
         </>
       ) : (

@@ -1,3 +1,5 @@
+import { Client } from "./clients";
+
 export interface Consoles {
   id?: number;
   hwid: string;
@@ -5,6 +7,8 @@ export interface Consoles {
   userId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+
+  client?: Client;
 }
 
 export type Console = Consoles;

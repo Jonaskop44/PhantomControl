@@ -175,7 +175,9 @@ const ClientsPage = () => {
 
     if (hasSearchFilter) {
       filteredClients = filteredClients.filter((client) =>
-        client.username.toLowerCase().includes(filterValue.toLowerCase())
+        (client.username ?? "")
+          .toLowerCase()
+          .includes(filterValue.toLowerCase())
       );
     }
     if (

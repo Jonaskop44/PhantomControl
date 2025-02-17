@@ -399,6 +399,13 @@ export class ClientService {
         where: {
           hwid: client.hwid,
         },
+        include: {
+          client: {
+            select: {
+              online: true,
+            },
+          },
+        },
       });
 
       if (console) consoles.push(console);
