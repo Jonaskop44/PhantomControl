@@ -120,7 +120,7 @@ const ConsolePage = () => {
               <div
                 key={console.hwid}
                 className={clsx(
-                  "mb-2 bg-slate-100 p-4 rounded-xl flex items-center cursor-pointer",
+                  "mb-2 bg-slate-100 p-4 rounded-xl flex items-center cursor-pointer group",
                   {
                     "bg-slate-200 shadow-md": selectedHwid === console.hwid,
                   }
@@ -142,7 +142,7 @@ const ConsolePage = () => {
                     />
                   }
                 />
-                <div className="ml-2">
+                <div className="ml-2 flex-1">
                   <p className="ml-2 text-ellipsis overflow-hidden whitespace-nowrap">
                     {console.name}
                   </p>
@@ -154,6 +154,20 @@ const ConsolePage = () => {
                   >
                     {console.client?.online ? "online" : "offline"}
                   </Chip>
+                </div>
+                {/* Close Icon */}
+                <div
+                  className="ml-2 p-1 rounded-full hover:bg-gray-500/20 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeConsole(console.hwid);
+                  }}
+                >
+                  <Icon
+                    icon="mdi:close"
+                    className="text-gray-500 hover:text-gray-700"
+                    fontSize={20}
+                  />
                 </div>
               </div>
             ))}
