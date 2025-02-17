@@ -2,7 +2,7 @@
 
 import ApiClient from "@/api";
 import { Consoles } from "@/types/consoles";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { Avatar, Chip, Input, Button, Spinner } from "@heroui/react";
 import { toast } from "sonner";
@@ -20,6 +20,16 @@ const ConsolePage = () => {
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, selectedHwid]);
 
   useEffect(() => {
     apiClient.clients.helper
@@ -48,22 +58,6 @@ const ConsolePage = () => {
         });
     }
   }, [selectedHwid]);
-
-  // useEffect(() => {
-  //   apiClient.clients.helper.initSocket((data) => {
-  //     setConsoles((prevConsoles) => {
-  //       return prevConsoles.map((console) =>
-  //         console.hwid === data.hwid
-  //           ? { ...console, client: { ...console.client, online: data.online } }
-  //           : console
-  //       );
-  //     });
-  //   });
-
-  //   return () => {
-  //     apiClient.clients.helper.disconnectSocket();
-  //   };
-  // }, []);
 
   const closeConsole = (hwid: string) => {
     if (!confirmClose[hwid]) {
@@ -201,6 +195,7 @@ const ConsolePage = () => {
                     </h1>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
             ) : (
               <div className="flex justify-center items-center h-full">
