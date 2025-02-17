@@ -165,7 +165,12 @@ const ConsolePage = () => {
                 >
                   <Icon
                     icon="mdi:close"
-                    className="text-gray-500 hover:text-gray-700"
+                    className={clsx({
+                      "text-red-500 hover:text-red-700":
+                        confirmClose[console.hwid],
+                      "text-gray-500 hover:text-gray-700":
+                        !confirmClose[console.hwid],
+                    })}
                     fontSize={20}
                   />
                 </div>
