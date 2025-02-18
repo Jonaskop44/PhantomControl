@@ -156,13 +156,17 @@ const ConsolePage = () => {
       ));
   };
 
+  const filteredConsoles = consoles.filter((console) =>
+    console.name.toLowerCase().includes(filterValue.toLowerCase())
+  );
+
   return (
     <>
       {/* Header */}
       <div className="flex flex-col gap-4 mb-4">
         <Input
           isClearable
-          className="w-full sm:max-w-[44%]"
+          className="w-full sm:max-w-[30%]"
           placeholder="Search by name..."
           startContent={<Icon icon="mdi:magnify" />}
           value={filterValue}
@@ -183,66 +187,72 @@ const ConsolePage = () => {
           <>
             {/* Tabs */}
             <div className="flex flex-col justify-start bg-white rounded-tl-xl rounded-bl-xl max-w-[250px] h-full p-4 border-r overflow-y-auto custom-scrollbar">
-              {consoles.map((console) => (
-                <div
-                  key={console.hwid}
-                  className={clsx(
-                    "mb-2 bg-slate-100 p-4 rounded-xl flex items-center cursor-pointer group",
-                    {
-                      "bg-slate-200 shadow-md": selectedHwid === console.hwid,
-                    }
-                  )}
-                  onClick={() => setSelectedHwid(console.hwid)}
-                >
-                  <Avatar
-                    size="md"
-                    className="flex justify-start"
-                    classNames={{
-                      base: "bg-gradient-to-br from-[#006bff] to-[#00aaff]",
-                      icon: "text-black/80",
-                    }}
-                    icon={
-                      <Icon
-                        icon="mdi:account"
-                        className="text-black"
-                        fontSize={25}
-                      />
-                    }
-                  />
-                  <div className="ml-2 flex-1 min-w-0">
-                    <p className="text-ellipsis overflow-hidden whitespace-nowrap">
-                      {console.name}
-                    </p>
-                    <Chip
-                      className="capitalize border-none"
-                      color={console.client?.online ? "success" : "danger"}
-                      size="md"
-                      variant="dot"
-                    >
-                      {console.client?.online ? "online" : "offline"}
-                    </Chip>
-                  </div>
-                  {/* Close Icon */}
+              {filteredConsoles.length > 0 ? (
+                filteredConsoles.map((console) => (
                   <div
-                    className="ml-2 p-1 rounded-full hover:bg-gray-500/20 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeConsole(console.hwid);
-                    }}
+                    key={console.hwid}
+                    className={clsx(
+                      "mb-2 bg-slate-100 p-4 rounded-xl flex items-center cursor-pointer group",
+                      {
+                        "bg-slate-200 shadow-md": selectedHwid === console.hwid,
+                      }
+                    )}
+                    onClick={() => setSelectedHwid(console.hwid)}
                   >
-                    <Icon
-                      icon="mdi:close"
-                      className={clsx({
-                        "text-red-500 hover:text-red-700":
-                          confirmClose[console.hwid],
-                        "text-gray-500 hover:text-gray-700":
-                          !confirmClose[console.hwid],
-                      })}
-                      fontSize={20}
+                    <Avatar
+                      size="md"
+                      className="flex justify-start"
+                      classNames={{
+                        base: "bg-gradient-to-br from-[#006bff] to-[#00aaff]",
+                        icon: "text-black/80",
+                      }}
+                      icon={
+                        <Icon
+                          icon="mdi:account"
+                          className="text-black"
+                          fontSize={25}
+                        />
+                      }
                     />
+                    <div className="ml-2 flex-1 min-w-0">
+                      <p className="text-ellipsis overflow-hidden whitespace-nowrap capitalize">
+                        {console.name}
+                      </p>
+                      <Chip
+                        className="capitalize border-none"
+                        color={console.client?.online ? "success" : "danger"}
+                        size="md"
+                        variant="dot"
+                      >
+                        {console.client?.online ? "online" : "offline"}
+                      </Chip>
+                    </div>
+                    {/* Close Icon */}
+                    <div
+                      className="ml-2 p-1 rounded-full hover:bg-gray-500/20 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeConsole(console.hwid);
+                      }}
+                    >
+                      <Icon
+                        icon="mdi:close"
+                        className={clsx({
+                          "text-red-500 hover:text-red-700":
+                            confirmClose[console.hwid],
+                          "text-gray-500 hover:text-gray-700":
+                            !confirmClose[console.hwid],
+                        })}
+                        fontSize={20}
+                      />
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h1 className="font-semibold text-2xl">No consoles found</h1>
                 </div>
-              ))}
+              )}
             </div>
 
             {/* Console */}
