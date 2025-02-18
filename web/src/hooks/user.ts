@@ -20,3 +20,23 @@ export const useHandleLogout = () => {
 
   return handleLogout;
 };
+
+export const useHandleDeleteAccount = () => {
+  const router = useRouter();
+
+  const handleDeleteAccount = async () => {
+    const accessToken = Cookies.get("accessToken");
+    const refreshToken = Cookies.get("refreshToken");
+
+    if (accessToken) Cookies.remove("accessToken");
+    if (refreshToken) Cookies.remove("refreshToken");
+
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    } else {
+      router.push("/");
+    }
+  };
+
+  return handleDeleteAccount;
+};

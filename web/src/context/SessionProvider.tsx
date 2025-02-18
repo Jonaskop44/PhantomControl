@@ -9,20 +9,23 @@ interface SessionProviderProps {
 }
 
 const SessionProvider: React.FC<SessionProviderProps> = ({ children }) => {
-  const { fetchUser, refreshToken } = userStore();
+  const { fetchUser, refreshToken, fetchClientKey } = userStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const doAction = async () => {
       refreshToken();
-      setTimeout(() => fetchUser(), 300);
+      setTimeout(() => {
+        fetchUser();
+        fetchClientKey();
+      }, 300);
       setTimeout(() => {
         setLoading(false);
       }, 500);
     };
 
     doAction();
-  }, [fetchUser, refreshToken]);
+  }, [fetchUser, refreshToken, fetchClientKey]);
 
   if (loading) {
     return <Loader />;

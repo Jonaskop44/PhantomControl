@@ -125,4 +125,31 @@ export class UserService {
 
     return result;
   }
+
+  async getClientKey(id: number) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingUser) throw new NotFoundException('User not found');
+
+    const key = await this.prisma.clientKey.findUnique({
+      where: { userId: id },
+    });
+
+    return key;
+  }
+
+  async resetClientKey(id: number) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingUser) throw new NotFoundException('User not found');
+
+    return await this.prisma.clientKey.update({
+      where: { userId: id },
+      data: { key: crypto.randomUUID() },
+    });
+  }
 }

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -27,13 +28,26 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('client-key')
+  async getClientKey(@Request() request) {
+    return this.userService.getClientKey(request.user.sub.id);
+  }
+
+  @UseGuards(JwtGuard)
   @Patch('update')
   updateUser(@Request() request, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(request.user.sub.id, dto);
   }
+
   @UseGuards(JwtGuard)
   @Delete('delete')
   deleteUser(@Request() request) {
     return this.userService.deleteUser(request.user.sub.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('client-key/reset')
+  async resetClientKey(@Request() request) {
+    return this.userService.resetClientKey(request.user.sub.id);
   }
 }
