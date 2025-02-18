@@ -1,6 +1,16 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { GetUserDataFromTokenDto } from './dto/user.dto';
+import { GetUserDataFromTokenDto, UpdateUserDto } from './dto/user.dto';
+import { JwtGuard } from 'src/guard/jwt.guard';
 
 @Controller('user')
 export class UserController {
@@ -14,5 +24,16 @@ export class UserController {
   @Get('client-key/:clientKey')
   async findUserByClientKey(@Param('clientKey') clientKey: string) {
     return this.userService.findUserByClientKey(clientKey);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('update')
+  updateUser(@Request() request, @Body() dto: UpdateUserDto) {
+    return this.userService.updateUser(request.user.sub.id, dto);
+  }
+  @UseGuards(JwtGuard)
+  @Delete('delete')
+  deleteUser(@Request() request) {
+    return this.userService.deleteUser(request.user.sub.id);
   }
 }

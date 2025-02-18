@@ -29,3 +29,9 @@ export class GetUserDataFromTokenDto {
   @IsNotEmpty()
   readonly token: string;
 }
+
+export class UpdateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly username: string;
+}

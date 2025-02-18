@@ -1,6 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from './dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
@@ -87,5 +91,38 @@ export class UserService {
     } catch (error) {
       throw new ConflictException('Invalid token');
     }
+  }
+
+  async updateUser(id: number, dto: UpdateUserDto) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingUser) throw new NotFoundException('User not found');
+
+    const newUser = await this.prisma.user.update({
+      where: { id: id },
+      data: { username: dto.username },
+    });
+
+    const { password, ...result } = newUser;
+
+    return result;
+  }
+
+  async deleteUser(id: number) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!existingUser) throw new NotFoundException('User not found');
+
+    const newUser = await this.prisma.user.delete({
+      where: { id: id },
+    });
+
+    const { password, ...result } = newUser;
+
+    return result;
   }
 }
