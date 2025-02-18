@@ -36,7 +36,11 @@ const ConsolePage = () => {
       .getConsolesByUserId()
       .then((response) => {
         if (response.status) {
-          setConsoles(response.data);
+          setConsoles(
+            response.data.sort((a: { client: { online: string } }) =>
+              a.client.online ? -1 : 1
+            )
+          );
         }
       })
       .finally(() => {
@@ -51,13 +55,28 @@ const ConsolePage = () => {
         .then((response) => {
           if (response.status && response.data?.messages) {
             setMessages(response.data.messages);
-            console.log(response.data.messages);
           } else {
             setMessages([]);
           }
         });
     }
   }, [selectedHwid]);
+
+  useEffect(() => {
+    apiClient.clients.helper.initSocket((data) => {
+      setConsoles((prevConsoles) => {
+        return prevConsoles.map((console) =>
+          console.hwid === data.hwid
+            ? { ...console, client: { ...console.client, online: data.online } }
+            : console
+        );
+      });
+    });
+
+    return () => {
+      apiClient.clients.helper.disconnectSocket();
+    };
+  }, []);
 
   const closeConsole = (hwid: string) => {
     if (!confirmClose[hwid]) {
@@ -99,11 +118,20 @@ const ConsolePage = () => {
           timestamp: new Date(),
         };
 
+        if (newMessage.response?.length === 0) {
+          newMessage.response = `The command "${command}" was successfully executed but there was no output`;
+        }
+
+        console.log(newMessage);
         setMessages((prev) => [...prev, newMessage]);
       } else {
         toast.error("Failed to send command");
       }
     });
+  };
+
+  const isOnline = (hwid: string) => {
+    return consoles.find((console) => console.hwid === hwid)?.client?.online;
   };
 
   return (
@@ -227,7 +255,20 @@ const ConsolePage = () => {
               <Input
                 value={commandInput}
                 onChange={(e) => setCommandInput(e.target.value)}
-                placeholder="Enter command"
+                placeholder={
+                  isOnline(selectedHwid!)
+                    ? "Enter command"
+                    : "The Client is offline so you can't send commands"
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (selectedHwid && commandInput) {
+                      sendCommand(selectedHwid, commandInput);
+                      setCommandInput("");
+                    }
+                  }
+                }}
+                isDisabled={isOnline(selectedHwid!) ? false : true}
                 className="mr-2"
               />
               <Button
@@ -237,6 +278,8 @@ const ConsolePage = () => {
                     setCommandInput("");
                   }
                 }}
+                isDisabled={!selectedHwid || !commandInput}
+                color="primary"
               >
                 Send
               </Button>
