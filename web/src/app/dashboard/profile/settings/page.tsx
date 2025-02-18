@@ -68,7 +68,9 @@ const ProfileSettings = () => {
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-8">Account Information</h1>
+      <h1 className="text-3xl font-bold mb-8 text-black">
+        Account Information
+      </h1>
       <Card className="mb-6">
         <CardHeader>
           <h2 className="text-lg font-semibold">Personal Information</h2>

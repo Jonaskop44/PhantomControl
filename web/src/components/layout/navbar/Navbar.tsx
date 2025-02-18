@@ -14,10 +14,12 @@ import {
 } from "@heroui/react";
 import { userStore } from "@/data/userStore";
 import { useHandleLogout } from "@/hooks/user";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { toggleSidebar, isMobile } = useSidebarContext();
   const { user } = userStore();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 md:px-5 2xl:px-10">
@@ -88,8 +90,9 @@ const Navbar = () => {
                   key="settings"
                   startContent={<Icon icon="line-md:cog" fontSize={20} />}
                   textValue="Settings"
+                  onPress={() => router.push("/dashboard/profile/settings")}
                 >
-                  <Link href="/dashboard/profile/settings">Settings</Link>
+                  Settings
                 </DropdownItem>
               </DropdownSection>
               <DropdownSection>
