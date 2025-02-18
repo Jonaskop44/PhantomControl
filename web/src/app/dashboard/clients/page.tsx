@@ -53,42 +53,6 @@ const INITIAL_VISIBLE_COLUMNS = ["username", "hwid", "ip", "status", "actions"];
 const STORAGE_KEY = "visibleColumns";
 const apiClient = new ApiClient();
 
-const actionList = [
-  {
-    name: "Open Console",
-    key: "console",
-    icon: "mdi:console",
-    color: "primary" as const,
-    onClick: async (client: Client) => {
-      if (client.username && client.hwid) {
-        const result = await apiClient.clients.helper.createConsole(
-          client.username,
-          client.hwid
-        );
-        if (result.status) {
-          toast.success("Console opened successfully");
-        } else {
-          toast.error("Failed to open console");
-        }
-      }
-    },
-  },
-  {
-    name: "Open File Explorer",
-    key: "fileExplorer",
-    icon: "mdi:folder",
-    color: "primary" as const,
-    onClick: (client: Client) => console.log("Open File Explorer: ", client),
-  },
-  {
-    name: "Delete",
-    key: "delete",
-    icon: "mdi:trash-can",
-    color: "danger" as const,
-    onClick: (client: Client) => console.log("Delete: ", client),
-  },
-];
-
 const ClientsPage = () => {
   const [clients, setClients] = useState<Clients[]>([]);
   const [filterValue, setFilterValue] = useState("");
@@ -111,6 +75,59 @@ const ClientsPage = () => {
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(getStoredColumns())
   );
+
+  const actionList = [
+    {
+      name: "Open Console",
+      key: "console",
+      icon: "mdi:console",
+      color: "primary" as const,
+      onClick: async (client: Client) => {
+        if (client.username && client.hwid) {
+          const result = await apiClient.clients.helper.createConsole(
+            client.username,
+            client.hwid
+          );
+          if (result.status) {
+            toast.success("Console opened successfully");
+          } else {
+            toast.error("Failed to open console");
+          }
+        }
+      },
+    },
+    {
+      name: "Open File Explorer",
+      key: "fileExplorer",
+      icon: "mdi:folder",
+      color: "primary" as const,
+      onClick: (client: Client) => console.log("Open File Explorer: ", client),
+    },
+    {
+      name: "Delete",
+      key: "delete",
+      icon: "mdi:trash-can",
+      color: "danger" as const,
+      onClick: async (client: Client) => {
+        if (client.hwid) {
+          const result = await apiClient.clients.helper.deleteClient(
+            client.hwid
+          );
+          if (result.status) {
+            toast.success("Client deleted successfully");
+            // Remove client from the list
+            setClients((prevClients) =>
+              prevClients.filter((c) => c.hwid !== client.hwid)
+            );
+          } else {
+            toast.error("Failed to delete client");
+          }
+        } else {
+          toast.error("Client HWID is undefined");
+        }
+      },
+    },
+  ];
 
   useEffect(() => {
     console.log(selectedKeys);

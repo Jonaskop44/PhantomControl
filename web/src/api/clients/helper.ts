@@ -119,6 +119,20 @@ export class Helper {
       });
   }
 
+  async deleteClient(hwid: string) {
+    return axios
+      .delete(`clients/${hwid}/delete`)
+      .then((response) => {
+        if (response.status !== 200) return { data: null, status: false };
+
+        const data = response.data;
+        return { data: data, status: true };
+      })
+      .catch(() => {
+        return { data: null, status: false };
+      });
+  }
+
   initSocket(callback: (data: { hwid: string; online: boolean }) => void) {
     if (typeof window !== "undefined" && !this.socket && io) {
       this.socket = io("http://localhost:3001");
