@@ -24,25 +24,30 @@ const apiClient = new ApiClient();
 
 const ProfileSettings = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
   const { user, clientKey, fetchUser, fetchClientKey } = userStore();
   const [username, setUsername] = useState<string>(user.username ?? "Guest");
 
   const createdAtDate = user.createdAt ? new Date(user.createdAt) : new Date();
 
-  const copyApiKey = () => {
+  const copyClientKey = () => {
     if (clientKey.key) {
       navigator.clipboard.writeText(clientKey.key);
-      toast.success("API key has been copied to clipboard.");
+      toast.success("Client key has been copied to clipboard.");
     } else {
-      toast.error("API key is not available.");
+      toast.error("Client key is not available.");
     }
   };
 
-  const resetApiKey = async () => {
+  const resetClientKey = async () => {
     return apiClient.user.helper.resetClientKey().then((response) => {
       if (response.status) {
         fetchClientKey();
-        toast.success("API key has been reset.");
+        toast.success("Client key has been reset.");
       } else {
         toast.error("Failed to reset API key.");
       }
@@ -111,9 +116,14 @@ const ProfileSettings = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold">API Key</h2>
+            <h2 className="text-lg font-semibold">Client Key</h2>
           </CardHeader>
-          <CardBody>
+          <CardBody className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Your client key is used to tell our servers who our client is.
+              Keep your key safe and do not share it with anyone. If you believe
+              your key has been compromised, you can reset it below.
+            </p>
             <Input
               value={clientKey.key}
               isReadOnly
@@ -123,7 +133,7 @@ const ProfileSettings = () => {
                   "font-mono [&:not(:focus)]:blur-sm transition-all duration-300",
               }}
               endContent={
-                <Button isIconOnly variant="light" onClick={copyApiKey}>
+                <Button isIconOnly variant="light" onClick={copyClientKey}>
                   <Icon icon="mdi:content-copy" className="h-4 w-4" />
                 </Button>
               }
@@ -148,13 +158,31 @@ const ProfileSettings = () => {
                 Reset your API key. This will invalidate the current key and
                 generate a new one.
               </p>
-              <Button color="danger" onPress={resetApiKey}>
+              <Button color="danger" onPress={onOpenDelete}>
                 Reset API Key
               </Button>
             </div>
           </CardBody>
         </Card>
       </div>
+
+      <Modal isOpen={isOpenDelete} onClose={onCloseDelete}>
+        <ModalContent>
+          <ModalHeader>Are you absolutely sure?</ModalHeader>
+          <ModalBody>
+            This action cannot be undone. This will permanently change your
+            Client Key and you will need to update it in your applications.
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onCloseDelete}>
+              Cancel
+            </Button>
+            <Button color="danger" onPress={resetClientKey}>
+              Reset Client Key
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
