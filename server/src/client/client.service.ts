@@ -174,7 +174,7 @@ export class ClientService {
           },
         });
 
-        callback(response);
+        callback(JSON.stringify(response));
       },
     );
   }

@@ -96,6 +96,7 @@ const ConsolePage = () => {
       apiClient.clients.helper.deleteConsole(hwid).then((response) => {
         if (response.status) {
           setConsoles(consoles.filter((console) => console.hwid !== hwid));
+          setSelectedHwid(null);
           toast.success("Console closed successfully");
           setConfirmClose((prev) => {
             const updated = { ...prev };
@@ -132,6 +133,18 @@ const ConsolePage = () => {
 
   const isOnline = (hwid: string) => {
     return consoles.find((console) => console.hwid === hwid)?.client?.online;
+  };
+
+  const formatResponse = (response: string) => {
+    return response
+      .replace(/\\n/g, "\n")
+      .replace(/^"|"$/g, "")
+      .split("\n")
+      .map((line, index) => (
+        <span className="flex" key={index}>
+          {line}
+        </span>
+      ));
   };
 
   return (
@@ -222,7 +235,9 @@ const ConsolePage = () => {
                       {/* Response */}
                       <div className="flex justify-start mt-1">
                         <p className="text-sm bg-gray-200 p-2 rounded-lg max-w-[50%]">
-                          {message.response}
+                          {message.response
+                            ? formatResponse(message.response)
+                            : null}
                         </p>
                       </div>
                       {/* Timestamp */}

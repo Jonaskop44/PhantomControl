@@ -51,9 +51,7 @@ export class ClientController {
       request.user.sub.id,
       dto,
       (commandResponse) => {
-        const data = commandResponse
-          .split('\n')
-          .filter((line) => line.trim() !== '');
+        const data = commandResponse;
         response.json({ output: data });
       },
     );
