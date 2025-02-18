@@ -47,6 +47,7 @@ const ProfileSettings = () => {
     return apiClient.user.helper.resetClientKey().then((response) => {
       if (response.status) {
         fetchClientKey();
+        onCloseDelete();
         toast.success("Client key has been reset.");
       } else {
         toast.error("Failed to reset API key.");
