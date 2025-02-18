@@ -89,7 +89,7 @@ const Navbar = () => {
                   startContent={<Icon icon="line-md:cog" fontSize={20} />}
                   textValue="Settings"
                 >
-                  Settings
+                  <Link href="/dashboard/profile/settings">Settings</Link>
                 </DropdownItem>
               </DropdownSection>
               <DropdownSection>
