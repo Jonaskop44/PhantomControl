@@ -23,7 +23,7 @@ export const NAV_DATA: NavSection[] = [
       {
         title: "File Explorer",
         icon: "mdi:file",
-        url: "/clients/:hwid/files",
+        url: "/dashboard/file-explorer",
         items: [],
       },
     ],

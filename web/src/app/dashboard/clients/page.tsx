@@ -28,6 +28,7 @@ import ApiClient from "@/api";
 import { Clients, Client } from "@/types/clients";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const columns = [
   { name: "USERNAME", uid: "username", sortable: true },
@@ -65,6 +66,7 @@ const ClientsPage = () => {
     column: "username",
     direction: "ascending",
   });
+  const router = useRouter();
 
   const getStoredColumns = (): Set<string> => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -90,6 +92,7 @@ const ClientsPage = () => {
           );
           if (result.status) {
             toast.success("Console opened successfully");
+            router.push(`/dashboard/console`);
           } else {
             toast.error("Failed to open console");
           }
