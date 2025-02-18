@@ -206,4 +206,9 @@ export class ClientController {
       request.user.sub.id,
     );
   }
+
+  @Delete(':hwid/delete')
+  deleteClient(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.deleteClient(request.user.sub.id, hwid);
+  }
 }

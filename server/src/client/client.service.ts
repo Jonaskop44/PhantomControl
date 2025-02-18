@@ -457,4 +457,21 @@ export class ClientService {
       },
     });
   }
+
+  async deleteClient(userId: number, hwid: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new NotFoundException('Client not found');
+
+    return this.prisma.client.delete({
+      where: {
+        hwid: hwid,
+      },
+    });
+  }
 }
