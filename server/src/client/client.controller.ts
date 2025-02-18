@@ -176,6 +176,17 @@ export class ClientController {
     return this.clientService.deleteFile(hwid, request.user.sub.id, filePath);
   }
 
+  @Get(':hwid/file/tree')
+  async getFileTree(
+    @Param('hwid') hwid: string,
+    @Request() request,
+    @Query('path') path: string,
+  ) {
+    if(!path) throw new BadRequestException('Path is required');
+
+    return this.clientService.getFileTree(hwid, request.user.sub.id, path);
+  }
+
   @Post(':hwid/console/create')
   async createConsole(
     @Param('hwid') hwid: string,

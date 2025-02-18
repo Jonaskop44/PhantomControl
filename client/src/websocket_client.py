@@ -186,3 +186,25 @@ def handle_delete_file(data):
             sio.emit("deleteFileResponse", {"status": False, "message": "File/Folder not found"})
     except Exception as e:
         sio.emit("deleteFileResponse", {"status": False, "message": str(e)})
+
+@sio.on("getFileTree")
+def handle_get_file_tree(data):
+    path = data.get("path")
+    
+    if not os.path.exists(path):
+        sio.emit("getFileTreeResponse", {"status": False, "message": "Path does not exist"})
+        return
+    
+    try:
+        file_tree = {"name": os.path.basename(path), "children": []}
+        for item in os.listdir(path):
+            item_path = os.path.join(path, item)
+            if os.path.isdir(item_path):
+                file_tree["children"].append({"name": item, "type": "folder"})
+            else:
+                if item != "desktop.ini":
+                    file_tree["children"].append({"name": item, "type": "file"})
+        
+        sio.emit("getFileTreeResponse", {"status": True, "fileTree": file_tree})
+    except Exception as e:
+        sio.emit("getFileTreeResponse", {"status": False, "message": str(e)})

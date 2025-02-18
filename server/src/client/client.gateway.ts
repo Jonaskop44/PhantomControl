@@ -304,4 +304,25 @@ export class ClientGateway
       });
     });
   }
+
+  getFileTree(client: Client, path: string) {
+    const clientSocket = this.clients.get(client.hwid);
+    if (!clientSocket) throw new ConflictException('Client not connected');
+
+    return new Promise((resolve, reject) => {
+      clientSocket.emit('getFileTree', { path });
+      clientSocket.once('getFileTreeResponse', async (data) => {
+        if (data.status && data.fileTree) {
+          try {
+            resolve(data.fileTree);
+          } catch (error) {
+            console.log('Try catch error: ', error);
+            reject(new ConflictException('Failed to read file tree.'));
+          }
+        } else {
+          reject(new ConflictException('File tree not found or other error'));
+        }
+      });
+    });
+  }
 }

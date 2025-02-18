@@ -342,6 +342,19 @@ export class ClientService {
     return this.clientGateway.deleteFile(client, filePath);
   }
 
+  async getFileTree(hwid: string, userId: number, path: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new NotFoundException('Client not found');
+
+    return this.clientGateway.getFileTree(client, path);
+  }
+
   async getClientRegistrationsLast30Days(userId: number) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
