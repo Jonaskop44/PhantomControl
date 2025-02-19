@@ -1,7 +1,7 @@
 const FileExplorerPage = () => {
   return (
     <div>
-      <h1>test</h1>
+      <h1>Files</h1>
     </div>
   );
 };
