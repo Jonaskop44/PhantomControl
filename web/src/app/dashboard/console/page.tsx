@@ -8,6 +8,7 @@ import { Avatar, Chip, Input, Button, Spinner } from "@heroui/react";
 import { toast } from "sonner";
 import { Messages } from "@/types/message";
 import clsx from "clsx";
+import useIsMobile from "@/hooks/use-mobile";
 
 const apiClient = new ApiClient();
 
@@ -23,6 +24,8 @@ const ConsolePage = () => {
   }>({});
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -176,6 +179,20 @@ const ConsolePage = () => {
         <span className="text-default-400 text-small">
           Total {consoles.length} consoles
         </span>
+        {/* Sidebar Toggle Button for Mobile */}
+        {isMobile && (
+          <Button
+            onPress={() => setIsSidebarOpen((prev) => !prev)}
+            color="primary"
+            className="self-start"
+          >
+            {isSidebarOpen ? (
+              <Icon icon="mdi:close" fontSize={20} />
+            ) : (
+              <Icon icon="mdi:menu" fontSize={20} />
+            )}
+          </Button>
+        )}
       </div>
 
       <div className="flex bg-white rounded-xl shadow-md h-full max-h-[620px]">
@@ -186,7 +203,14 @@ const ConsolePage = () => {
         ) : consoles.length > 0 ? (
           <>
             {/* Tabs */}
-            <div className="flex flex-col justify-start bg-white rounded-tl-xl rounded-bl-xl max-w-[250px] h-full p-4 border-r overflow-y-auto custom-scrollbar">
+            <div
+              className={clsx(
+                "flex flex-col justify-start bg-white rounded-tl-xl rounded-bl-xl max-w-[250px] h-full p-4 border-r overflow-y-auto custom-scrollbar",
+                {
+                  hidden: isMobile && !isSidebarOpen,
+                }
+              )}
+            >
               {filteredConsoles.length > 0 ? (
                 filteredConsoles.map((console) => (
                   <div
