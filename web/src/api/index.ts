@@ -19,6 +19,6 @@ export default class ApiClient {
     axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get(
       "accessToken"
     )}`;
-    axios.defaults.baseURL = "http://localhost:3001/api/v1/";
+    axios.defaults.baseURL = "http://10.0.0.16:3001/api/v1/";
   }
 }

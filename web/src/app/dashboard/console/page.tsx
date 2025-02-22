@@ -291,13 +291,13 @@ const ConsolePage = () => {
                       <div key={index} className="mb-2 flex flex-col">
                         {/* Sended Command */}
                         <div className="flex justify-end">
-                          <p className="text-sm bg-blue-500 text-white py-2 px-6 rounded-lg max-w-[50%]">
+                          <p className="text-sm bg-blue-500 text-white py-2 px-6 rounded-lg max-w-full break-words">
                             {message.content}
                           </p>
                         </div>
                         {/* Response */}
                         <div className="flex justify-start mt-1">
-                          <p className="text-sm bg-gray-200 p-2 rounded-lg max-w-[50%]">
+                          <p className="text-sm bg-gray-200 p-2 rounded-lg max-w-full break-words">
                             {message.response
                               ? formatResponse(message.response)
                               : null}
