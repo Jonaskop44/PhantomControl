@@ -195,7 +195,7 @@ const ConsolePage = () => {
         )}
       </div>
 
-      <div className="flex bg-white rounded-xl shadow-md h-full max-h-[620px]">
+      <div className="flex bg-white rounded-xl shadow-md h-full max-h-[70vh]">
         {isLoading ? (
           <div className="flex justify-center items-center h-full w-full">
             <Spinner label="Loading..." />
