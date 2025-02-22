@@ -221,7 +221,10 @@ const ConsolePage = () => {
                         "bg-slate-200 shadow-md": selectedHwid === console.hwid,
                       }
                     )}
-                    onClick={() => setSelectedHwid(console.hwid)}
+                    onClick={() => {
+                      setSelectedHwid(console.hwid);
+                      setIsSidebarOpen(false);
+                    }}
                   >
                     <Avatar
                       size="md"
