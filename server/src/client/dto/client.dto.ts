@@ -27,9 +27,3 @@ export class CreateFileDto {
   @IsNotEmpty()
   readonly content: string;
 }
-
-export class CreateConsoleDto {
-  @IsString()
-  @IsNotEmpty()
-  readonly name: string;
-}

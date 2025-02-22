@@ -61,11 +61,9 @@ export class Helper {
       });
   }
 
-  async createConsole(name: string, hwid: string) {
+  async createConsole(hwid: string) {
     return axios
-      .post(`clients/${hwid}/console/create`, {
-        name: name,
-      })
+      .post(`clients/${hwid}/console/create`)
       .then((response) => {
         if (response.status !== 201) return { data: null, status: false };
 

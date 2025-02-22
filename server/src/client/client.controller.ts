@@ -20,11 +20,7 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
-import {
-  CreateConsoleDto,
-  CreateFileDto,
-  SendCommandDto,
-} from './dto/client.dto';
+import { CreateFileDto, SendCommandDto } from './dto/client.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -182,18 +178,14 @@ export class ClientController {
     @Request() request,
     @Query('path') path: string,
   ) {
-    if(!path) throw new BadRequestException('Path is required');
+    if (!path) throw new BadRequestException('Path is required');
 
     return this.clientService.getFileTree(hwid, request.user.sub.id, path);
   }
 
   @Post(':hwid/console/create')
-  async createConsole(
-    @Param('hwid') hwid: string,
-    @Request() request,
-    @Body() dto: CreateConsoleDto,
-  ) {
-    return this.clientService.createConsole(request.user.sub.id, hwid, dto);
+  async createConsole(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.createConsole(request.user.sub.id, hwid);
   }
 
   @Get('consoles')
@@ -211,15 +203,23 @@ export class ClientController {
     return this.clientService.deleteConsole(request.user.sub.id, hwid);
   }
 
-  @Get('registrations-last-30-days')
-  async getClientRegistrationsLast30Days(@Request() request) {
-    return this.clientService.getClientRegistrationsLast30Days(
-      request.user.sub.id,
-    );
-  }
-
   @Delete(':hwid/delete')
   deleteClient(@Param('hwid') hwid: string, @Request() request) {
     return this.clientService.deleteClient(request.user.sub.id, hwid);
+  }
+
+  @Post(':hwid/file-explorer/create')
+  async createFileExplorer(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.createFileExplorer(request.user.sub.id, hwid);
+  }
+
+  @Get('file-explorers')
+  async getFileExplorersByUserId(@Request() request) {
+    return this.clientService.getFileExplorersByUserId(request.user.sub.id);
+  }
+
+  @Delete(':hwid/file-explorer/delete')
+  async deleteFileExplorer(@Param('hwid') hwid: string, @Request() request) {
+    return this.clientService.deleteFileExplorer(request.user.sub.id, hwid);
   }
 }

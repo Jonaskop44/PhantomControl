@@ -6,11 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientGateway } from './client.gateway';
 import { Client } from './entities/client.entity';
-import {
-  CreateConsoleDto,
-  CreateFileDto,
-  SendCommandDto,
-} from './dto/client.dto';
+import { CreateFileDto, SendCommandDto } from './dto/client.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
@@ -355,23 +351,7 @@ export class ClientService {
     return this.clientGateway.getFileTree(client, path);
   }
 
-  async getClientRegistrationsLast30Days(userId: number) {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const registrations = await this.prisma.client.findMany({
-      where: { userId: userId, createdAt: { gte: thirtyDaysAgo } },
-    });
-
-    const data = registrations.map((reg) => ({
-      x: reg.createdAt.toISOString().split('T')[0], // Datum extrahieren
-      y: 1, // Jede Registrierung als "1" zählen
-    }));
-
-    return data;
-  }
-
-  async createConsole(userId: number, hwid: string, dto: CreateConsoleDto) {
+  async createConsole(userId: number, hwid: string) {
     const existingClient = await this.prisma.client.findUnique({
       where: {
         hwid: hwid,
@@ -386,10 +366,10 @@ export class ClientService {
         hwid: hwid,
       },
       update: {
-        name: dto.name,
+        name: existingClient.username,
       },
       create: {
-        name: dto.name,
+        name: existingClient.username,
         hwid: hwid,
         clientId: existingClient.id,
       },
@@ -484,6 +464,80 @@ export class ClientService {
     return this.prisma.client.delete({
       where: {
         hwid: hwid,
+      },
+    });
+  }
+
+  async createFileExplorer(userId: number, hwid: string) {
+    const existingClient = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!existingClient) throw new NotFoundException('Client not found');
+
+    return this.prisma.fileExplorer.upsert({
+      where: {
+        hwid: hwid,
+      },
+      update: {
+        name: existingClient.username,
+      },
+      create: {
+        name: existingClient.username,
+        hwid: hwid,
+        clientId: existingClient.id,
+      },
+    });
+  }
+
+  async getFileExplorersByUserId(userId: number) {
+    const clients = await this.prisma.client.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!clients) throw new NotFoundException('Client not found');
+
+    const fileExplorers = [];
+
+    for (const client of clients) {
+      const fileExplorer = await this.prisma.fileExplorer.findUnique({
+        where: {
+          hwid: client.hwid,
+        },
+        include: {
+          client: {
+            select: {
+              online: true,
+            },
+          },
+        },
+      });
+
+      if (fileExplorer) fileExplorers.push(fileExplorer);
+    }
+
+    return fileExplorers;
+  }
+
+  async deleteFileExplorer(userId: number, hwid: string) {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+        userId: userId,
+      },
+    });
+
+    if (!client) throw new NotFoundException('Console not found');
+
+    return this.prisma.fileExplorer.delete({
+      where: {
+        hwid: hwid,
+        clientId: client.id,
       },
     });
   }
