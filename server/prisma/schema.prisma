@@ -41,7 +41,8 @@ model Client {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  Console Console[]
+  Console      Console[]
+  FileExplorer FileExplorer[]
 }
 
 model ClientKey {
@@ -74,4 +75,15 @@ model Message {
 
   consoleId Int
   console   Console @relation(fields: [consoleId], references: [id], onDelete: Cascade)
+}
+
+model FileExplorer {
+  id        Int      @id @default(autoincrement())
+  hwid      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clientId Int
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }

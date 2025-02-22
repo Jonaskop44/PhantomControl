@@ -63,6 +63,18 @@ CREATE TABLE "Message" (
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "FileExplorer" (
+    "id" SERIAL NOT NULL,
+    "hwid" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "clientId" INTEGER NOT NULL,
+
+    CONSTRAINT "FileExplorer_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -78,6 +90,9 @@ CREATE UNIQUE INDEX "ClientKey_userId_key" ON "ClientKey"("userId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Console_hwid_key" ON "Console"("hwid");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "FileExplorer_hwid_key" ON "FileExplorer"("hwid");
+
 -- AddForeignKey
 ALTER TABLE "Client" ADD CONSTRAINT "Client_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -89,3 +104,6 @@ ALTER TABLE "Console" ADD CONSTRAINT "Console_clientId_fkey" FOREIGN KEY ("clien
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_consoleId_fkey" FOREIGN KEY ("consoleId") REFERENCES "Console"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileExplorer" ADD CONSTRAINT "FileExplorer_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE CASCADE ON UPDATE CASCADE;
