@@ -284,7 +284,7 @@ const ConsolePage = () => {
 
             {/* Console */}
             <div className="flex-1 p-4 overflow-y-auto custom-scrollbar flex flex-col">
-              {selectedHwid ? (
+              {selectedHwid && !isSidebarOpen ? (
                 <div className="flex-1">
                   {messages.length > 0 ? (
                     messages.map((message, index) => (
@@ -322,6 +322,10 @@ const ConsolePage = () => {
                   )}
                   <div ref={messagesEndRef} />
                 </div>
+              ) : isSidebarOpen ? (
+                <div className="flex justify-center items-center h-full">
+                  <h1 className="font-semibold text-2xl">Wait for selection</h1>
+                </div>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h1 className="font-semibold text-2xl">Select a console</h1>
@@ -329,39 +333,41 @@ const ConsolePage = () => {
               )}
 
               {/* Input and Button Container */}
-              <div className="flex justify-center items-center p-4 border-t">
-                <Input
-                  value={commandInput}
-                  onChange={(e) => setCommandInput(e.target.value)}
-                  placeholder={
-                    isOnline(selectedHwid!)
-                      ? "Enter command"
-                      : "The Client is offline so you can't send commands"
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+              {!isSidebarOpen && (
+                <div className="flex justify-center items-center p-4 border-t">
+                  <Input
+                    value={commandInput}
+                    onChange={(e) => setCommandInput(e.target.value)}
+                    placeholder={
+                      isOnline(selectedHwid!)
+                        ? "Enter command"
+                        : "The Client is offline so you can't send commands"
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (selectedHwid && commandInput) {
+                          sendCommand(selectedHwid, commandInput);
+                          setCommandInput("");
+                        }
+                      }
+                    }}
+                    isDisabled={isOnline(selectedHwid!) ? false : true}
+                    className="mr-2"
+                  />
+                  <Button
+                    onPress={() => {
                       if (selectedHwid && commandInput) {
                         sendCommand(selectedHwid, commandInput);
                         setCommandInput("");
                       }
-                    }
-                  }}
-                  isDisabled={isOnline(selectedHwid!) ? false : true}
-                  className="mr-2"
-                />
-                <Button
-                  onPress={() => {
-                    if (selectedHwid && commandInput) {
-                      sendCommand(selectedHwid, commandInput);
-                      setCommandInput("");
-                    }
-                  }}
-                  isDisabled={!selectedHwid || !commandInput}
-                  color="primary"
-                >
-                  Send
-                </Button>
-              </div>
+                    }}
+                    isDisabled={!selectedHwid || !commandInput}
+                    color="primary"
+                  >
+                    Send
+                  </Button>
+                </div>
+              )}
             </div>
           </>
         ) : (
