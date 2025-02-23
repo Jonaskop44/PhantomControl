@@ -387,10 +387,31 @@ const FileExplorerPage = () => {
                       .map((file, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
+                          className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
                         >
                           {/* Files */}
-                          <div className="flex items-center gap-2 flex-1">
+                          <div
+                            className="flex items-center gap-2 flex-1"
+                            onClick={() => {
+                              if (file.type === "folder") {
+                                setPath(
+                                  (prevPath) => `${prevPath}/${file.name}`
+                                );
+                                apiClient.clients.fileExplorer
+                                  .getFileTree(
+                                    selectedHwid,
+                                    `${path}/${file.name}`
+                                  )
+                                  .then((response) => {
+                                    if (response.status) {
+                                      setFileTree(response.data);
+                                    } else {
+                                      toast.error("Failed to get file tree");
+                                    }
+                                  });
+                              }
+                            }}
+                          >
                             <Icon
                               icon={
                                 file.type === "folder"
