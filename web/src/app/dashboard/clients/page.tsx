@@ -103,7 +103,20 @@ const ClientsPage = () => {
       key: "fileExplorer",
       icon: "mdi:folder",
       color: "primary" as const,
-      onClick: (client: Client) => console.log("Open File Explorer: ", client),
+      onClick: async (client: Client) => {
+        if (client.username && client.hwid) {
+          const result =
+            await apiClient.clients.fileExplorer.createFileExplorer(
+              client.hwid
+            );
+          if (result.status) {
+            toast.success("File explorer opened successfully");
+            router.push(`/dashboard/file-explorer`);
+          } else {
+            toast.error("Failed to open file explorer");
+          }
+        }
+      },
     },
     {
       name: "Delete",

@@ -196,7 +196,7 @@ def handle_get_file_tree(data):
         return
     
     try:
-        file_tree = {"name": os.path.basename(path), "children": []}
+        file_tree = {"children": []}
         for item in os.listdir(path):
             item_path = os.path.join(path, item)
             if os.path.isdir(item_path):

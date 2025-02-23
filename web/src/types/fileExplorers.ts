@@ -11,4 +11,10 @@ export interface FileExplorers {
   client?: Client;
 }
 
+export interface FileTree {
+  children: FileTree[];
+  name: string;
+  type: "file" | "folder";
+}
+
 export type FileExplorer = FileExplorers;

@@ -102,7 +102,7 @@ export class FileExplorer {
       });
   }
 
-  async getFileTre(hwid: string, path: string) {
+  async getFileTree(hwid: string, path: string) {
     return axios
       .get(`clients/${hwid}/file/tree?path=${path}`)
       .then((response) => {
