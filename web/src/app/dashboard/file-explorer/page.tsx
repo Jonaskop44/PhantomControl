@@ -32,6 +32,25 @@ const FileExplorerPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
 
+  const actionTopList = [
+    {
+      icon: "charm:refresh",
+      color: "primary" as const,
+      onPress: () => {
+        if (!selectedHwid) return;
+        apiClient.clients.fileExplorer
+          .getFileTree(selectedHwid, path)
+          .then((response) => {
+            if (response.status) {
+              setFileTree(response.data);
+            } else {
+              toast.error("Failed to get file tree");
+            }
+          });
+      },
+    },
+  ];
+
   const actionList = [
     {
       icon: "mdi:delete",
@@ -314,31 +333,42 @@ const FileExplorerPage = () => {
                       maxItems={3}
                     >
                       {path.split("/").map((item, index) => (
-                        <BreadcrumbItem key={index}>{item}</BreadcrumbItem>
+                        <BreadcrumbItem
+                          key={index}
+                          onPress={() => {
+                            const newPath = path
+                              .split("/")
+                              .slice(0, index + 1)
+                              .join("/");
+                            setPath(newPath);
+                            apiClient.clients.fileExplorer
+                              .getFileTree(selectedHwid, newPath)
+                              .then((response) => {
+                                if (response.status) {
+                                  setFileTree(response.data);
+                                } else {
+                                  toast.error("Failed to get file tree");
+                                }
+                              });
+                          }}
+                        >
+                          {item}
+                        </BreadcrumbItem>
                       ))}
                     </Breadcrumbs>
                   </div>
                   <div>
-                    <Button
-                      color="primary"
-                      className="ml-4"
-                      onPress={() => {
-                        console.log(fileTree);
-
-                        apiClient.clients.fileExplorer
-                          .getFileTree(selectedHwid, path)
-                          .then((response) => {
-                            if (response.status) {
-                              setFileTree(response.data);
-                            } else {
-                              toast.error("Failed to get file tree");
-                            }
-                          });
-                      }}
-                      isIconOnly
-                    >
-                      <Icon icon="charm:refresh" fontSize={17} />
-                    </Button>
+                    {actionTopList.map((action, index) => (
+                      <Button
+                        key={index}
+                        color={action.color}
+                        className="ml-4"
+                        isIconOnly
+                        onPress={action.onPress}
+                      >
+                        <Icon icon={action.icon} fontSize={17} />
+                      </Button>
+                    ))}
                   </div>
                 </div>
               )}
