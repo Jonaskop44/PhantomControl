@@ -232,7 +232,9 @@ export class ClientGateway
             );
           }
         } else {
-          reject(new ConflictException('There was an error while uploading'));
+          reject(
+            new ConflictException('There was an error while creating file'),
+          );
         }
       });
     });
@@ -276,7 +278,9 @@ export class ClientGateway
             );
           }
         } else {
-          reject(new ConflictException('There was an error while uploading'));
+          reject(
+            new ConflictException('There was an error while updating file'),
+          );
         }
       });
     });
@@ -299,7 +303,9 @@ export class ClientGateway
             );
           }
         } else {
-          reject(new ConflictException('There was an error while uploading'));
+          reject(
+            new ConflictException('There was an error while deleting file'),
+          );
         }
       });
     });

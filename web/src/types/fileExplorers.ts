@@ -12,7 +12,6 @@ export interface FileExplorers {
 }
 
 export interface FileTree {
-  children: FileTree[];
   name: string;
   type: "file" | "folder";
 }

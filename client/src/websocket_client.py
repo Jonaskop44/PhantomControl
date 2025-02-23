@@ -196,14 +196,14 @@ def handle_get_file_tree(data):
         return
     
     try:
-        file_tree = {"children": []}
+        file_tree = []
         for item in os.listdir(path):
             item_path = os.path.join(path, item)
             if os.path.isdir(item_path):
-                file_tree["children"].append({"name": item, "type": "folder"})
+                file_tree.append({"name": item, "type": "folder"})
             else:
                 if item != "desktop.ini":
-                    file_tree["children"].append({"name": item, "type": "file"})
+                    file_tree.append({"name": item, "type": "file"})
         
         sio.emit("getFileTreeResponse", {"status": True, "fileTree": file_tree})
     except Exception as e:

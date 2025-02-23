@@ -2,7 +2,15 @@
 
 import ApiClient from "@/api";
 import { FileExplorers, FileTree } from "@/types/fileExplorers";
-import { Avatar, Button, Chip, Input, Spinner } from "@heroui/react";
+import {
+  Avatar,
+  BreadcrumbItem,
+  Breadcrumbs,
+  Button,
+  Chip,
+  Input,
+  Spinner,
+} from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "@iconify/react";
@@ -17,11 +25,35 @@ const FileExplorerPage = () => {
   const [fileTree, setFileTree] = useState<FileTree[]>([]);
   const [selectedHwid, setSelectedHwid] = useState<string | null>(null);
   const [filterValue, setFilterValue] = useState("");
+  const [path, setPath] = useState<string>("");
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  const actionList = [
+    {
+      icon: "mdi:delete",
+      color: "danger" as const,
+      onPress: (name: string) => {
+        if (!selectedHwid) return;
+        apiClient.clients.fileExplorer
+          .deleteFile(selectedHwid, path + "/" + name)
+          .then((response) => {
+            if (response.status) {
+              toast.success("File deleted successfully");
+              //Delete file from fileTree
+              setFileTree((prevFileTree) =>
+                prevFileTree.filter((file) => file.name !== name)
+              );
+            } else {
+              toast.error("Failed to delete file");
+            }
+          });
+      },
+    },
+  ];
 
   useEffect(() => {
     apiClient.clients.fileExplorer
@@ -42,15 +74,17 @@ const FileExplorerPage = () => {
 
   useEffect(() => {
     if (selectedHwid) {
-      console.log(selectedHwid);
-      console.log("FileExporers: ", fileExplorers);
-
       const username = fileExplorers.find(
         (fileExplorer) => fileExplorer.hwid === selectedHwid
       )?.name;
 
+      setPath(username ? `C:/Users/${username}/Desktop` : "C:/");
+
       apiClient.clients.fileExplorer
-        .getFileTree(selectedHwid, `C:/Users/${username}/Desktop`)
+        .getFileTree(
+          selectedHwid,
+          username ? `C:/Users/${username}/Desktop` : "C:/"
+        )
         .then((response) => {
           if (response.status) {
             setFileTree(response.data);
@@ -260,14 +294,127 @@ const FileExplorerPage = () => {
                 ))
               ) : (
                 <div className="flex justify-center items-center h-full">
-                  <h1 className="font-semibold text-2xl">No consoles found</h1>
+                  <h1 className="font-semibold text-2xl">
+                    There is no file explorer named{" "}
+                    <span className="text-primary">{filterValue}</span>
+                  </h1>
+                </div>
+              )}
+            </div>
+
+            {/* File Explorer */}
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar flex flex-col">
+              {/* Options Container */}
+              {!isSidebarOpen && selectedHwid && (
+                <div className="flex justify-between border-b pb-4 items-center">
+                  <div>
+                    <Breadcrumbs
+                      itemsAfterCollapse={2}
+                      itemsBeforeCollapse={1}
+                      maxItems={3}
+                    >
+                      {path.split("/").map((item, index) => (
+                        <BreadcrumbItem key={index}>{item}</BreadcrumbItem>
+                      ))}
+                    </Breadcrumbs>
+                  </div>
+                  <div>
+                    <Button
+                      color="primary"
+                      className="ml-4"
+                      onPress={() => {
+                        console.log(fileTree);
+
+                        apiClient.clients.fileExplorer
+                          .getFileTree(selectedHwid, path)
+                          .then((response) => {
+                            if (response.status) {
+                              setFileTree(response.data);
+                            } else {
+                              toast.error("Failed to get file tree");
+                            }
+                          });
+                      }}
+                      isIconOnly
+                    >
+                      <Icon icon="charm:refresh" fontSize={17} />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {selectedHwid && !isSidebarOpen ? (
+                <div className="flex-1">
+                  {fileTree.length > 0 ? (
+                    fileTree
+                      .sort((a, b) => {
+                        if (a.type === "folder" && b.type !== "folder")
+                          return -1;
+                        if (a.type !== "folder" && b.type === "folder")
+                          return 1;
+                        return 0;
+                      })
+                      .map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {/* Files */}
+                          <div className="flex items-center gap-2 flex-1">
+                            <Icon
+                              icon={
+                                file.type === "folder"
+                                  ? "mdi:folder"
+                                  : "mdi:file-document"
+                              }
+                              className={clsx({
+                                "text-primary": file.type === "folder",
+                                "text-secondary": file.type !== "folder",
+                              })}
+                            />
+                            <p className="text-ellipsis overflow-hidden whitespace-nowrap">
+                              {file.name}
+                            </p>
+                          </div>
+
+                          {/* Button List */}
+                          {actionList.map((action, index) => (
+                            <Button
+                              key={index}
+                              color={action.color}
+                              isIconOnly
+                              size="sm"
+                              onPress={() => action.onPress(file.name)}
+                            >
+                              <Icon icon={action.icon} fontSize={20} />
+                            </Button>
+                          ))}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="flex justify-center items-center h-full">
+                      <h1 className="font-semibold text-2xl">
+                        Something went wrong while getting file tree
+                      </h1>
+                    </div>
+                  )}
+                </div>
+              ) : isSidebarOpen ? (
+                <div className="flex justify-center items-center h-full">
+                  <h1 className="font-semibold text-2xl">Wait for selection</h1>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h1 className="font-semibold text-2xl">
+                    Select a File Explorer
+                  </h1>
                 </div>
               )}
             </div>
           </>
         ) : (
           <div className="flex justify-center items-center h-full">
-            <h1 className="font-semibold text-2xl">No consoles found</h1>
+            <h1 className="font-semibold text-2xl">No File Explorer found</h1>
           </div>
         )}
       </div>

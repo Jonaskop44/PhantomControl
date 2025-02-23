@@ -153,7 +153,7 @@ const ClientsPage = () => {
       .getAllClients()
       .then((response) => {
         if (response.status) {
-          setClients(response.data);
+          setClients(response.data.sort((a: Client) => (a.online ? -1 : 1)));
         }
       })
       .finally(() => {
