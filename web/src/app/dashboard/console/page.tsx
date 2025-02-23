@@ -36,7 +36,7 @@ const ConsolePage = () => {
   }, [messages, selectedHwid]);
 
   useEffect(() => {
-    apiClient.clients.helper
+    apiClient.clients.console
       .getConsolesByUserId()
       .then((response) => {
         if (response.status) {
@@ -54,7 +54,7 @@ const ConsolePage = () => {
 
   useEffect(() => {
     if (selectedHwid) {
-      apiClient.clients.helper
+      apiClient.clients.console
         .getConsoleByHwid(selectedHwid)
         .then((response) => {
           if (response.status && response.data?.messages) {
@@ -97,7 +97,7 @@ const ConsolePage = () => {
       setConfirmClose((prev) => ({ ...prev, [hwid]: timeout }));
     } else {
       clearTimeout(confirmClose[hwid]!);
-      apiClient.clients.helper.deleteConsole(hwid).then((response) => {
+      apiClient.clients.console.deleteConsole(hwid).then((response) => {
         if (response.status) {
           setConsoles(consoles.filter((console) => console.hwid !== hwid));
           setSelectedHwid(null);
@@ -123,7 +123,7 @@ const ConsolePage = () => {
   }, []);
 
   const sendCommand = (hwid: string, command: string) => {
-    apiClient.clients.helper.sendCommand(hwid, command).then((response) => {
+    apiClient.clients.console.sendCommand(hwid, command).then((response) => {
       if (response.status) {
         const newMessage: Messages = {
           content: command,
@@ -371,7 +371,7 @@ const ConsolePage = () => {
             </div>
           </>
         ) : (
-          <div className="flex justify-center items-center h-full">
+          <div className="flex justify-center items-center h-full w-full">
             <h1 className="font-semibold text-2xl">No consoles found</h1>
           </div>
         )}

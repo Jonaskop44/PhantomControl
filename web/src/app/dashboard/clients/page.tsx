@@ -86,7 +86,7 @@ const ClientsPage = () => {
       color: "primary" as const,
       onClick: async (client: Client) => {
         if (client.username && client.hwid) {
-          const result = await apiClient.clients.helper.createConsole(
+          const result = await apiClient.clients.console.createConsole(
             client.hwid
           );
           if (result.status) {
