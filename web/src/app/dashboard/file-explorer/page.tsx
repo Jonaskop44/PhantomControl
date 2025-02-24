@@ -30,9 +30,6 @@ const FileExplorerPage = () => {
   const [selectedHwid, setSelectedHwid] = useState<string | null>(null);
   const [filterValue, setFilterValue] = useState("");
   const [path, setPath] = useState<string>("");
-  const [confirmClose, setConfirmClose] = useState<{
-    [hwid: string]: NodeJS.Timeout | null;
-  }>({});
   const [modalHeader, setModalHeader] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileContent, setFileContent] = useState("");
@@ -40,6 +37,9 @@ const FileExplorerPage = () => {
   const isMobile = useIsMobile();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [confirmClose, setConfirmClose] = useState<{
+    [hwid: string]: NodeJS.Timeout | null;
+  }>({});
 
   const {
     isOpen: isOpenCreateFile,
