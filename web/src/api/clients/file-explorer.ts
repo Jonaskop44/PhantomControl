@@ -161,13 +161,21 @@ export class FileExplorer {
       .then((response) => {
         if (response.status !== 200) return { status: false };
 
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const blob = new Blob([response.data], {
+          type: "application/octet-stream",
+        });
+        const url = window.URL.createObjectURL(blob);
+
         const link = document.createElement("a");
         link.href = url;
         link.setAttribute("download", filename);
+
         document.body.appendChild(link);
         link.click();
-        link.remove();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
         return { status: true };
       })
       .catch(() => {
