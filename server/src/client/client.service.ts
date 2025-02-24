@@ -294,7 +294,20 @@ export class ClientService {
 
     if (!client) throw new NotFoundException('Client not found');
 
-    return this.clientGateway.createFile(client, filePath, dto.content);
+    if (dto.type === 'file') {
+      const extension = path.extname(filePath).toLowerCase();
+      const allowedExtensions = ['.txt'];
+      if (extension === '' || !allowedExtensions.includes(extension)) {
+        throw new ConflictException('File must have a valid extension');
+      }
+    }
+
+    return this.clientGateway.createFile(
+      client,
+      filePath,
+      dto.content,
+      dto.type,
+    );
   }
 
   async readFile(hwid: string, userId: number, filePath: string) {

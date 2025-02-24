@@ -137,7 +137,24 @@ def send_file(data):
 def handle_create_file(data):
     file_path = data.get("filePath")
     content = data.get("content")
+    type = data.get("type")
+
+    if type != "file" and type != "folder":
+        sio.emit("createFileResponse", {"status": False, "message": "Invalid file type"})
+        return
     
+    if os.path.exists(file_path):
+        sio.emit("createFileResponse", {"status": False, "message": "File/Folder already exists"})
+        return
+    
+    if type == "folder":
+        try:
+            os.makedirs(file_path)
+            sio.emit("createFileResponse", {"status": True})
+        except Exception as e:
+            sio.emit("createFileResponse", {"status": False})
+        return
+
     try:
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)

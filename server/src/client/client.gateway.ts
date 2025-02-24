@@ -215,12 +215,12 @@ export class ClientGateway
     });
   }
 
-  createFile(client: Client, filePath: string, content: string) {
+  createFile(client: Client, filePath: string, content: string, type: string) {
     const clientSocket = this.clients.get(client.hwid);
     if (!clientSocket) throw new ConflictException('Client not connected');
 
     return new Promise((resolve, reject) => {
-      clientSocket.emit('createFile', { filePath, content });
+      clientSocket.emit('createFile', { filePath, content, type });
       clientSocket.once('createFileResponse', async (data) => {
         if (data.status) {
           try {
@@ -232,9 +232,7 @@ export class ClientGateway
             );
           }
         } else {
-          reject(
-            new ConflictException('There was an error while creating file'),
-          );
+          reject(new ConflictException(data.message || 'Something went wrong'));
         }
       });
     });
