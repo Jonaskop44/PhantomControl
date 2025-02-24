@@ -26,4 +26,14 @@ export class CreateFileDto {
   @IsString()
   @IsNotEmpty()
   readonly content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly type: string;
+}
+
+export class UpdateFileDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly content: string;
 }

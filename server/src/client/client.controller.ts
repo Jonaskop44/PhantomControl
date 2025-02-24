@@ -20,7 +20,7 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
-import { CreateFileDto, SendCommandDto } from './dto/client.dto';
+import { CreateFileDto, SendCommandDto, UpdateFileDto } from './dto/client.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -149,7 +149,7 @@ export class ClientController {
     @Param('hwid') hwid: string,
     @Request() request,
     @Query('filepath') filePath: string,
-    @Body() dto: CreateFileDto,
+    @Body() dto: UpdateFileDto,
   ) {
     if (!filePath) throw new BadRequestException('File path is required');
 

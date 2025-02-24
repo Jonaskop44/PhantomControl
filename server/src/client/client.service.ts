@@ -6,7 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientGateway } from './client.gateway';
 import { Client } from './entities/client.entity';
-import { CreateFileDto, SendCommandDto } from './dto/client.dto';
+import { CreateFileDto, SendCommandDto, UpdateFileDto } from './dto/client.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
@@ -282,6 +282,9 @@ export class ClientService {
     filePath: string,
     dto: CreateFileDto,
   ) {
+    if (dto.type !== 'file' && dto.type !== 'folder')
+      throw new ConflictException('Invalid file type');
+
     const client = await this.prisma.client.findUnique({
       where: {
         hwid: hwid,
@@ -311,7 +314,7 @@ export class ClientService {
     hwid: string,
     userId: number,
     filePath: string,
-    dto: CreateFileDto,
+    dto: UpdateFileDto,
   ) {
     const client = await this.prisma.client.findUnique({
       where: {
