@@ -122,7 +122,12 @@ export class FileExplorer {
       });
   }
 
-  async uploadFileToClient(hwid: string, files: File[], destination: string) {
+  async uploadFileToClient(
+    hwid: string,
+    files: File[],
+    destination: string,
+    onProgress: (percentage: number) => void
+  ) {
     const formData = new FormData();
     files.forEach((file) => formData.append("file", file));
 
@@ -130,6 +135,14 @@ export class FileExplorer {
       .post(`clients/${hwid}/file/upload?filepath=${destination}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentage = Math.round(
+            progressEvent.total
+              ? (progressEvent.loaded * 100) / progressEvent.total
+              : 0
+          );
+          onProgress(percentage);
         },
       })
       .then((response) => {

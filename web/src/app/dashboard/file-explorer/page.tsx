@@ -8,6 +8,7 @@ import {
   Breadcrumbs,
   Button,
   Chip,
+  CircularProgress,
   Input,
   Spinner,
   Tooltip,
@@ -37,6 +38,8 @@ const FileExplorerPage = () => {
   const [fileContent, setFileContent] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const {
     isOpen: isOpenCreateFile,
@@ -162,8 +165,11 @@ const FileExplorerPage = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && selectedHwid) {
+      setUploading(true);
       apiClient.clients.fileExplorer
-        .uploadFileToClient(selectedHwid, Array.from(files), path)
+        .uploadFileToClient(selectedHwid, Array.from(files), path, (progress) =>
+          setUploadProgress(progress)
+        )
         .then((response) => {
           if (response.status) {
             toast.success("File uploaded successfully");
@@ -182,6 +188,10 @@ const FileExplorerPage = () => {
         })
         .catch(() => {
           toast.error("An error occurred while uploading the file");
+        })
+        .finally(() => {
+          setUploading(false);
+          setUploadProgress(0);
         });
     }
   };
@@ -469,7 +479,7 @@ const FileExplorerPage = () => {
                       ))}
                     </Breadcrumbs>
                   </div>
-                  <div>
+                  <div className="flex items-center">
                     {actionTopList.map((action, index) => (
                       <Tooltip
                         showArrow
@@ -477,15 +487,24 @@ const FileExplorerPage = () => {
                         content={action.toolTip}
                         key={index}
                       >
-                        <Button
-                          key={index}
-                          color={action.color}
-                          className="ml-2"
-                          isIconOnly
-                          onPress={action.onPress}
-                        >
-                          <Icon icon={action.icon} fontSize={17} />
-                        </Button>
+                        {uploading && action.toolTip === "Upload File" ? (
+                          <CircularProgress
+                            aria-label="Loading..."
+                            color="primary"
+                            showValueLabel={true}
+                            size="lg"
+                            value={uploadProgress}
+                          />
+                        ) : (
+                          <Button
+                            color={action.color}
+                            className="ml-2"
+                            isIconOnly
+                            onPress={action.onPress}
+                          >
+                            <Icon icon={action.icon} fontSize={17} />
+                          </Button>
+                        )}
                       </Tooltip>
                     ))}
 
