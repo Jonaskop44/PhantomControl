@@ -43,6 +43,7 @@ const FileExplorerPage = () => {
           .then((response) => {
             if (response.status) {
               setFileTree(response.data);
+              toast.success("Refreshed!");
             } else {
               toast.error("Failed to get file tree");
             }
@@ -330,7 +331,7 @@ const FileExplorerPage = () => {
                     <Breadcrumbs
                       itemsAfterCollapse={2}
                       itemsBeforeCollapse={1}
-                      maxItems={3}
+                      maxItems={5}
                     >
                       {path.split("/").map((item, index) => (
                         <BreadcrumbItem
