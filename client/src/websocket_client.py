@@ -113,7 +113,7 @@ def send_file(data):
 
             sio.emit("requestFileResponse", {
                 "status": True,
-                "filename": "all_files.zip",
+                "filename": "files.zip",
                 "fileBuffer": zip_buffer.getvalue()
             })
 

@@ -99,6 +99,7 @@ export class ClientController {
 
       const streamableFile = new StreamableFile(uint8Array, {
         disposition: 'attachment',
+        type: filename === '*' ? 'application/zip' : 'application/octet-stream',
       });
 
       const fileToDelete =

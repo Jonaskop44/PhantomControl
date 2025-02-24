@@ -181,7 +181,8 @@ export class FileExplorer {
         if (response.status !== 200) return { status: false };
 
         const blob = new Blob([response.data], {
-          type: "application/octet-stream",
+          type:
+            filename === "*" ? "application/zip" : "application/octet-stream",
         });
         const url = window.URL.createObjectURL(blob);
 
