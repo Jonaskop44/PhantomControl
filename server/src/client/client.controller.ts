@@ -64,7 +64,7 @@ export class ClientController {
   async uploadFileToClient(
     @UploadedFiles() files: Express.Multer.File[],
     @Param('hwid') hwid: string,
-    @Query('destination') destination: string,
+    @Query('filepath') destination: string,
     @Request() request,
   ) {
     if (!destination) throw new BadRequestException('Destination is required');
