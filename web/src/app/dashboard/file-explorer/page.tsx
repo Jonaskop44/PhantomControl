@@ -46,6 +46,14 @@ const FileExplorerPage = () => {
 
   const actionTopList = [
     {
+      icon: "lets-icons:upload",
+      color: "primary" as const,
+      toolTip: "Upload File",
+      onPress: () => {
+        document.getElementById("file-input")?.click();
+      },
+    },
+    {
       icon: "iconamoon:folder-add",
       color: "primary" as const,
       toolTip: "Create Folder",
@@ -149,6 +157,33 @@ const FileExplorerPage = () => {
     onOpenChangeCreateFile();
     setFileName("");
     setFileContent("");
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && selectedHwid) {
+      apiClient.clients.fileExplorer
+        .uploadFileToClient(selectedHwid, Array.from(files), path)
+        .then((response) => {
+          if (response.status) {
+            toast.success("File uploaded successfully");
+            apiClient.clients.fileExplorer
+              .getFileTree(selectedHwid, path)
+              .then((response) => {
+                if (response.status) {
+                  setFileTree(response.data);
+                } else {
+                  toast.error("Failed to get file tree");
+                }
+              });
+          } else {
+            toast.error("Failed to upload file");
+          }
+        })
+        .catch(() => {
+          toast.error("An error occurred while uploading the file");
+        });
+    }
   };
 
   useEffect(() => {
@@ -453,6 +488,14 @@ const FileExplorerPage = () => {
                         </Button>
                       </Tooltip>
                     ))}
+
+                    <input
+                      type="file"
+                      id="file-input"
+                      style={{ display: "none" }}
+                      onChange={handleFileUpload}
+                      multiple
+                    />
                   </div>
                 </div>
               )}

@@ -127,16 +127,14 @@ export class FileExplorer {
     files.forEach((file) => formData.append("file", file));
 
     return axios
-      .post(
-        `clients/${hwid}/file/upload?destination=${destination}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
+      .post(`clients/${hwid}/file/upload?filepath=${destination}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
+        console.log(response.data);
+
         if (response.status !== 201) return { data: null, status: false };
 
         return { data: null, status: true };
@@ -153,7 +151,7 @@ export class FileExplorer {
   ) {
     return axios
       .get(
-        `clients/${hwid}/download?filepath=${filePath}&filename=${filename}`,
+        `clients/${hwid}/file/download?filepath=${filePath}&filename=${filename}`,
         {
           responseType: "blob",
         }

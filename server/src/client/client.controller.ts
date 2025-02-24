@@ -59,7 +59,7 @@ export class ClientController {
     return this.clientService.destroyConnection(hwid, request.user.sub.id);
   }
 
-  @Post(':hwid/upload')
+  @Post(':hwid/file/upload')
   @UseInterceptors(FilesInterceptor('file'))
   async uploadFileToClient(
     @UploadedFiles() files: Express.Multer.File[],
@@ -77,7 +77,7 @@ export class ClientController {
     );
   }
 
-  @Get(':hwid/download')
+  @Get(':hwid/file/download')
   async downloadFileFromClient(
     @Param('hwid') hwid: string,
     @Query('filepath') filePath: string,
