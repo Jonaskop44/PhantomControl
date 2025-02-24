@@ -160,13 +160,21 @@ export class FileExplorer {
   async downloadFileFromClient(
     hwid: string,
     filePath: string,
-    filename: string
+    filename: string,
+    onProgress: (progress: number) => void
   ) {
     return axios
       .get(
         `clients/${hwid}/file/download?filepath=${filePath}&filename=${filename}`,
         {
           responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const progress =
+                (progressEvent.loaded / progressEvent.total) * 100;
+              onProgress(progress);
+            }
+          },
         }
       )
       .then((response) => {

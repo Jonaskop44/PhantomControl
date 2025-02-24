@@ -37,6 +37,12 @@ const FileExplorerPage = () => {
   const isMobile = useIsMobile();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [downloadProgress, setDownloadProgress] = useState<
+    Record<string, number>
+  >({});
+  const [downloadingFiles, setDownloadingFiles] = useState<
+    Record<string, boolean>
+  >({});
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
@@ -100,13 +106,21 @@ const FileExplorerPage = () => {
       color: "primary" as const,
       onPress: (name: string, type: string) => {
         if (!selectedHwid) return;
+
+        setDownloadingFiles((prev) => ({ ...prev, [name]: true }));
+        setDownloadProgress((prev) => ({ ...prev, [name]: 0 }));
+
         apiClient.clients.fileExplorer
           .downloadFileFromClient(
             selectedHwid,
-            path,
-            type === "folder" ? "*" : name
+            type === "folder" ? `${path}/${name}` : path,
+            type === "folder" ? "*" : name,
+            (progress: number) => {
+              setDownloadProgress((prev) => ({ ...prev, [name]: progress }));
+            }
           )
           .then((response) => {
+            setDownloadingFiles((prev) => ({ ...prev, [name]: false }));
             if (response.status) {
               toast.success("File downloaded successfully");
             } else {
@@ -576,17 +590,31 @@ const FileExplorerPage = () => {
 
                           {/* Button List */}
                           {actionList.map((action, index) => (
-                            <Button
-                              key={index}
-                              color={action.color}
-                              isIconOnly
-                              size="sm"
-                              onPress={() =>
-                                action.onPress(file.name, file.type)
-                              }
-                            >
-                              <Icon icon={action.icon} fontSize={20} />
-                            </Button>
+                            <div className="flex items-center" key={index}>
+                              {downloadingFiles[file.name] &&
+                              action.icon === "ic:outline-file-download" ? (
+                                <div className="mr-2">
+                                  <CircularProgress
+                                    aria-label="Downloading..."
+                                    color="primary"
+                                    showValueLabel={true}
+                                    size="lg"
+                                    value={downloadProgress[file.name] || 0}
+                                  />
+                                </div>
+                              ) : (
+                                <Button
+                                  color={action.color}
+                                  isIconOnly
+                                  size="sm"
+                                  onPress={() =>
+                                    action.onPress(file.name, file.type)
+                                  }
+                                >
+                                  <Icon icon={action.icon} fontSize={20} />
+                                </Button>
+                              )}
+                            </div>
                           ))}
                         </div>
                       ))
