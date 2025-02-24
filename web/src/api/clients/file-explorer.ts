@@ -53,7 +53,7 @@ export class FileExplorer {
     return axios
       .post(`clients/${hwid}/file/create?filepath=${filePath}`, {
         content: content,
-        type: type
+        type: type,
       })
       .then((response) => {
         if (response.status !== 201) return { data: null, status: false };

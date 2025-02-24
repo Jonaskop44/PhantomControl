@@ -85,6 +85,26 @@ const FileExplorerPage = () => {
 
   const actionList = [
     {
+      icon: "ic:outline-file-download",
+      color: "primary" as const,
+      onPress: (name: string, type: string) => {
+        if (!selectedHwid) return;
+        apiClient.clients.fileExplorer
+          .downloadFileFromClient(
+            selectedHwid,
+            path,
+            type === "folder" ? "*" : name
+          )
+          .then((response) => {
+            if (response.status) {
+              toast.success("File downloaded successfully");
+            } else {
+              toast.error("Failed to download file");
+            }
+          });
+      },
+    },
+    {
       icon: "mdi:delete",
       color: "danger" as const,
       onPress: (name: string) => {
@@ -94,7 +114,6 @@ const FileExplorerPage = () => {
           .then((response) => {
             if (response.status) {
               toast.success("File deleted successfully");
-              //Delete file from fileTree
               setFileTree((prevFileTree) =>
                 prevFileTree.filter((file) => file.name !== name)
               );
@@ -500,7 +519,9 @@ const FileExplorerPage = () => {
                               color={action.color}
                               isIconOnly
                               size="sm"
-                              onPress={() => action.onPress(file.name)}
+                              onPress={() =>
+                                action.onPress(file.name, file.type)
+                              }
                             >
                               <Icon icon={action.icon} fontSize={20} />
                             </Button>
