@@ -24,7 +24,6 @@ export class SendCommandDto {
 
 export class CreateFileDto {
   @IsString()
-  @IsNotEmpty()
   readonly content: string;
 
   @IsString()

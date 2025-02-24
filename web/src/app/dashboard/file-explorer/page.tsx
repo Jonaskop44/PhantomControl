@@ -10,12 +10,15 @@ import {
   Chip,
   Input,
   Spinner,
+  Tooltip,
+  useDisclosure,
 } from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import useIsMobile from "@/hooks/use-mobile";
 import clsx from "clsx";
+import CreateFileModal from "@/components/dashboard/file-explorer/CreateFileModal";
 
 const apiClient = new ApiClient();
 
@@ -29,13 +32,41 @@ const FileExplorerPage = () => {
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
+  const [modalHeader, setModalHeader] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [fileContent, setFileContent] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
 
+  const {
+    isOpen: isOpenCreateFile,
+    onOpen: onOpenCreateFile,
+    onOpenChange: onOpenChangeCreateFile,
+  } = useDisclosure();
+
   const actionTopList = [
+    {
+      icon: "iconamoon:folder-add",
+      color: "primary" as const,
+      toolTip: "Create Folder",
+      onPress: () => {
+        setModalHeader("Create Folder");
+        onOpenCreateFile();
+      },
+    },
+    {
+      icon: "iconamoon:file-add-light",
+      color: "primary" as const,
+      toolTip: "Create File",
+      onPress: () => {
+        setModalHeader("Create File");
+        onOpenCreateFile();
+      },
+    },
     {
       icon: "charm:refresh",
       color: "primary" as const,
+      toolTip: "Refresh the files",
       onPress: () => {
         if (!selectedHwid) return;
         apiClient.clients.fileExplorer
@@ -74,6 +105,32 @@ const FileExplorerPage = () => {
       },
     },
   ];
+
+  const handleCreate = () => {
+    if (!selectedHwid) return;
+
+    const isFolder = modalHeader === "Create Folder";
+    const fileType = isFolder ? "folder" : "file";
+    const fullPath = `${path}/${fileName}${isFolder ? "" : ".txt"}`;
+
+    apiClient.clients.fileExplorer
+      .createFile(selectedHwid, fullPath, fileContent, fileType)
+      .then((response) => {
+        if (response.status) {
+          toast.success(`${isFolder ? "Folder" : "File"} created successfully`);
+          setFileTree((prevFileTree) => [
+            ...prevFileTree,
+            { name: fileName, type: fileType },
+          ]);
+        } else {
+          toast.error(`Failed to create ${isFolder ? "folder" : "file"}`);
+        }
+      });
+
+    onOpenChangeCreateFile();
+    setFileName("");
+    setFileContent("");
+  };
 
   useEffect(() => {
     apiClient.clients.fileExplorer
@@ -360,15 +417,22 @@ const FileExplorerPage = () => {
                   </div>
                   <div>
                     {actionTopList.map((action, index) => (
-                      <Button
+                      <Tooltip
+                        showArrow
+                        delay={1000}
+                        content={action.toolTip}
                         key={index}
-                        color={action.color}
-                        className="ml-4"
-                        isIconOnly
-                        onPress={action.onPress}
                       >
-                        <Icon icon={action.icon} fontSize={17} />
-                      </Button>
+                        <Button
+                          key={index}
+                          color={action.color}
+                          className="ml-2"
+                          isIconOnly
+                          onPress={action.onPress}
+                        >
+                          <Icon icon={action.icon} fontSize={17} />
+                        </Button>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>
@@ -470,6 +534,17 @@ const FileExplorerPage = () => {
           </div>
         )}
       </div>
+      <CreateFileModal
+        isOpen={isOpenCreateFile}
+        onOpen={onOpenCreateFile}
+        onOpenChange={onOpenChangeCreateFile}
+        modalHeader={modalHeader}
+        fileName={fileName}
+        setFileName={setFileName}
+        fileContent={fileContent}
+        setFileContent={setFileContent}
+        onConfirm={handleCreate}
+      />
     </>
   );
 };

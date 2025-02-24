@@ -44,10 +44,16 @@ export class FileExplorer {
       });
   }
 
-  async createFile(hwid: string, filePath: string, content: string) {
+  async createFile(
+    hwid: string,
+    filePath: string,
+    content: string,
+    type: string
+  ) {
     return axios
       .post(`clients/${hwid}/file/create?filepath=${filePath}`, {
         content: content,
+        type: type
       })
       .then((response) => {
         if (response.status !== 201) return { data: null, status: false };
