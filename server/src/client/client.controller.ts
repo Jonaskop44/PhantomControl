@@ -103,7 +103,14 @@ export class ClientController {
 
       const fileToDelete =
         filename === '*' ? this.clientService.massDownloadZipName : filename;
-      fs.unlinkSync(path.join(this.clientService.downloadPath, fileToDelete));
+      const filePathToDelete = path.join(
+        this.clientService.downloadPath,
+        fileToDelete,
+      );
+
+      if (fs.existsSync(filePathToDelete)) {
+        fs.unlinkSync(filePathToDelete);
+      }
 
       return streamableFile;
     } catch (error) {
