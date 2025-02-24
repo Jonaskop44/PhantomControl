@@ -9,6 +9,7 @@ import zipfile
 import io
 import shutil
 import time
+import base64
 
 sio = socketio.Client()
 
@@ -153,9 +154,10 @@ def handle_read_file(data):
         return
     
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, "rb") as file:
             content = file.read()
-        sio.emit("readFileResponse", {"status": True, "content": content})
+            content_base64 = base64.b64encode(content).decode('utf-8')
+            sio.emit("readFileResponse", {"status": True, "content": content_base64})
     except Exception as e:
         sio.emit("readFileResponse", {"status": False})
 

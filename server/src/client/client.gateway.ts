@@ -249,7 +249,8 @@ export class ClientGateway
       clientSocket.once('readFileResponse', async (data) => {
         if (data.status && data.content) {
           try {
-            resolve(data.content);
+            const buffer = Buffer.from(data.content, 'base64');
+            resolve(buffer);
           } catch (error) {
             console.log('Try catch error: ', error);
             reject(new ConflictException('Failed to read file.'));
