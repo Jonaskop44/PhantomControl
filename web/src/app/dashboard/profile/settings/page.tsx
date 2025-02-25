@@ -7,11 +7,6 @@ import {
   CardHeader,
   Input,
   Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   useDisclosure,
 } from "@heroui/react";
 import { userStore } from "@/data/userStore";
@@ -19,20 +14,22 @@ import ApiClient from "@/api";
 import { toast } from "sonner";
 import { useHandleDeleteAccount } from "@/hooks/user";
 import { useState } from "react";
+import ConfirmActionModal from "@/components/Common/ConfirmActionModal";
 
 const apiClient = new ApiClient();
 
 const ProfileSettings = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isOpenDelete,
-    onOpen: onOpenDelete,
-    onClose: onCloseDelete,
-  } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [modalContent, setModalContent] = useState<{
+    header: string;
+    body: string;
+    action: () => void;
+  }>({ header: "", body: "", action: () => {} });
   const { user, clientKey, fetchUser, fetchClientKey } = userStore();
   const [username, setUsername] = useState<string>(user.username ?? "Guest");
 
   const createdAtDate = user.createdAt ? new Date(user.createdAt) : new Date();
+  const handleDeleteAccount = useHandleDeleteAccount();
 
   const copyClientKey = () => {
     if (clientKey.key) {
@@ -44,15 +41,33 @@ const ProfileSettings = () => {
   };
 
   const resetClientKey = async () => {
-    return apiClient.user.helper.resetClientKey().then((response) => {
-      if (response.status) {
-        fetchClientKey();
-        onCloseDelete();
-        toast.success("Client key has been reset.");
-      } else {
-        toast.error("Failed to reset API key.");
-      }
+    setModalContent({
+      header: "Are you absolutely sure?",
+      body: "This action cannot be undone. Your current client key will be invalid, and a new one will be generated.",
+      action: async () => {
+        const response = await apiClient.user.helper.resetClientKey();
+        if (response.status) {
+          fetchClientKey();
+          onOpenChange();
+          toast.success("Client key has been reset.");
+        } else {
+          toast.error("Failed to reset API key.");
+        }
+      },
     });
+    onOpen();
+  };
+
+  const deleteAccount = async () => {
+    setModalContent({
+      header: "Are you absolutely sure?",
+      body: "This action cannot be undone. Your account and all data will be permanently deleted.",
+      action: async () => {
+        handleDeleteAccount();
+        onOpenChange();
+      },
+    });
+    onOpen();
   };
 
   const updateUser = async (username: string) => {
@@ -152,7 +167,7 @@ const ProfileSettings = () => {
               <p className="text-sm text-gray-500">
                 Permanently delete your account and all associated data.
               </p>
-              <Button color="danger" onPress={onOpen}>
+              <Button color="danger" onPress={deleteAccount}>
                 Delete Account
               </Button>
             </div>
@@ -161,7 +176,7 @@ const ProfileSettings = () => {
                 Reset your API key. This will invalidate the current key and
                 generate a new one.
               </p>
-              <Button color="danger" onPress={onOpenDelete}>
+              <Button color="danger" onPress={resetClientKey}>
                 Reset API Key
               </Button>
             </div>
@@ -169,41 +184,14 @@ const ProfileSettings = () => {
         </Card>
       </div>
 
-      <Modal isOpen={isOpenDelete} onClose={onCloseDelete}>
-        <ModalContent>
-          <ModalHeader>Are you absolutely sure?</ModalHeader>
-          <ModalBody>
-            This action cannot be undone. This will permanently change your
-            Client Key and you will need to update it in your applications.
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onCloseDelete}>
-              Cancel
-            </Button>
-            <Button color="danger" onPress={resetClientKey}>
-              Reset Client Key
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          <ModalHeader>Are you absolutely sure?</ModalHeader>
-          <ModalBody>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="danger" onPress={useHandleDeleteAccount()}>
-              Delete Account
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmActionModal
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onOpenChange={onOpenChange}
+        useHandleConfirmAction={modalContent.action}
+        header={modalContent.header}
+        body={modalContent.body}
+      />
     </div>
   );
 };
