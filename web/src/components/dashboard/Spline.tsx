@@ -9,6 +9,7 @@ type PropsType = {
 };
 
 const Spline = ({ data }: PropsType) => {
+  //
   const isMobile = useIsMobile();
 
   const options: ApexOptions = {

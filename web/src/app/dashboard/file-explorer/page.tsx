@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import useIsMobile from "@/hooks/use-mobile";
 import clsx from "clsx";
-import CreateFileModal from "@/components/dashboard/file-explorer/CreateFileModal";
+import CreateFileModal from "@/components/Dashboard/FileExplorer/CreateFileModal";
 
 const apiClient = new ApiClient();
 
