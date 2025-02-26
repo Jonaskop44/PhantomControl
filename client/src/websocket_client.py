@@ -10,6 +10,7 @@ import io
 import shutil
 import time
 import base64
+from send2trash import send2trash 
 
 sio = socketio.Client()
 
@@ -194,16 +195,33 @@ def handle_update_file(data):
 def handle_delete_file(data):
     file_path = data.get("filePath")
     
+    print(f"Received file path: {file_path}")
+    
     try:
+        if file_path.startswith("\\\\?\\"):
+            file_path = file_path[4:]
+            print(f"Normalized file path (after removing '\\\\?\\'): {file_path}")
+        
+        file_path = os.path.abspath(file_path)
+        print(f"Absolute file path: {file_path}")
+
         if os.path.exists(file_path):
-            if os.path.isdir(file_path):  
-                shutil.rmtree(file_path)  
+            print(f"File/Folder exists: {file_path}")
+            
+            if os.path.isdir(file_path):
+                print(f"Moving directory to trash: {file_path}")
+                send2trash(file_path)
             else:
-                os.remove(file_path)  
+                print(f"Moving file to trash: {file_path}")
+                send2trash(file_path)
+            
+            print("File/Folder successfully moved to trash.")
             sio.emit("deleteFileResponse", {"status": True})
         else:
+            print(f"File/Folder not found: {file_path}") 
             sio.emit("deleteFileResponse", {"status": False, "message": "File/Folder not found"})
     except Exception as e:
+        print(f"Error occurred: {e}")
         sio.emit("deleteFileResponse", {"status": False, "message": str(e)})
 
 @sio.on("getFileTree")
