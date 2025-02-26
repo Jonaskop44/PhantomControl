@@ -188,7 +188,7 @@ const FileExplorerPage = () => {
           toast.success(`${isFolder ? "Folder" : "File"} created successfully`);
           setFileTree((prevFileTree) => [
             ...prevFileTree,
-            { name: fileName, type: fileType },
+            { name: `${fileName}.txt`, type: fileType },
           ]);
         } else {
           toast.error(`Failed to create ${isFolder ? "folder" : "file"}`);
@@ -645,7 +645,7 @@ const FileExplorerPage = () => {
                   ) : (
                     <div className="flex justify-center items-center h-full">
                       <h1 className="font-semibold text-2xl">
-                        Something went wrong while getting file tree
+                        There is no file in this folder
                       </h1>
                     </div>
                   )}
