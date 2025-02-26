@@ -188,7 +188,7 @@ const FileExplorerPage = () => {
           toast.success(`${isFolder ? "Folder" : "File"} created successfully`);
           setFileTree((prevFileTree) => [
             ...prevFileTree,
-            { name: `${fileName}.txt`, type: fileType },
+            { name: `${fileName}${isFolder ? "" : ".txt"}`, type: fileType },
           ]);
         } else {
           toast.error(`Failed to create ${isFolder ? "folder" : "file"}`);
