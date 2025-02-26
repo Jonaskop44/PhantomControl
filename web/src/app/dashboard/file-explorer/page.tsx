@@ -46,6 +46,9 @@ const FileExplorerPage = () => {
   const [confirmClose, setConfirmClose] = useState<{
     [hwid: string]: NodeJS.Timeout | null;
   }>({});
+  const [confirmDeleteFile, setConfirmDeleteFile] = useState<{
+    [fileName: string]: NodeJS.Timeout | null;
+  }>({});
 
   const {
     isOpen: isOpenCreateFile,
@@ -134,18 +137,39 @@ const FileExplorerPage = () => {
       color: "danger" as const,
       onPress: (name: string) => {
         if (!selectedHwid) return;
-        apiClient.clients.fileExplorer
-          .deleteFile(selectedHwid, path + "/" + name)
-          .then((response) => {
-            if (response.status) {
-              toast.success("File deleted successfully");
-              setFileTree((prevFileTree) =>
-                prevFileTree.filter((file) => file.name !== name)
-              );
-            } else {
-              toast.error("Failed to delete file");
-            }
-          });
+
+        if (!confirmDeleteFile[name]) {
+          toast.info("Press again to confirm delete");
+
+          const timeout = setTimeout(() => {
+            setConfirmDeleteFile((prev) => {
+              const updated = { ...prev };
+              delete updated[name];
+              return updated;
+            });
+          }, 5000);
+
+          setConfirmDeleteFile((prev) => ({ ...prev, [name]: timeout }));
+        } else {
+          clearTimeout(confirmDeleteFile[name]!);
+          apiClient.clients.fileExplorer
+            .deleteFile(selectedHwid, path + "/" + name)
+            .then((response) => {
+              if (response.status) {
+                toast.success("File deleted successfully");
+                setFileTree((prevFileTree) =>
+                  prevFileTree.filter((file) => file.name !== name)
+                );
+                setConfirmDeleteFile((prev) => {
+                  const updated = { ...prev };
+                  delete updated[name];
+                  return updated;
+                });
+              } else {
+                toast.error("Failed to delete file");
+              }
+            });
+        }
       },
     },
   ];
