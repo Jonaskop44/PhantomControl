@@ -11,30 +11,32 @@ import { FC } from "react";
 interface ConfirmActionModalProps {
   isOpen: boolean;
   onOpen: () => void;
-  onOpenChange: (isOpen: boolean) => void;
+  onClose: () => void;
   useHandleConfirmAction: () => void;
   header: string;
   body: string;
+  buttonText: string;
 }
 
 const ConfirmActionModal: FC<ConfirmActionModalProps> = ({
   isOpen,
-  onOpenChange,
+  onClose,
   useHandleConfirmAction,
   header,
   body,
+  buttonText,
 }) => {
   return (
-    <Modal isOpen={isOpen} onClose={() => onOpenChange(false)}>
+    <Modal isOpen={isOpen} onClose={() => onClose()}>
       <ModalContent>
         <ModalHeader>{header}</ModalHeader>
         <ModalBody>{body}</ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={() => onOpenChange(false)}>
+          <Button variant="light" onPress={() => onClose()}>
             Cancel
           </Button>
           <Button color="danger" onPress={useHandleConfirmAction}>
-            Delete Account
+            {buttonText}
           </Button>
         </ModalFooter>
       </ModalContent>

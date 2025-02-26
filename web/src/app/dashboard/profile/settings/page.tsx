@@ -19,12 +19,13 @@ import ConfirmActionModal from "@/components/Common/ConfirmActionModal";
 const apiClient = new ApiClient();
 
 const ProfileSettings = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState<{
     header: string;
     body: string;
+    buttonText: string;
     action: () => void;
-  }>({ header: "", body: "", action: () => {} });
+  }>({ header: "", body: "", buttonText: "", action: () => {} });
   const { user, clientKey, fetchUser, fetchClientKey } = userStore();
   const [username, setUsername] = useState<string>(user.username ?? "Guest");
 
@@ -44,11 +45,12 @@ const ProfileSettings = () => {
     setModalContent({
       header: "Are you absolutely sure?",
       body: "This action cannot be undone. Your current client key will be invalid, and a new one will be generated.",
+      buttonText: "Reset",
       action: async () => {
         const response = await apiClient.user.helper.resetClientKey();
         if (response.status) {
           fetchClientKey();
-          onOpenChange();
+          onClose();
           toast.success("Client key has been reset.");
         } else {
           toast.error("Failed to reset API key.");
@@ -62,9 +64,10 @@ const ProfileSettings = () => {
     setModalContent({
       header: "Are you absolutely sure?",
       body: "This action cannot be undone. Your account and all data will be permanently deleted.",
+      buttonText: "Delete Account",
       action: async () => {
         handleDeleteAccount();
-        onOpenChange();
+        onClose();
       },
     });
     onOpen();
@@ -177,7 +180,7 @@ const ProfileSettings = () => {
                 generate a new one.
               </p>
               <Button color="danger" onPress={resetClientKey}>
-                Reset API Key
+                Reset Client Key
               </Button>
             </div>
           </CardBody>
@@ -187,10 +190,11 @@ const ProfileSettings = () => {
       <ConfirmActionModal
         isOpen={isOpen}
         onOpen={onOpen}
-        onOpenChange={onOpenChange}
+        onClose={onClose}
         useHandleConfirmAction={modalContent.action}
         header={modalContent.header}
         body={modalContent.body}
+        buttonText={modalContent.buttonText}
       />
     </div>
   );

@@ -103,6 +103,7 @@ export class ClientService {
         os: data.os,
         hostname: data.hostname,
         username: data.username,
+        userId: user.userId,
         online: true,
       },
       create: {
