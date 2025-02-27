@@ -121,14 +121,10 @@ const FileExplorerPage = () => {
         apiClient.clients.fileExplorer
           .readFile(selectedHwid, path + "/" + name)
           .then((response) => {
-            console.log(`[page.tsx] ReadFile Response:`, response);
 
             if (response.status) {
               setFileContent(response.data ?? "");
               setFileType(response.fileType);
-
-              console.log(`[page.tsx] File Content Set:`, response.data);
-              console.log(`[page.tsx] File Type Set:`, response.fileType);
 
               onOpenReadFile();
             } else {

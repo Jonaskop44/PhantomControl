@@ -1,5 +1,6 @@
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import { FC } from "react";
+import { Image } from "@heroui/react";
 
 interface ReadFileModalProps {
   isOpen: boolean;
@@ -15,35 +16,53 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
   content,
   fileType,
 }) => {
-  console.log(`[ReadFileModal] Received content:`, content);
-  console.log(`[ReadFileModal] Received fileType:`, fileType);
+  const fileExtension = fileType ? fileType.split("/").pop() : "";
+
+  // Überprüfung auf Bildformate
+  const isImage =
+    fileExtension &&
+    ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(
+      fileExtension.toLowerCase()
+    );
+
+  // Überprüfung auf Videoformate
+  const isVideo =
+    fileExtension &&
+    ["mp4", "webm", "ogg", "avi", "mov", "mkv"].includes(
+      fileExtension.toLowerCase()
+    );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={isImage ? "5xl" : isVideo ? "full" : "md"}
+    >
       <ModalContent>
         <ModalHeader>File Content</ModalHeader>
         <ModalBody>
           {!content ? (
             <p>No content available</p>
-          ) : fileType &&
-            (fileType === "txt" || fileType.startsWith("text")) ? (
-            <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
-              {atob(content)}
-            </pre>
-          ) : fileType && fileType.startsWith("image") ? (
-            <img
-              src={`data:image/${fileType};base64,${content}`}
-              alt="File content"
-              style={{ width: "100%" }}
-            />
-          ) : fileType && fileType.startsWith("video") ? (
-            <video controls style={{ width: "100%" }}>
+          ) : isImage ? (
+            <div className="flex justify-center items-center ">
+              <Image
+                src={`data:image/${fileExtension};base64,${content}`}
+                alt="File content"
+                isBlurred
+                isZoomed
+              />
+            </div>
+          ) : isVideo ? (
+            // Für alle Videoformate
+            <video controls style={{ width: "100%", borderRadius: "50%" }}>
               <source
-                src={`data:video/${fileType};base64,${content}`}
-                type={fileType}
+                src={`data:video/${fileExtension};base64,${content}`}
+                type={`video/${fileExtension}`}
               />
               Your browser does not support the video tag.
             </video>
+          ) : fileExtension === "txt" ? (
+            <p className="whitespace-pre-wrap break-words">{atob(content)}</p>
           ) : (
             <p>Unsupported file type</p>
           )}

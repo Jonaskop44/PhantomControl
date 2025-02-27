@@ -158,7 +158,6 @@ export class ClientGateway
           try {
             resolve(data);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );
@@ -203,7 +202,6 @@ export class ClientGateway
             fs.writeFileSync(saveFilePath, data.fileBuffer);
             resolve(data.fileBuffer);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );
@@ -226,7 +224,6 @@ export class ClientGateway
           try {
             resolve(data);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );
@@ -254,7 +251,6 @@ export class ClientGateway
 
             resolve({ content: content, fileType: fileType });
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(new ConflictException('Failed to read file.'));
           }
         } else {
@@ -275,7 +271,6 @@ export class ClientGateway
           try {
             resolve(data);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );
@@ -300,7 +295,6 @@ export class ClientGateway
           try {
             resolve(data);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(
               new ConflictException('Failed to save file after receiving.'),
             );
@@ -325,7 +319,6 @@ export class ClientGateway
           try {
             resolve(data.fileTree);
           } catch (error) {
-            console.log('Try catch error: ', error);
             reject(new ConflictException('Failed to read file tree.'));
           }
         } else {

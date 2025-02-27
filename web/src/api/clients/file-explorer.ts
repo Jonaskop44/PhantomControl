@@ -67,28 +67,18 @@ export class FileExplorer {
   }
 
   async readFile(hwid: string, filePath: string) {
-    console.log(`[readFile] Requesting file: ${filePath} for HWID: ${hwid}`);
-
     return axios
       .get(`clients/${hwid}/file/read?filepath=${filePath}`)
       .then((response) => {
-        console.log(`[readFile] Response received:`, response);
-
         if (response.status !== 200) {
-          console.error(
-            `[readFile] Error: Unexpected status code ${response.status}`
-          );
           return { data: null, status: false };
         }
 
         const { content, fileType } = response.data;
-        console.log(`[readFile] Extracted content:`, content);
-        console.log(`[readFile] Extracted fileType:`, fileType);
 
         return { data: content, fileType, status: true };
       })
-      .catch((error) => {
-        console.error(`[readFile] Request failed:`, error);
+      .catch(() => {
         return { data: null, fileType: null, status: false };
       });
   }
@@ -159,8 +149,6 @@ export class FileExplorer {
         },
       })
       .then((response) => {
-        console.log(response.data);
-
         if (response.status !== 201) return { data: null, status: false };
 
         return { data: null, status: true };
