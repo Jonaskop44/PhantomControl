@@ -18,14 +18,12 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
 }) => {
   const fileExtension = fileType ? fileType.split("/").pop() : "";
 
-  // Überprüfung auf Bildformate
   const isImage =
     fileExtension &&
     ["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(
       fileExtension.toLowerCase()
     );
 
-  // Überprüfung auf Videoformate
   const isVideo =
     fileExtension &&
     ["mp4", "webm", "ogg", "avi", "mov", "mkv"].includes(
@@ -36,7 +34,7 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size={isImage ? "5xl" : isVideo ? "full" : "md"}
+      size={isImage ? "5xl" : isVideo ? "5xl" : "md"}
     >
       <ModalContent>
         <ModalHeader>File Content</ModalHeader>
@@ -54,7 +52,7 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
             </div>
           ) : isVideo ? (
             // Für alle Videoformate
-            <video controls style={{ width: "100%", borderRadius: "50%" }}>
+            <video controls style={{ width: "100%", borderRadius: "16px" }}>
               <source
                 src={`data:video/${fileExtension};base64,${content}`}
                 type={`video/${fileExtension}`}
