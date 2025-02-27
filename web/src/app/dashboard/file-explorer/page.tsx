@@ -20,6 +20,7 @@ import { Icon } from "@iconify/react";
 import useIsMobile from "@/hooks/use-mobile";
 import clsx from "clsx";
 import CreateFileModal from "@/components/Dashboard/FileExplorer/CreateFileModal";
+import ReadFileModal from "@/components/Dashboard/FileExplorer/ReadFileModal";
 
 const apiClient = new ApiClient();
 
@@ -33,6 +34,7 @@ const FileExplorerPage = () => {
   const [modalHeader, setModalHeader] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileContent, setFileContent] = useState("");
+  const [fileType, setFileType] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
   const [uploading, setUploading] = useState(false);
@@ -54,6 +56,12 @@ const FileExplorerPage = () => {
     isOpen: isOpenCreateFile,
     onOpen: onOpenCreateFile,
     onOpenChange: onOpenChangeCreateFile,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenReadFile,
+    onOpen: onOpenReadFile,
+    onOpenChange: onOpenChangeReadFile,
   } = useDisclosure();
 
   const actionTopList = [
@@ -104,6 +112,31 @@ const FileExplorerPage = () => {
   ];
 
   const actionList = [
+    {
+      icon: "ant-design:read-filled",
+      color: "primary" as const,
+      onPress: (name: string) => {
+        if (!selectedHwid) return;
+
+        apiClient.clients.fileExplorer
+          .readFile(selectedHwid, path + "/" + name)
+          .then((response) => {
+            console.log(`[page.tsx] ReadFile Response:`, response);
+
+            if (response.status) {
+              setFileContent(response.data ?? "");
+              setFileType(response.fileType);
+
+              console.log(`[page.tsx] File Content Set:`, response.data);
+              console.log(`[page.tsx] File Type Set:`, response.fileType);
+
+              onOpenReadFile();
+            } else {
+              toast.error("Failed to read file");
+            }
+          });
+      },
+    },
     {
       icon: "ic:outline-file-download",
       color: "primary" as const,
@@ -175,6 +208,8 @@ const FileExplorerPage = () => {
   ];
 
   const handleCreate = () => {
+    setFileContent("");
+
     if (!selectedHwid) return;
 
     const isFolder = modalHeader === "Create Folder";
@@ -377,7 +412,6 @@ const FileExplorerPage = () => {
           </Button>
         )}
       </div>
-
       <div className="flex bg-white rounded-xl shadow-md h-full max-h-[70vh]">
         {isLoading ? (
           <div className="flex justify-center items-center h-full w-full">
@@ -613,33 +647,42 @@ const FileExplorerPage = () => {
                           </div>
 
                           {/* Button List */}
-                          {actionList.map((action, index) => (
-                            <div className="flex items-center" key={index}>
-                              {downloadingFiles[file.name] &&
-                              action.icon === "ic:outline-file-download" ? (
-                                <div className="mr-2">
-                                  <CircularProgress
-                                    aria-label="Downloading..."
-                                    color="primary"
-                                    showValueLabel={true}
-                                    size="lg"
-                                    value={downloadProgress[file.name] || 0}
-                                  />
-                                </div>
-                              ) : (
-                                <Button
-                                  color={action.color}
-                                  isIconOnly
-                                  size="sm"
-                                  onPress={() =>
-                                    action.onPress(file.name, file.type)
-                                  }
-                                >
-                                  <Icon icon={action.icon} fontSize={20} />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
+                          {/* Button List */}
+                          {actionList
+                            .filter(
+                              (action) =>
+                                !(
+                                  file.type === "folder" &&
+                                  action.icon === "ant-design:read-filled"
+                                )
+                            )
+                            .map((action, index) => (
+                              <div className="flex items-center" key={index}>
+                                {downloadingFiles[file.name] &&
+                                action.icon === "ic:outline-file-download" ? (
+                                  <div className="mr-2">
+                                    <CircularProgress
+                                      aria-label="Downloading..."
+                                      color="primary"
+                                      showValueLabel={true}
+                                      size="lg"
+                                      value={downloadProgress[file.name] || 0}
+                                    />
+                                  </div>
+                                ) : (
+                                  <Button
+                                    color={action.color}
+                                    isIconOnly
+                                    size="sm"
+                                    onPress={() =>
+                                      action.onPress(file.name, file.type)
+                                    }
+                                  >
+                                    <Icon icon={action.icon} fontSize={20} />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
                         </div>
                       ))
                   ) : (
@@ -679,6 +722,13 @@ const FileExplorerPage = () => {
         fileContent={fileContent}
         setFileContent={setFileContent}
         onConfirm={handleCreate}
+      />
+      <ReadFileModal
+        isOpen={isOpenReadFile}
+        onOpen={onOpenReadFile}
+        onClose={onOpenChangeReadFile}
+        content={fileContent}
+        fileType={fileType}
       />
     </>
   );

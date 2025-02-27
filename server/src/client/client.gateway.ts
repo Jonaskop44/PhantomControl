@@ -248,7 +248,11 @@ export class ClientGateway
         if (data.status && data.content) {
           try {
             const buffer = Buffer.from(data.content, 'base64');
-            resolve(buffer);
+
+            const content = buffer.toString('base64');
+            const fileType = filePath.split('.').pop().toLowerCase();
+
+            resolve({ content: content, fileType: fileType });
           } catch (error) {
             console.log('Try catch error: ', error);
             reject(new ConflictException('Failed to read file.'));
