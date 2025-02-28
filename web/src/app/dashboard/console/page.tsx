@@ -135,7 +135,6 @@ const ConsolePage = () => {
           newMessage.response = `The command "${command}" was successfully executed but there was no output`;
         }
 
-        console.log(newMessage);
         setMessages((prev) => [...prev, newMessage]);
       } else {
         toast.error("Failed to send command");
