@@ -51,7 +51,6 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
               />
             </div>
           ) : isVideo ? (
-            // Für alle Videoformate
             <video controls style={{ width: "100%", borderRadius: "16px" }}>
               <source
                 src={`data:video/${fileExtension};base64,${content}`}
@@ -59,10 +58,8 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
               />
               Your browser does not support the video tag.
             </video>
-          ) : fileExtension === "txt" ? (
-            <p className="whitespace-pre-wrap break-words">{atob(content)}</p>
           ) : (
-            <p>Unsupported file type</p>
+            <p className="whitespace-pre-wrap break-words">{atob(content)}</p>
           )}
         </ModalBody>
       </ModalContent>

@@ -21,6 +21,7 @@ import useIsMobile from "@/hooks/use-mobile";
 import clsx from "clsx";
 import CreateFileModal from "@/components/Dashboard/FileExplorer/CreateFileModal";
 import ReadFileModal from "@/components/Dashboard/FileExplorer/ReadFileModal";
+import UpdateFileModal from "@/components/Dashboard/FileExplorer/UpdateFileModal";
 
 const apiClient = new ApiClient();
 
@@ -34,6 +35,7 @@ const FileExplorerPage = () => {
   const [modalHeader, setModalHeader] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileContent, setFileContent] = useState("");
+  const [fileUpdateContent, setFileUpdateContent] = useState("");
   const [fileType, setFileType] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -62,6 +64,12 @@ const FileExplorerPage = () => {
     isOpen: isOpenReadFile,
     onOpen: onOpenReadFile,
     onOpenChange: onOpenChangeReadFile,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenUpdateFile,
+    onOpen: onOpenUpdateFile,
+    onOpenChange: onOpenChangeUpdateFile,
   } = useDisclosure();
 
   const actionTopList = [
@@ -113,15 +121,13 @@ const FileExplorerPage = () => {
 
   const actionList = [
     {
-      icon: "ant-design:read-filled",
+      icon: "wpf:view-file",
       color: "primary" as const,
       onPress: (name: string) => {
         if (!selectedHwid) return;
-
         apiClient.clients.fileExplorer
           .readFile(selectedHwid, path + "/" + name)
           .then((response) => {
-
             if (response.status) {
               setFileContent(response.data ?? "");
               setFileType(response.fileType);
@@ -131,6 +137,26 @@ const FileExplorerPage = () => {
               toast.error("Failed to read file");
             }
           });
+      },
+    },
+    {
+      icon: "wpf:edit-file",
+      color: "primary" as const,
+      onPress: (name: string) => {
+        if (!selectedHwid) return;
+
+        apiClient.clients.fileExplorer
+          .readFile(selectedHwid, path + "/" + name)
+          .then((response) => {
+            if (response.status) {
+              const content = atob(response.data);
+
+              setFileName(name);
+              setFileUpdateContent(content);
+            }
+          });
+
+        onOpenUpdateFile();
       },
     },
     {
@@ -202,6 +228,23 @@ const FileExplorerPage = () => {
       },
     },
   ];
+
+  const handleUpdateFile = () => {
+    if (!selectedHwid) return;
+
+    apiClient.clients.fileExplorer
+      .updateFile(selectedHwid, path + "/" + fileName, fileUpdateContent)
+      .then((response) => {
+        if (response.status) {
+          toast.success("File updated successfully");
+        } else {
+          toast.error("Failed to update file");
+        }
+      });
+
+    onOpenChangeUpdateFile();
+    setFileUpdateContent("");
+  };
 
   const handleCreate = () => {
     setFileContent("");
@@ -725,6 +768,14 @@ const FileExplorerPage = () => {
         onClose={onOpenChangeReadFile}
         content={fileContent}
         fileType={fileType}
+      />
+      <UpdateFileModal
+        isOpen={isOpenUpdateFile}
+        onOpen={onOpenUpdateFile}
+        onOpenChange={onOpenChangeUpdateFile}
+        fileContent={fileUpdateContent}
+        setFileUpdateContent={setFileUpdateContent}
+        onConfirm={handleUpdateFile}
       />
     </>
   );
