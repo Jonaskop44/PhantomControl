@@ -2,7 +2,9 @@
 
 import ApiClient from "@/api";
 import KPIStat from "@/components/Dashboard/KPIStat";
+import { userStore } from "@/data/userStore";
 import type { KPIStatProps } from "@/types/kpiStat";
+import { Role } from "@/types/user";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -10,9 +12,13 @@ const apiClient = new ApiClient();
 
 const Dashboard = () => {
   const [userKpi, setUserKpi] = useState<KPIStatProps[]>([]);
+  const { user } = userStore();
 
   useEffect(() => {
-    apiClient.analytics.helper.getUserKpi().then((response) => {
+    const endpoint =
+      user.role === Role.ADMIN ? "/analytics/admin-kpi" : "/analytics/user-kpi";
+
+    apiClient.analytics.helper.getKpi(endpoint).then((response) => {
       if (response.status) {
         setUserKpi([
           {

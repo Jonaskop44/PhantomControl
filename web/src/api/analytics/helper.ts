@@ -3,9 +3,9 @@ import axios from "axios";
 export class Helper {
   constructor() {}
 
-  async getUserKpi() {
+  async getKpi(url: string) {
     return await axios
-      .get("/analytics/user-kpi")
+      .get(url)
       .then((response) => {
         if (response.status !== 200) return { data: null, status: false };
 
