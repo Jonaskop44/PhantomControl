@@ -16,13 +16,13 @@ export const NAV_DATA: NavSection[] = [
       },
       {
         title: "Console",
-        icon: "mdi:console",
+        icon: "teenyicons:terminal-outline",
         url: "/dashboard/console",
         items: [],
       },
       {
         title: "File Explorer",
-        icon: "mdi:file",
+        icon: "solar:folder-outline",
         url: "/dashboard/file-explorer",
         items: [],
       },

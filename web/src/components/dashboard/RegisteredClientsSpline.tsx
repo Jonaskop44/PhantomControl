@@ -2,13 +2,16 @@
 
 import useIsMobile from "@/hooks/use-mobile";
 import type { ApexOptions } from "apexcharts";
+import { FC } from "react";
 import ReactApexChart from "react-apexcharts";
 
-type PropsType = {
+type RegisteredClientsSplineProps = {
   data: { x: string; y: number }[];
 };
 
-const Spline = ({ data }: PropsType) => {
+const RegisteredClientsSpline: FC<RegisteredClientsSplineProps> = ({
+  data,
+}) => {
   const isMobile = useIsMobile();
 
   const options: ApexOptions = {
@@ -41,4 +44,4 @@ const Spline = ({ data }: PropsType) => {
   );
 };
 
-export default Spline;
+export default RegisteredClientsSpline;
