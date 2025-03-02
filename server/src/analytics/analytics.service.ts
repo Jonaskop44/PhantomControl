@@ -27,13 +27,23 @@ export class AnalyticsService {
       where: { client: { userId }, createdAt: { lt: thirtyDaysAgo } },
     });
 
-    const getChange = (current: number, previous: number) => {
-      if (previous === 0) return current > 0 ? 100 : 0;
-      return Math.round(((current - previous) / previous) * 100);
+    console.log(thirtyDaysAgo);
+
+    console.log('clientsCount', clientsCount);
+    console.log('oldClientsCount', oldClientsCount);
+    console.log('consolesCount', consolesCount);
+    console.log('oldConsolesCount', oldConsolesCount);
+    console.log('fileExplorersCount', fileExplorersCount);
+    console.log('oldFileExplorersCount', oldFileExplorersCount);
+
+    const getChange = (current: number, previous: number): string => {
+      if (previous === 0) return current > 0 ? '100%' : '0%';
+      return `${Math.round(((current - previous) / previous) * 100)}%`;
     };
 
-    const getChangeType = (change: number) => {
-      return change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+    const getChangeType = (change: string) => {
+      const value = parseInt(change);
+      return value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
     };
 
     return {
