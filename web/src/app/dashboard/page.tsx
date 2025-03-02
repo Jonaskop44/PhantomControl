@@ -16,7 +16,7 @@ const Dashboard = () => {
       if (response.status) {
         setUserKpi([
           {
-            title: "Total Clients",
+            title: "Clients",
             value: response.data.clientsCount.value,
             change: response.data.clientsCount.change,
             changeType: response.data.clientsCount.changeType,
@@ -24,7 +24,7 @@ const Dashboard = () => {
             iconName: "solar:users-group-rounded-linear",
           },
           {
-            title: "Total Consoles",
+            title: "Consoles",
             value: response.data.consolesCount.value,
             change: response.data.consolesCount.change,
             changeType: response.data.consolesCount.changeType,
@@ -32,7 +32,7 @@ const Dashboard = () => {
             iconName: "teenyicons:terminal-outline",
           },
           {
-            title: "Total File Explorers",
+            title: "File Explorers",
             value: response.data.fileExplorersCount.value,
             change: response.data.fileExplorersCount.change,
             changeType: response.data.fileExplorersCount.changeType,
@@ -47,7 +47,8 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col gap-3">
+      <h1 className="text-medium font-semibold">Stats of the last 30 Days</h1>
       <KPIStat data={userKpi} />
     </div>
   );
