@@ -6,52 +6,54 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async getUserKpi(userId: number) {
-    const clientsCount = await this.prisma.client.count({
-      where: {
-        userId: userId,
-      },
-    });
-
+    const clientsCount = await this.prisma.client.count({ where: { userId } });
     const consolesCount = await this.prisma.console.count({
-      where: {
-        client: {
-          userId: userId,
-        },
-      },
+      where: { client: { userId } },
     });
-
     const fileExplorersCount = await this.prisma.fileExplorer.count({
-      where: {
-        client: {
-          userId: userId,
-        },
-      },
+      where: { client: { userId } },
     });
 
-    const currentDate = new Date();
     const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const pastClientsCount = await this.prisma.client.count({
-      where: {
-        userId,
-        createdAt: { lt: thirtyDaysAgo },
-      },
+    const oldClientsCount = await this.prisma.client.count({
+      where: { userId, createdAt: { lt: thirtyDaysAgo } },
+    });
+    const oldConsolesCount = await this.prisma.console.count({
+      where: { client: { userId }, createdAt: { lt: thirtyDaysAgo } },
+    });
+    const oldFileExplorersCount = await this.prisma.fileExplorer.count({
+      where: { client: { userId }, createdAt: { lt: thirtyDaysAgo } },
     });
 
-    console.log('clientsCount', clientsCount);
-    console.log('pastClientsCount', pastClientsCount);
+    const getChange = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
 
-    const change = pastClientsCount
-      ? ((clientsCount - pastClientsCount) / pastClientsCount) * 100
-      : 0;
+    const getChangeType = (change: number) => {
+      return change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+    };
 
     return {
-      clientsCount,
-      change: change.toFixed(2) + '%',
-      changeType: change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral',
-      consolesCount,
-      fileExplorersCount,
+      clientsCount: {
+        value: clientsCount,
+        change: getChange(clientsCount, oldClientsCount),
+        changeType: getChangeType(getChange(clientsCount, oldClientsCount)),
+      },
+      consolesCount: {
+        value: consolesCount,
+        change: getChange(consolesCount, oldConsolesCount),
+        changeType: getChangeType(getChange(consolesCount, oldConsolesCount)),
+      },
+      fileExplorersCount: {
+        value: fileExplorersCount,
+        change: getChange(fileExplorersCount, oldFileExplorersCount),
+        changeType: getChangeType(
+          getChange(fileExplorersCount, oldFileExplorersCount),
+        ),
+      },
     };
   }
 }
