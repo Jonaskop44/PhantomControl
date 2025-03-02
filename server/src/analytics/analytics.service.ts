@@ -6,28 +6,68 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async getUserKpi(userId: number) {
-    const clientsCount = await this.prisma.client.count({ where: { userId } });
-    const consolesCount = await this.prisma.console.count({
-      where: { client: { userId } },
-    });
-    const fileExplorersCount = await this.prisma.fileExplorer.count({
-      where: { client: { userId } },
+    const clientsCount = await this.prisma.client.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+        },
+      },
     });
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const consolesCount = await this.prisma.console.count({
+      where: {
+        client: { userId },
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+        },
+      },
+    });
+
+    const fileExplorersCount = await this.prisma.fileExplorer.count({
+      where: {
+        client: { userId },
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+        },
+      },
+    });
+
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
 
     const oldClientsCount = await this.prisma.client.count({
-      where: { userId, createdAt: { lt: thirtyDaysAgo } },
-    });
-    const oldConsolesCount = await this.prisma.console.count({
-      where: { client: { userId }, createdAt: { lt: thirtyDaysAgo } },
-    });
-    const oldFileExplorersCount = await this.prisma.fileExplorer.count({
-      where: { client: { userId }, createdAt: { lt: thirtyDaysAgo } },
+      where: {
+        userId,
+        createdAt: {
+          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+        },
+      },
     });
 
-    console.log(thirtyDaysAgo);
+    const oldConsolesCount = await this.prisma.console.count({
+      where: {
+        client: { userId },
+        createdAt: {
+          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+        },
+      },
+    });
+
+    const oldFileExplorersCount = await this.prisma.fileExplorer.count({
+      where: {
+        client: { userId },
+        createdAt: {
+          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+        },
+      },
+    });
 
     console.log('clientsCount', clientsCount);
     console.log('oldClientsCount', oldClientsCount);
@@ -41,9 +81,11 @@ export class AnalyticsService {
       return `${Math.round(((current - previous) / previous) * 100)}%`;
     };
 
-    const getChangeType = (change: string) => {
+    const getChangeType = (change: string): string => {
       const value = parseInt(change);
-      return value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+      if (value > 0) return 'positive';
+      if (value < 0) return 'negative';
+      return 'neutral';
     };
 
     return {
