@@ -43,7 +43,7 @@ export class AnalyticsService {
     console.log('pastClientsCount', pastClientsCount);
 
     const change = pastClientsCount
-      ? ((clientsCount - pastClientsCount) / clientsCount) * 100
+      ? ((clientsCount - pastClientsCount) / pastClientsCount) * 100
       : 0;
 
     return {
