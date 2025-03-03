@@ -17,10 +17,7 @@ const KPIStat: FC<KPIStatListProps> = ({ data }) => {
           { title, value, change, changeType, trendChipPosition, iconName },
           index
         ) => (
-          <Card
-            key={index}
-            className="border border-transparent dark:border-default-100"
-          >
+          <Card key={index} className="border border-transparent">
             <div className="flex p-4 pb-6">
               <div
                 className={cn(

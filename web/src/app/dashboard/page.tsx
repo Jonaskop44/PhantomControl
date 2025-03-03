@@ -27,9 +27,13 @@ const Dashboard = () => {
             </h1>
             <KPIStat data={kpi} />
           </div>
-          <div className="">
-            <RegisteredClientsSpline data={registeredClients} />
-            <UsedDevices data={usedDevices} />
+          <div className="flex flex-col md:flex-row gap-3 w-full">
+            <div className="flex-1">
+              <RegisteredClientsSpline data={registeredClients} />
+            </div>
+            <div className="flex-1">
+              <UsedDevices data={usedDevices} />
+            </div>
           </div>
         </>
       )}

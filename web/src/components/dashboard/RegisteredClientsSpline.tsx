@@ -83,25 +83,21 @@ const RegisteredClientsSpline: FC<RegisteredClientsSplineProps> = ({
   };
 
   return (
-    <div className="d-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1">
-      <div className="flex items-center justify-start">
-        <h2 className="text-body-2xlg font-bold text-dark p-3">
-          Payments Overview
-        </h2>
-      </div>
-      <div className="-ml-4 -mr-5 h-[310px]">
-        <ReactApexChart
-          options={options}
-          series={[
-            {
-              name: "Received",
-              data: data.map((item) => item.y),
-            },
-          ]}
-          type="area"
-          height={310}
-        />
-      </div>
+    <div className="bg-white rounded-xl p-2 shadow-xl">
+      <h2 className="text-body-2xlg font-bold text-dark p-3">
+        Registered Clients
+      </h2>
+      <ReactApexChart
+        options={options}
+        series={[
+          {
+            name: "Received",
+            data: data.map((item) => item.y),
+          },
+        ]}
+        type="area"
+        height={310}
+      />
     </div>
   );
 };

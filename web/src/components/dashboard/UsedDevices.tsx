@@ -82,11 +82,9 @@ const UsedDevices: FC<UsedDevicesListProps> = ({ data }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 grid-rows-[auto_1fr] gap-9 rounded-[10px] bg-white p-7.5 shadow-1">
-      <div className="flex items-center justify-start">
-        <h2 className="text-body-2xlg font-bold text-dark p-3">Used Devices</h2>
-      </div>
-      <div className="grid place-items-center">
+    <div className="rounded-[10px] bg-white p-2 shadow-xl">
+      <h2 className="text-body-2xlg font-bold text-dark p-3">Used Devices</h2>
+      <div className="flex justify-center items-center">
         <ReactApexChart
           options={chartOptions}
           series={data.map((item) => item.amount)}
