@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { endOfMonth, format, startOfMonth, subDays, subMonths } from 'date-fns';
-import { console } from 'inspector';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
+  private lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+  private lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+  private currentMonthStart = startOfMonth(new Date());
+  private currentMonthEnd = endOfMonth(new Date());
+
   async getUserKpi(userId: number) {
     const clientsCount = await this.prisma.client.count({
       where: {
         userId,
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
@@ -22,8 +26,8 @@ export class AnalyticsService {
       where: {
         client: { userId },
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
@@ -32,21 +36,18 @@ export class AnalyticsService {
       where: {
         client: { userId },
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
-
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
 
     const oldClientsCount = await this.prisma.client.count({
       where: {
         userId,
         createdAt: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -55,8 +56,8 @@ export class AnalyticsService {
       where: {
         client: { userId },
         createdAt: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -65,8 +66,8 @@ export class AnalyticsService {
       where: {
         client: { userId },
         createdAt: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -108,8 +109,8 @@ export class AnalyticsService {
     const usersCount = await this.prisma.user.count({
       where: {
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
@@ -117,8 +118,8 @@ export class AnalyticsService {
     const clientsCount = await this.prisma.client.count({
       where: {
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
@@ -126,20 +127,17 @@ export class AnalyticsService {
     const messagesCount = await this.prisma.message.count({
       where: {
         timestamp: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+          gte: this.currentMonthStart,
+          lt: this.currentMonthEnd,
         },
       },
     });
 
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-
     const oldUsersCount = await this.prisma.user.count({
       where: {
         createdAt: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -147,8 +145,8 @@ export class AnalyticsService {
     const oldClientsCount = await this.prisma.client.count({
       where: {
         createdAt: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -156,8 +154,8 @@ export class AnalyticsService {
     const oldMessagesCount = await this.prisma.message.count({
       where: {
         timestamp: {
-          gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
-          lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1),
+          gte: this.lastMonthStart,
+          lt: this.lastMonthEnd,
         },
       },
     });
@@ -215,9 +213,6 @@ export class AnalyticsService {
   }
 
   async getRegisteredClients(userId: number) {
-    const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
-    const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
-
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -227,8 +222,8 @@ export class AnalyticsService {
       where: {
         userId: user.role === 'ADMIN' ? undefined : userId,
         updatedAt: {
-          gte: lastMonthStart,
-          lte: lastMonthEnd,
+          gte: this.lastMonthStart,
+          lte: this.lastMonthEnd,
         },
       },
       _count: {
@@ -237,9 +232,9 @@ export class AnalyticsService {
     });
 
     const daysInLastMonth = Array.from(
-      { length: lastMonthEnd.getDate() },
+      { length: this.lastMonthEnd.getDate() },
       (_, i) => {
-        const date = new Date(lastMonthStart);
+        const date = new Date(this.lastMonthStart);
         date.setDate(i + 1);
         const formattedDate = format(date, 'yyyy-MM-dd');
 
