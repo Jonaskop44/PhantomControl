@@ -4,9 +4,10 @@ import useIsMobile from "@/hooks/use-mobile";
 import { FC } from "react";
 import type { ApexOptions } from "apexcharts";
 import ReactApexChart from "react-apexcharts";
+import { RegisteredClientsProps } from "@/types/analytics";
 
 type RegisteredClientsSplineProps = {
-  data: { x: string; y: number }[];
+  data: RegisteredClientsProps[];
 };
 
 const RegisteredClientsSpline: FC<RegisteredClientsSplineProps> = ({
@@ -15,31 +16,92 @@ const RegisteredClientsSpline: FC<RegisteredClientsSplineProps> = ({
   const isMobile = useIsMobile();
 
   const options: ApexOptions = {
-    legend: { show: false },
-    colors: ["#5750F1"],
+    legend: {
+      show: false,
+    },
+    colors: ["#5750F1", "#0ABEF9"],
     chart: {
       height: 310,
       type: "area",
-      toolbar: { show: false },
+      toolbar: {
+        show: false,
+      },
       fontFamily: "inherit",
     },
-    fill: { gradient: { opacityFrom: 0.55, opacityTo: 0 } },
-    responsive: [{ breakpoint: 1024, options: { chart: { height: 300 } } }],
-    stroke: { curve: "smooth", width: isMobile ? 2 : 3 },
-    grid: { strokeDashArray: 5, yaxis: { lines: { show: true } } },
-    dataLabels: { enabled: false },
-    tooltip: { marker: { show: true } },
-    xaxis: { axisBorder: { show: false }, axisTicks: { show: false } },
+    fill: {
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+      },
+    },
+    responsive: [
+      {
+        breakpoint: 1024,
+        options: {
+          chart: {
+            height: 300,
+          },
+        },
+      },
+      {
+        breakpoint: 1366,
+        options: {
+          chart: {
+            height: 320,
+          },
+        },
+      },
+    ],
+    stroke: {
+      curve: "smooth",
+      width: isMobile ? 2 : 3,
+    },
+    grid: {
+      strokeDashArray: 5,
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      marker: {
+        show: true,
+      },
+    },
+    xaxis: {
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
   };
 
   return (
-    <div className="-ml-4 -mr-5 h-[310px]">
-      <ReactApexChart
-        options={options}
-        series={[{ name: "Registrierungen", data }]}
-        type="area"
-        height={310}
-      />
+    <div className="d-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1">
+      <div className="flex items-center justify-start">
+        <h2 className="text-body-2xlg font-bold text-dark p-3">
+          Payments Overview
+        </h2>
+      </div>
+      <div className="-ml-4 -mr-5 h-[310px]">
+        <ReactApexChart
+          options={options}
+          series={[
+            {
+              name: "Received",
+              data: data.map((item) => item.y),
+            },
+          ]}
+          type="area"
+          height={310}
+        />
+      </div>
     </div>
   );
 };

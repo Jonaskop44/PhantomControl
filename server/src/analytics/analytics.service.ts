@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { format, subDays } from 'date-fns';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -206,5 +207,33 @@ export class AnalyticsService {
         amount: item._count,
       };
     });
+  }
+
+  async getRegisteredClients(userId: number) {
+    const thirtyDaysAgo = subDays(new Date(), 30);
+
+    const clients = await this.prisma.client.groupBy({
+      by: ['updatedAt'],
+      where: {
+        userId,
+        updatedAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    const dailyCounts = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), 29 - i);
+      const day = format(date, 'dd');
+      const count =
+        clients.find((c) => format(c.updatedAt, 'dd') === day)?._count.id || 0;
+
+      return { x: day, y: count };
+    });
+
+    return dailyCounts;
   }
 }

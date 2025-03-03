@@ -3,7 +3,7 @@
 import React, { FC } from "react";
 import { Card, Chip, cn } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import type { KPIStatProps } from "@/types/kpiStat";
+import type { KPIStatProps } from "@/types/analytics";
 
 export interface KPIStatListProps {
   data: KPIStatProps[];

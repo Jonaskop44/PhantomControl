@@ -1,7 +1,7 @@
 import { FC } from "react";
 import type { ApexOptions } from "apexcharts";
 import ReactApexChart from "react-apexcharts";
-import { UsedDevicesProps } from "@/types/usedDevices";
+import { UsedDevicesProps } from "@/types/analytics";
 
 interface UsedDevicesListProps {
   data: UsedDevicesProps[];

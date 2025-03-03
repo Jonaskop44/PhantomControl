@@ -24,4 +24,11 @@ export class AnalyticsController {
   async getUsedDevices(@Request() request) {
     return await this.analyticsService.getUsedDevices(request.user.sub.id);
   }
+
+  @Get('user-registered-clients')
+  async getRegisteredClients(@Request() request) {
+    return await this.analyticsService.getRegisteredClients(
+      request.user.sub.id,
+    );
+  }
 }

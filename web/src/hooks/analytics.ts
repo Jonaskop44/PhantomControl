@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import ApiClient from "@/api";
 import { toast } from "sonner";
-import type { KPIStatProps } from "@/types/kpiStat";
+import type {
+  KPIStatProps,
+  RegisteredClientsProps,
+  UsedDevicesProps,
+} from "@/types/analytics";
 import { Role } from "@/types/user";
 
 const apiClient = new ApiClient();
@@ -81,4 +85,50 @@ export const useKpiData = (role: Role | undefined) => {
   }, [role]);
 
   return { kpi, isLoading };
+};
+
+export const useUsedDevices = () => {
+  const [usedDevices, setUsedDevices] = useState<UsedDevicesProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.analytics.helper
+      .getUsedDevices()
+      .then((response) => {
+        if (response.status) {
+          const data = response.data;
+
+          setUsedDevices(data);
+        } else {
+          toast.error("Failed to fetch user KPI");
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  return { usedDevices, isLoading };
+};
+
+export const useRegisteredClients = () => {
+  const [registeredClients, setRegisteredClients] = useState<
+    RegisteredClientsProps[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.analytics.helper
+      .getRegisteredClients()
+      .then((response) => {
+        if (response.status) {
+          const data = response.data;
+
+          setRegisteredClients(data);
+        } else {
+          toast.error("Failed to fetch user KPI");
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  return { registeredClients, isLoading };
 };
