@@ -62,7 +62,10 @@ const Navbar = () => {
                 }}
                 className="transition-transform"
                 description={
-                  "@" + (user.email ? user.email.split("@")[0] : "Guest")
+                  user.role
+                    ? user.role?.charAt(0).toUpperCase() +
+                      user.role?.slice(1).toLowerCase()
+                    : "User"
                 }
                 name={user.username}
               />
