@@ -190,4 +190,21 @@ export class AnalyticsService {
       },
     };
   }
+
+  async getUsedDevices(userId: number) {
+    const osCount = await this.prisma.client.groupBy({
+      by: ['os'],
+      where: {
+        userId: userId,
+      },
+      _count: true,
+    });
+
+    return osCount.map((item) => {
+      return {
+        name: item.os,
+        amount: item._count,
+      };
+    });
+  }
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import useIsMobile from "@/hooks/use-mobile";
-import type { ApexOptions } from "apexcharts";
 import { FC } from "react";
+import type { ApexOptions } from "apexcharts";
 import ReactApexChart from "react-apexcharts";
 
 type RegisteredClientsSplineProps = {

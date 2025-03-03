@@ -19,4 +19,9 @@ export class AnalyticsController {
   async getAdminKpi() {
     return await this.analyticsService.getAdminKpi();
   }
+
+  @Get('user-used-devices')
+  async getUsedDevices(@Request() request) {
+    return await this.analyticsService.getUsedDevices(request.user.sub.id);
+  }
 }
