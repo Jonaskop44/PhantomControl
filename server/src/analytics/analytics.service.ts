@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { format, subDays } from 'date-fns';
+import { endOfMonth, format, startOfMonth, subDays, subMonths } from 'date-fns';
+import { console } from 'inspector';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -193,10 +194,14 @@ export class AnalyticsService {
   }
 
   async getUsedDevices(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
     const osCount = await this.prisma.client.groupBy({
       by: ['os'],
       where: {
-        userId: userId,
+        userId: user.role === 'ADMIN' ? undefined : userId,
       },
       _count: true,
     });
@@ -210,14 +215,20 @@ export class AnalyticsService {
   }
 
   async getRegisteredClients(userId: number) {
-    const thirtyDaysAgo = subDays(new Date(), 30);
+    const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+    const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
 
     const clients = await this.prisma.client.groupBy({
       by: ['updatedAt'],
       where: {
-        userId,
+        userId: user.role === 'ADMIN' ? undefined : userId,
         updatedAt: {
-          gte: thirtyDaysAgo,
+          gte: lastMonthStart,
+          lte: lastMonthEnd,
         },
       },
       _count: {
@@ -225,15 +236,22 @@ export class AnalyticsService {
       },
     });
 
-    const dailyCounts = Array.from({ length: 30 }, (_, i) => {
-      const date = subDays(new Date(), 29 - i);
-      const day = format(date, 'dd');
-      const count =
-        clients.find((c) => format(c.updatedAt, 'dd') === day)?._count.id || 0;
+    const daysInLastMonth = Array.from(
+      { length: lastMonthEnd.getDate() },
+      (_, i) => {
+        const date = new Date(lastMonthStart);
+        date.setDate(i + 1);
+        const formattedDate = format(date, 'yyyy-MM-dd');
 
-      return { x: day, y: count };
-    });
+        const count =
+          clients.find(
+            (c) => format(c.updatedAt, 'yyyy-MM-dd') === formattedDate,
+          )?._count.id || 0;
 
-    return dailyCounts;
+        return { x: formattedDate, y: count };
+      },
+    );
+
+    return daysInLastMonth;
   }
 }
