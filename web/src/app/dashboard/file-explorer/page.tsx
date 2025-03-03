@@ -746,7 +746,7 @@ const FileExplorerPage = () => {
             </div>
           </>
         ) : (
-          <div className="flex justify-center items-center h-full">
+          <div className="flex justify-center items-center h-full w-full">
             <h1 className="font-semibold text-2xl">No File Explorer found</h1>
           </div>
         )}
