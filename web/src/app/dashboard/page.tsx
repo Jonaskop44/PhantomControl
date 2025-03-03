@@ -21,17 +21,17 @@ const Dashboard = () => {
         <Spinner label="Loading..." />
       ) : (
         <>
-          <div>
+          <div className="">
             <h1 className="text-medium font-semibold">
               Stats of the last 30 Days
             </h1>
             <KPIStat data={kpi} />
           </div>
-          <div className="flex flex-col md:flex-row gap-3 w-full">
+          <div className="flex flex-col md:flex-row gap-3 w-full mt-12">
             <div className="flex-1">
               <RegisteredClientsSpline data={registeredClients} />
             </div>
-            <div className="flex-1">
+            <div>
               <UsedDevices data={usedDevices} />
             </div>
           </div>

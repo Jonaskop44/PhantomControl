@@ -83,7 +83,7 @@ const RegisteredClientsSpline: FC<RegisteredClientsSplineProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl p-2 shadow-xl">
+    <div className="bg-white rounded-xl p-2 shadow-xl h-full min-h-[400px] flex flex-col">
       <h2 className="text-body-2xlg font-bold text-dark p-3">
         Registered Clients
       </h2>

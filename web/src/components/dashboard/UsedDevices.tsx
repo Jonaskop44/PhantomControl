@@ -82,9 +82,9 @@ const UsedDevices: FC<UsedDevicesListProps> = ({ data }) => {
   };
 
   return (
-    <div className="rounded-[10px] bg-white p-2 shadow-xl">
+    <div className="rounded-[10px] bg-white p-2 shadow-xl h-full min-h-[400px] flex flex-col">
       <h2 className="text-body-2xlg font-bold text-dark p-3">Used Devices</h2>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center flex-grow">
         <ReactApexChart
           options={chartOptions}
           series={data.map((item) => item.amount)}
