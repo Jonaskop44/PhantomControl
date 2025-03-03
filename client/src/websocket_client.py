@@ -23,6 +23,11 @@ def connect():
 def disconnect():
     print('Disconnected from server')
 
+@sio.event
+def registrationFailed(data):
+    print(f"Registration failed: {data['message']}")
+    sio.disconnect()
+    sys.exit(1)  
 
 def connect_to_server():
     max_retries = 5
@@ -35,7 +40,7 @@ def connect_to_server():
             sio.wait()
             return
         except Exception as e:
-            print(f"Connection failed: {e}")
+            print(f"Connection failed!")
             print(f"Retrying in {retry_delay} seconds...")
             
         if attempt < max_retries - 1:

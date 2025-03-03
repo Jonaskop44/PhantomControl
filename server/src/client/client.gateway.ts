@@ -103,7 +103,10 @@ export class ClientGateway
       const registeredClient = await this.clientService.registerClient(data);
 
       if (!registeredClient) {
-        console.warn(`❌ Client registration failed for HWID: ${data.hwid}`);
+        client.emit('registrationFailed', {
+          message:
+            'Client registration failed. The client limit has been reached.',
+        });
         return;
       }
       this.server.emit('updateClientStatus', { hwid: data.hwid, online: true });

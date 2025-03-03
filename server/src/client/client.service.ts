@@ -71,10 +71,7 @@ export class ClientService {
       },
     });
 
-    if (!user) {
-      console.warn(`⚠️ Invalid client key: ${data.clientKey}`);
-      return null;
-    }
+    if (!user) return null;
 
     const existingClient = await this.prisma.client.findUnique({
       where: {
@@ -86,12 +83,7 @@ export class ClientService {
       const clientCount = user.user.clients.length;
       const maxClients = this.getMaxClientsByRole(user.user.role);
 
-      if (clientCount >= maxClients) {
-        console.warn(
-          `⚠️ Client limit reached for user ${user.user.id} (Role: ${user.user.role})`,
-        );
-        return null;
-      }
+      if (clientCount >= maxClients) return null;
     }
 
     return this.prisma.client.upsert({
