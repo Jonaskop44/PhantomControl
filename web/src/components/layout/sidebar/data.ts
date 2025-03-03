@@ -3,7 +3,14 @@ import { NavSection } from "@/types/sidebar";
 export const NAV_DATA: NavSection[] = [
   {
     label: "MAIN MENU",
-    items: [{ title: "Home", icon: "mdi:home", url: "/dashboard", items: [] }],
+    items: [
+      {
+        title: "Home",
+        icon: "solar:home-angle-linear",
+        url: "/dashboard",
+        items: [],
+      },
+    ],
   },
   {
     label: "CLIENT MANAGEMENT",

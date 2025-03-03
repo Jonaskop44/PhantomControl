@@ -42,6 +42,19 @@ export class Helper {
       });
   }
 
+  async killConnection(hwid: string) {
+    return axios
+      .post(`/clients/${hwid}/destroy`)
+      .then((response) => {
+        if (response.status !== 201) return { status: false };
+
+        return { status: true };
+      })
+      .catch(() => {
+        return { status: false };
+      });
+  }
+
   initSocket(callback: (data: { hwid: string; online: boolean }) => void) {
     if (typeof window !== "undefined" && !this.socket && io) {
       this.socket = io("http://localhost:3001");

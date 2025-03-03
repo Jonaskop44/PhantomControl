@@ -82,7 +82,7 @@ const ClientsPage = () => {
     {
       name: "Open Console",
       key: "console",
-      icon: "mdi:console",
+      icon: "teenyicons:terminal-outline",
       color: "primary" as const,
       onClick: async (client: Client) => {
         if (client.username && client.hwid) {
@@ -101,7 +101,7 @@ const ClientsPage = () => {
     {
       name: "Open File Explorer",
       key: "fileExplorer",
-      icon: "mdi:folder",
+      icon: "solar:folder-outline",
       color: "primary" as const,
       onClick: async (client: Client) => {
         if (client.username && client.hwid) {
@@ -119,9 +119,28 @@ const ClientsPage = () => {
       },
     },
     {
+      name: "Disconnect",
+      key: "disconnect",
+      icon: "solar:power-bold",
+      color: "warning" as const,
+      onClick: async (client: Client) => {
+        if (client.hwid) {
+          apiClient.clients.helper
+            .killConnection(client.hwid)
+            .then((response) => {
+              if (response.status) {
+                toast.success("Client disconnected successfully");
+              } else {
+                toast.error("Failed to disconnect client");
+              }
+            });
+        }
+      },
+    },
+    {
       name: "Delete",
       key: "delete",
-      icon: "mdi:trash-can",
+      icon: "solar:trash-bin-trash-outline",
       color: "danger" as const,
       onClick: async (client: Client) => {
         if (client.hwid) {
