@@ -9,6 +9,7 @@ import { useUsedDevices } from "@/hooks/analytics";
 import { Role } from "@/types/user";
 import { Button, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const { user } = userStore();
@@ -16,6 +17,8 @@ const Dashboard = () => {
   const { usedDevices, isLoading: isUsedDevicesLoading } = useUsedDevices();
   const { registeredClients, isLoading: isRegisteredClientsLoading } =
     useRegisteredClients();
+
+  const router = useRouter();
 
   const isBlurred = user.role === Role.USER;
 
@@ -48,8 +51,9 @@ const Dashboard = () => {
                 </p>
                 <Button
                   className="mt-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                  onPress={() => console.log("Buy premium subscription")}
+                  onPress={() => router.push("/pricing")}
                 >
+                  <Icon icon="ph:trend-up" fontSize={20} />
                   Upgrade Now
                 </Button>
               </div>
