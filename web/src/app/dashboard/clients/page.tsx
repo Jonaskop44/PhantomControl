@@ -63,7 +63,7 @@ const ClientsPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [isLoading, setIsLoading] = useState(true);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "username",
+    column: "status",
     direction: "ascending",
   });
   const router = useRouter();
