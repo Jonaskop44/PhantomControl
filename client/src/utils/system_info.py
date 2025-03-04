@@ -25,7 +25,7 @@ def get_hostname():
     
 def get_username():
     try:
-        return subprocess.check_output("whoami", shell=True, encoding="utf-8", errors="ignore").strip()
+        return subprocess.check_output("whoami", shell=True, encoding="utf-8", errors="ignore").strip().split("\\")[-1]
     except Exception as error:
         return f"Error: {str(error)}"
 
@@ -35,3 +35,14 @@ def get_ip():
         return response.text.strip()
     except Exception as error:
         return f"Error: {str(error)}"
+    
+
+
+#Console log the inforamtions
+
+if __name__ == "__main__":
+    print(f"HWID: {get_hwid()}")
+    print(f"OS: {get_os()}")
+    print(f"Hostname: {get_hostname()}")
+    print(f"Username: {get_username()}")
+    print(f"IP: {get_ip()}")
