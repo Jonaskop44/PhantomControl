@@ -18,14 +18,15 @@ const PricingPage = () => {
   const [customPrice, setCustomPrice] = useState(80);
 
   const calculatePrice = (clients: number) => {
-    const basePrice = 60;
+    const baseClients = 60;
+    const basePrice = 80;
     const pricePerClient = 0.4;
-    return Math.round(basePrice + clients * pricePerClient);
+
+    return Math.round(basePrice + (clients - baseClients) * pricePerClient);
   };
 
   const handleSliderChange = (value: number | number[]) => {
     const newValue = Array.isArray(value) ? value[0] : value;
-    console.log(newValue);
     setClientCount(newValue);
     setCustomPrice(calculatePrice(newValue));
   };
@@ -182,6 +183,7 @@ const PricingPage = () => {
                 onChange={handleSliderChange}
                 className="max-w-full"
                 color="secondary"
+                aria-label="Client limit slider"
                 showSteps={true}
                 marks={[
                   { value: 60, label: "60" },
@@ -212,6 +214,7 @@ const PricingPage = () => {
               color="secondary"
               className="w-full"
               size="lg"
+              aria-label="Subscribe to custom plan"
               startContent={<Icon icon="mdi:credit-card" className="h-4 w-4" />}
             >
               Subscribe Now
