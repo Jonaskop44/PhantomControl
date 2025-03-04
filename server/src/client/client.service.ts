@@ -27,7 +27,7 @@ export class ClientService {
   private getMaxClientsByRole(role: Role): number {
     switch (role) {
       case Role.PREMIUM:
-        return 10;
+        return 20;
       case Role.VIP:
         return 50;
       case Role.USER:
