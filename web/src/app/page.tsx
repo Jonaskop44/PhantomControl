@@ -57,7 +57,6 @@ const Home = () => {
       errors.push("Password must include at least 1 symbol.");
     }
 
-    console.log(errors);
     return errors;
   }, [data.password]);
 
