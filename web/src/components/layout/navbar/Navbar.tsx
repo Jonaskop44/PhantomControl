@@ -91,7 +91,9 @@ const Navbar = () => {
               <DropdownSection showDivider>
                 <DropdownItem
                   key="settings"
-                  startContent={<Icon icon="line-md:cog" fontSize={20} />}
+                  startContent={
+                    <Icon icon="solar:settings-outline" fontSize={20} />
+                  }
                   textValue="Settings"
                   onPress={() => router.push("/dashboard/profile/settings")}
                 >
@@ -105,14 +107,14 @@ const Navbar = () => {
                   textValue="Plans"
                   onPress={() => router.push("/pricing")}
                 >
-                  Settings
+                  Plans
                 </DropdownItem>
               </DropdownSection>
               <DropdownSection>
                 <DropdownItem
                   key="logout"
                   color="danger"
-                  startContent={<Icon icon="line-md:logout" />}
+                  startContent={<Icon icon="solar:logout-3-line-duotone" />}
                   onPress={useHandleLogout()}
                   textValue="Log Out"
                 >
