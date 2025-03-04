@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { endOfMonth, format, startOfMonth, subDays, subMonths } from 'date-fns';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -196,6 +196,11 @@ export class AnalyticsService {
       where: { id: userId },
     });
 
+    if (!user || user.role === 'USER')
+      throw new ForbiddenException(
+        'You are not allowed to access this resource',
+      );
+
     const osCount = await this.prisma.client.groupBy({
       by: ['os'],
       where: {
@@ -216,6 +221,11 @@ export class AnalyticsService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
+
+    if (!user || user.role === 'USER')
+      throw new ForbiddenException(
+        'You are not allowed to access this resource',
+      );
 
     const clients = await this.prisma.client.groupBy({
       by: ['updatedAt'],

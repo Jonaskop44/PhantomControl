@@ -99,8 +99,6 @@ export const useUsedDevices = () => {
           const data = response.data;
 
           setUsedDevices(data);
-        } else {
-          toast.error("Failed to fetch user KPI");
         }
       })
       .finally(() => setIsLoading(false));
@@ -123,8 +121,6 @@ export const useRegisteredClients = () => {
           const data = response.data;
 
           setRegisteredClients(data);
-        } else {
-          toast.error("Failed to fetch user KPI");
         }
       })
       .finally(() => setIsLoading(false));
