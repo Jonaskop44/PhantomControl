@@ -233,7 +233,7 @@ const PricingPage = () => {
           <Button
             variant="light"
             color="primary"
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/dashboard")}
           >
             Back to Dashboard
           </Button>

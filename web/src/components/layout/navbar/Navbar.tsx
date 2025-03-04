@@ -97,6 +97,16 @@ const Navbar = () => {
                 >
                   Settings
                 </DropdownItem>
+                <DropdownItem
+                  key="Plans"
+                  startContent={
+                    <Icon icon="ion:pricetags-outline" fontSize={16} />
+                  }
+                  textValue="Plans"
+                  onPress={() => router.push("/pricing")}
+                >
+                  Settings
+                </DropdownItem>
               </DropdownSection>
               <DropdownSection>
                 <DropdownItem
