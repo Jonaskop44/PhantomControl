@@ -16,7 +16,6 @@ const Home = () => {
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const errors: string[] = [];
 
   const [data, setData] = useState({
     username: "",
@@ -43,18 +42,24 @@ const Home = () => {
     return data.username.trim() === "";
   }, [data.username]);
 
-  if (data.password.length < 10) {
-    errors.push("Password must be 10 characters or more.");
-  }
-  if ((data.password.match(/[0-9]/g) || []).length < 1) {
-    errors.push("Password must include at least 1 number.");
-  }
-  if ((data.password.match(/[A-Z]/g) || []).length < 1) {
-    errors.push("Password must include at least 1 upper case letter");
-  }
-  if ((data.password.match(/[^a-z0-9]/gi) || []).length < 1) {
-    errors.push("Password must include at least 1 symbol.");
-  }
+  const passwordErrors = useMemo(() => {
+    const errors: string[] = [];
+    if (data.password.length < 10) {
+      errors.push("Password must be 10 characters or more.");
+    }
+    if ((data.password.match(/[0-9]/g) || []).length < 1) {
+      errors.push("Password must include at least 1 number.");
+    }
+    if ((data.password.match(/[A-Z]/g) || []).length < 1) {
+      errors.push("Password must include at least 1 upper case letter.");
+    }
+    if ((data.password.match(/[^a-z0-9]/gi) || []).length < 1) {
+      errors.push("Password must include at least 1 symbol.");
+    }
+
+    console.log(errors);
+    return errors;
+  }, [data.password]);
 
   const toggleVariant = useCallback(() => {
     setData({
@@ -78,6 +83,11 @@ const Home = () => {
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setTouched({
+      username: true,
+      email: true,
+      password: true,
+    });
     setIsLoading(true);
 
     if (variant === "LOGIN") {
@@ -108,7 +118,9 @@ const Home = () => {
     if (variant === "SIGNUP") {
       const response = await apiClient.auth.helper.register(data);
       if (response.status === false) {
-        toast.error("There is already an account with this email address");
+        if (touched.password) {
+          toast.error("There is already an account with this email address");
+        }
       } else {
         const login = await apiClient.auth.helper.login(data);
         if (data.rememberMe) {
@@ -189,11 +201,11 @@ const Home = () => {
                 onBlur={() => handleBlur("password")}
                 isInvalid={
                   touched.password &&
-                  (variant === "LOGIN" ? false : errors.length > 0)
+                  (variant === "LOGIN" ? false : passwordErrors.length > 0)
                 }
                 errorMessage={() => (
                   <ul>
-                    {errors.map((error, i) => (
+                    {passwordErrors.map((error, i) => (
                       <li key={i}>{error}</li>
                     ))}
                   </ul>
