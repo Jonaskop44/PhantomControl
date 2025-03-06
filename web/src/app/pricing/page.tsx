@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { Role } from "@/types/user";
 
 const PricingPage = () => {
   const [clientCount, setClientCount] = useState(60);
@@ -31,6 +32,10 @@ const PricingPage = () => {
     const newValue = Array.isArray(value) ? value[0] : value;
     setClientCount(newValue);
     setCustomPrice(calculatePrice(newValue));
+  };
+
+  const handleSubscribe = (plan: Role) => {
+    router.push(`/payment?plan=${plan.toLowerCase()}`);
   };
 
   return (
@@ -86,7 +91,12 @@ const PricingPage = () => {
             </ul>
           </CardBody>
           <CardFooter>
-            <Button color="primary" className="w-full" size="lg">
+            <Button
+              color="primary"
+              className="w-full"
+              size="lg"
+              onPress={() => handleSubscribe(Role.PREMIUM)}
+            >
               Get Started
             </Button>
           </CardFooter>
@@ -139,7 +149,12 @@ const PricingPage = () => {
             </ul>
           </CardBody>
           <CardFooter>
-            <Button color="primary" className="w-full" size="lg">
+            <Button
+              color="primary"
+              className="w-full"
+              size="lg"
+              onPress={() => handleSubscribe(Role.VIP)}
+            >
               Get Started
             </Button>
           </CardFooter>
