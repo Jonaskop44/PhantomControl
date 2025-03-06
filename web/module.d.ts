@@ -1,5 +1,5 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
-    STRIPE_PUBLIC_KEY: string;
+    NEXT_PUBLIC_STRIPE_PUBLIC_KEY: string;
   }
 }

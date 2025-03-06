@@ -18,6 +18,7 @@ const apiClient = new ApiClient();
 const Checkout: FC<CheckoutProps> = ({ plan }) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
+
   //   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   //   const handlePayment = async (paymentIntent: unknown) => {
