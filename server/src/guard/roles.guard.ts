@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
+import { JWT_SECRET } from 'src/lib/constants';
 import { UserService } from 'src/user/user.service';
 
 export const ROLES_KEY = 'roles';
@@ -37,7 +38,7 @@ export class RolesGuard implements CanActivate {
 
     try {
       const user = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
+        secret: JWT_SECRET,
       });
 
       const userData = await this.userService.findUserByEmail(user.email);

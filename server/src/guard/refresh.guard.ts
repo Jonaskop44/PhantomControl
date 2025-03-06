@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { JWT_REFRESH_TOKEN } from 'src/lib/constants';
 
 @Injectable()
 export class RefreshJwtGuard implements CanActivate {
@@ -17,7 +18,7 @@ export class RefreshJwtGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('Token not found');
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_REFRESH_TOKEN,
+        secret: JWT_REFRESH_TOKEN,
       });
       request.user = payload;
     } catch (error) {

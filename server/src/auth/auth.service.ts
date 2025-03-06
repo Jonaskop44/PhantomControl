@@ -4,6 +4,7 @@ import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
 import { compare } from 'bcrypt';
 import { User } from 'src/user/entities/user.entity';
+import { JWT_REFRESH_TOKEN, JWT_SECRET } from 'src/lib/constants';
 
 const EXPIRE_TIME = 1000 * 60 * 60 * 24;
 
@@ -39,11 +40,11 @@ export class AuthService {
       backendTokens: {
         accessToken: await this.jwtService.signAsync(payload, {
           expiresIn: '1d',
-          secret: process.env.JWT_SECRET,
+          secret: JWT_SECRET,
         }),
         refreshToken: await this.jwtService.signAsync(payload, {
           expiresIn: '7d',
-          secret: process.env.JWT_REFRESH_TOKEN,
+          secret: JWT_REFRESH_TOKEN,
         }),
         expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
       },
@@ -59,11 +60,11 @@ export class AuthService {
     return {
       accessToken: await this.jwtService.signAsync(payload, {
         expiresIn: '1d',
-        secret: process.env.JWT_SECRET,
+        secret: JWT_SECRET,
       }),
       refreshToken: await this.jwtService.signAsync(payload, {
         expiresIn: '7d',
-        secret: process.env.JWT_REFRESH_TOKEN,
+        secret: JWT_REFRESH_TOKEN,
       }),
       expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
     };
@@ -72,7 +73,7 @@ export class AuthService {
   async verifyToken(token: string) {
     try {
       return await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
+        secret: JWT_SECRET,
       });
     } catch (error) {
       throw new UnauthorizedException('Invalid token');

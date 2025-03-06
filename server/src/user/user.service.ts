@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { JWT_SECRET } from 'src/lib/constants';
 
 @Injectable()
 export class UserService {
@@ -77,7 +78,7 @@ export class UserService {
   async getUserDataFromToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
+        secret: JWT_SECRET,
       });
       const userEmail = decoded.email;
 
