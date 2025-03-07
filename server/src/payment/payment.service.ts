@@ -11,7 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
 @Injectable()
-export class StripeService {
+export class PaymentService {
   private stripe: Stripe;
 
   constructor(

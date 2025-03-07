@@ -7,13 +7,13 @@ import {
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
-import { StripeService } from './stripe.service';
+import { PaymentService } from './payment.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 
 @Controller('stripe')
 @UseGuards(JwtGuard)
-export class StripeController {
-  constructor(private readonly stripeService: StripeService) {}
+export class PaymentController {
+  constructor(private readonly stripeService: PaymentService) {}
 
   @Post('create-checkout-session')
   async createCheckoutSession(
