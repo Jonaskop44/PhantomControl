@@ -15,11 +15,6 @@ import { JwtGuard } from 'src/guard/jwt.guard';
 export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
-  @Get('products')
-  async getProducts() {
-    return this.stripeService.getProducts();
-  }
-
   @Post('create-checkout-session')
   async createCheckoutSession(
     @Request() request,

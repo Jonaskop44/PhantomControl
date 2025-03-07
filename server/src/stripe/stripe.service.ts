@@ -23,16 +23,6 @@ export class StripeService {
     });
   }
 
-  async getProducts() {
-    const price = await this.stripe.prices.list();
-    console.log(price);
-    const mian = await this.stripe.prices.retrieve(
-      'price_1QzgacIzdslgLpcvBaPwNv9h',
-    );
-    console.log(mian);
-    return (await this.stripe.products.list()).data;
-  }
-
   async createCheckoutSession(request: Request, planName: string) {
     try {
       const planId = await this.stripe.products.search({
