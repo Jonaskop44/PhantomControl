@@ -6,7 +6,7 @@ export class Helper {
 
   async createCheckoutSession(plan: Role | null) {
     return axios
-      .post(`stripe/create-checkout-session?plan=${plan}`)
+      .post(`payment/create-checkout-session?plan=${plan}`)
       .then((response) => {
         if (response.status !== 201) return { data: null, status: false };
 
@@ -20,7 +20,7 @@ export class Helper {
 
   async getSessionStatus(sessionId: string) {
     return axios
-      .get(`stripe/session-status?session_id=${sessionId}`)
+      .get(`payment/session-status?session_id=${sessionId}`)
       .then((response) => {
         if (response.status !== 200) return { data: null, status: false };
 

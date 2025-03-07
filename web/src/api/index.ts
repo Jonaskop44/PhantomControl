@@ -5,7 +5,7 @@ import { Session } from "./session";
 import { Clients } from "./clients";
 import { User } from "./user";
 import { Analytics } from "./analytics";
-import { Stripe } from "./stripe";
+import { Payment } from "./payment";
 
 export default class ApiClient {
   auth: Auth;
@@ -13,14 +13,14 @@ export default class ApiClient {
   clients: Clients;
   user: User;
   analytics: Analytics;
-  stripe: Stripe;
+  stripe: Payment;
   constructor() {
     this.auth = new Auth();
     this.session = new Session();
     this.clients = new Clients();
     this.user = new User();
     this.analytics = new Analytics();
-    this.stripe = new Stripe();
+    this.stripe = new Payment();
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get(
       "accessToken"
