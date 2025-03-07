@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Role } from "@/types/user";
 import Checkout from "@/components/Payment/Checkout";
+import Loader from "@/components/Loader";
 
 const PaymentPage = () => {
   const [plan, setPlan] = useState<{ type: Role | null; valid: boolean }>({
@@ -10,6 +11,7 @@ const PaymentPage = () => {
     valid: false,
   });
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const planParam = searchParams.get("plan");
@@ -23,22 +25,13 @@ const PaymentPage = () => {
       setPlan({ type: planParam.toUpperCase() as Role, valid: true });
     } else {
       setPlan({ type: null, valid: false });
+      router.push("/dashboard");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   return (
     <div className="flex justify-center items-center h-screen">
-      {plan.valid ? (
-        <Checkout plan={plan.type} />
-      ) : (
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4 text-blackho">Invalid Plan</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            The plan you are trying to subscribe to is invalid. Please try
-            again.
-          </p>
-        </div>
-      )}
+      {plan.valid ? <Checkout plan={plan.type} /> : <Loader />}
     </div>
   );
 };

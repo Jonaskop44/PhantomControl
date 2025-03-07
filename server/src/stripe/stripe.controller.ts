@@ -31,9 +31,12 @@ export class StripeController {
   }
 
   @Get('session-status')
-  async getSessionStatus(@Query('session_id') sessionId: string) {
+  async getSessionStatus(
+    @Request() request,
+    @Query('session_id') sessionId: string,
+  ) {
     if (!sessionId) throw new BadRequestException('Session ID is required');
 
-    return this.stripeService.getSessionStatus(sessionId);
+    return this.stripeService.getSessionStatus(sessionId, request.user.sub.id);
   }
 }

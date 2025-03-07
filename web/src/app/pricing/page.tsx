@@ -241,9 +241,6 @@ const PricingPage = () => {
       </div>
 
       <div className="mt-16 text-center">
-        <p className="text-default-500">
-          All plans include a 14-day free trial. No credit card required.
-        </p>
         <p className="mt-2">
           <Button
             variant="light"

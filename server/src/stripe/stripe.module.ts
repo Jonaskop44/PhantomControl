@@ -3,6 +3,7 @@ import { StripeService } from './stripe.service';
 import { StripeController } from './stripe.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({})
 export class StripeModule {
@@ -13,6 +14,7 @@ export class StripeModule {
       imports: [ConfigModule.forRoot()],
       providers: [
         StripeService,
+        PrismaService,
         JwtService,
         {
           provide: 'STRIPE_SECRET_KEY',
