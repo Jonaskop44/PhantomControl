@@ -82,11 +82,6 @@ export class PaymentService {
         subscriptionInfo.items.data[0].plan.product as string,
       );
 
-      console.log('[STRIPE SESSION]: ', session);
-      console.log('[STRIPE CUSTOMER]: ', customer);
-      console.log('[STRIPE SUBSCRIPTION]: ', subscriptionInfo);
-      console.log('[STRIPE PRODUCT]: ', product);
-
       //Update user role and subscription
       await handleSubscription(
         this.prisma,
