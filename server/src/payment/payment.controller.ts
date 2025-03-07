@@ -10,10 +10,10 @@ import {
 import { PaymentService } from './payment.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 
-@Controller('stripe')
+@Controller('payment')
 @UseGuards(JwtGuard)
 export class PaymentController {
-  constructor(private readonly stripeService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService) {}
 
   @Post('create-checkout-session')
   async createCheckoutSession(
@@ -22,7 +22,7 @@ export class PaymentController {
   ) {
     if (!planName) throw new BadRequestException('Plan is required');
 
-    return this.stripeService.createCheckoutSession(request, planName);
+    return this.paymentService.createCheckoutSession(request, planName);
   }
 
   @Get('session-status')
@@ -32,6 +32,6 @@ export class PaymentController {
   ) {
     if (!sessionId) throw new BadRequestException('Session ID is required');
 
-    return this.stripeService.getSessionStatus(sessionId, request.user.sub.id);
+    return this.paymentService.getSessionStatus(sessionId, request.user.sub.id);
   }
 }
