@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
+import { handleSubscription } from 'src/lib/helper';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -81,17 +82,26 @@ export class PaymentService {
         subscriptionInfo.items.data[0].plan.product as string,
       );
 
+      console.log('[STRIPE SESSION]: ', session);
+      console.log('[STRIPE CUSTOMER]: ', customer);
+      console.log('[STRIPE SUBSCRIPTION]: ', subscriptionInfo);
+      console.log('[STRIPE PRODUCT]: ', product);
+
       //Update user role and subscription
-      await this.handleSubscription(
+      await handleSubscription(
+        this.prisma,
         userId,
         customer.id as string,
         product.name.toLocaleUpperCase() as Role,
       );
 
+      const { phone, tax_exempt, tax_ids, ...customer_details } =
+        customer.customer_details;
+
       return {
         status: session.payment_status,
-        customer: customer,
-        product: product,
+        customer: customer_details,
+        product: { name: product.name, price: session.amount_total / 100 },
       };
     } catch (error) {
       if (error.type === 'StripeInvalidRequestError')
@@ -100,37 +110,5 @@ export class PaymentService {
       console.log('[STRIPE getSessionStatus]: ', error);
       throw new InternalServerErrorException('Error getting session status');
     }
-  }
-
-  private async handleSubscription(
-    userId: number,
-    customerId: string,
-    role: Role,
-  ) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    await this.prisma.subscription.upsert({
-      where: {
-        userId: userId,
-      },
-      create: {
-        userId: userId,
-        customerId: customerId,
-      },
-      update: {
-        customerId: customerId,
-      },
-    });
-
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        role: role,
-      },
-    });
   }
 }
