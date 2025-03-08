@@ -34,4 +34,14 @@ export class PaymentController {
 
     return this.paymentService.getSessionStatus(sessionId, request.user.sub.id);
   }
+
+  @Get('invoices')
+  async getAllInvoices(@Request() request) {
+    return this.paymentService.getAllInvoices(request.user.sub.id);
+  }
+
+  @Get('subscription')
+  async getcurrentSubscription(@Request() request) {
+    return this.paymentService.getcurrentSubscription(request.user.sub.id);
+  }
 }

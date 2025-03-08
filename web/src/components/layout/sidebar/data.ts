@@ -35,4 +35,21 @@ export const NAV_DATA: NavSection[] = [
       },
     ],
   },
+  {
+    label: "PAYMENT SETTINGS",
+    items: [
+      {
+        title: "Subscriptions",
+        icon: "solar:card-linear",
+        url: "/dashboard/subscriptions",
+        items: [],
+      },
+      {
+        title: "Billing",
+        icon: "solar:bill-list-linear",
+        url: "/dashboard/billing",
+        items: [],
+      },
+    ],
+  },
 ];

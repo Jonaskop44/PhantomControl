@@ -106,4 +106,52 @@ export class PaymentService {
       throw new InternalServerErrorException('Error getting session status');
     }
   }
+
+  async getAllInvoices(userId: number) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription)
+      throw new NotFoundException('This user has no subscription');
+
+    const invoices = await this.stripe.invoices
+      .list({
+        customer: subscription.customerId,
+      })
+      .catch(() => {
+        throw new ConflictException(
+          'There was an error while fetching invoices',
+        );
+      });
+
+    return invoices.data.map((invoice) => ({
+      amount: invoice.amount_paid / 100,
+      status: invoice.status,
+      createdAt: invoice.created,
+    }));
+  }
+
+  async getcurrentSubscription(userId: number) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription)
+      throw new NotFoundException('This user has no subscription');
+
+    const stripeSubscription = await this.stripe.subscriptions
+      .retrieve(subscription.customerId)
+      .catch(() => {
+        throw new ConflictException(
+          'There was an error while fetching subscription',
+        );
+      });
+
+    return stripeSubscription;
+  }
 }
