@@ -5,10 +5,10 @@ import Loader from "@/components/Loader";
 import type { Customer, Product } from "@/types/customer";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AnimatedBackground } from "@/components/Return/Background";
+import AnimatedBackground from "@/components/Return/Background";
 import { renderConfetti } from "@/components/Return/Animations";
-import { SuccessCard } from "@/components/Return/SuccessCard";
-import { ErrorCard } from "@/components/Return/ErrorCard";
+import SuccessCard from "@/components/Return/SuccessCard";
+import ErrorCard from "@/components/Return/ErrorCard";
 
 const apiClient = new ApiClient();
 type Status = "SUCCESS" | "LOADING" | "ERROR";
@@ -52,7 +52,7 @@ const ReturnPage = () => {
         </div>
       ) : (
         <div className="flex justify-center items-center min-h-screen p-6">
-          <AnimatedBackground colorScheme="error" />
+          <AnimatedBackground colorScheme="danger" />
           <ErrorCard customer={customer} product={product} />
         </div>
       )}

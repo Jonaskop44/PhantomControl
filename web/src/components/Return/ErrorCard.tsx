@@ -7,13 +7,14 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { containerVariants, itemVariants } from "./Animations";
 import { CustomerDetails } from "./CustomerDetails";
+import { FC } from "react";
 
 interface ErrorCardProps {
   customer?: Customer;
   product?: Product;
 }
 
-export const ErrorCard = ({ customer, product }: ErrorCardProps) => {
+const ErrorCard: FC<ErrorCardProps> = ({ customer, product }) => {
   const router = useRouter();
 
   return (
@@ -24,7 +25,7 @@ export const ErrorCard = ({ customer, product }: ErrorCardProps) => {
       className="w-full max-w-2xl z-10"
     >
       <Card className="w-full shadow-xl">
-        <CardHeader className="flex gap-5 bg-error-50 dark:bg-error-900/20 p-8">
+        <CardHeader className="flex gap-5 bg-danger-50 p-8">
           <motion.div
             initial={{ scale: 0 }}
             animate={{
@@ -46,7 +47,7 @@ export const ErrorCard = ({ customer, product }: ErrorCardProps) => {
           >
             <Icon
               icon="akar-icons:cross"
-              className="text-error"
+              className="text-danger"
               fontSize={36}
             />
           </motion.div>
@@ -92,3 +93,5 @@ export const ErrorCard = ({ customer, product }: ErrorCardProps) => {
     </motion.div>
   );
 };
+
+export default ErrorCard;

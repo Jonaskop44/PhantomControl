@@ -7,13 +7,14 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { containerVariants, itemVariants } from "./Animations";
 import { CustomerDetails } from "./CustomerDetails";
+import { FC } from "react";
 
 interface SuccessCardProps {
   customer?: Customer;
   product?: Product;
 }
 
-export const SuccessCard = ({ customer, product }: SuccessCardProps) => {
+const SuccessCard: FC<SuccessCardProps> = ({ customer, product }) => {
   const router = useRouter();
 
   return (
@@ -92,3 +93,5 @@ export const SuccessCard = ({ customer, product }: SuccessCardProps) => {
     </motion.div>
   );
 };
+
+export default SuccessCard;
