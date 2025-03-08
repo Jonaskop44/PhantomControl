@@ -80,7 +80,7 @@ const SuccessCard: FC<SuccessCardProps> = ({ customer, product }) => {
               endContent={
                 <Icon icon="solar:arrow-right-linear" fontSize={20} />
               }
-              onClick={() => router.push("/dashboard")}
+              onPress={() => router.push("/dashboard")}
               fullWidth
               size="lg"
               className="text-lg h-14"
