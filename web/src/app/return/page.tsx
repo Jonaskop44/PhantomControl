@@ -18,9 +18,10 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 const apiClient = new ApiClient();
+type Status = "SUCCESS" | "LOADING" | "ERROR";
 
 const ReturnPage = () => {
-  const [status, setStatus] = useState<boolean>(false);
+  const [status, setStatus] = useState<Status>("LOADING");
   const [customer, setCustomer] = useState<Customer>();
   const [product, setProduct] = useState<Product>();
   const searchParams = useSearchParams();
@@ -33,7 +34,11 @@ const ReturnPage = () => {
 
     apiClient.stripe.helper.getSessionStatus(sessionId).then((response) => {
       if (response.status) {
-        setStatus(true);
+        if (response.data.status === "paid") {
+          setStatus("SUCCESS");
+        } else {
+          setStatus("ERROR");
+        }
         setCustomer(response.data.customer);
         setProduct(response.data.product);
       } else {
@@ -64,9 +69,9 @@ const ReturnPage = () => {
 
   return (
     <>
-      {!status ? (
+      {status === "LOADING" ? (
         <Loader />
-      ) : (
+      ) : status === "SUCCESS" ? (
         <div className="flex justify-center items-center min-h-screen p-6">
           {/* Animated gradient background */}
           <motion.div
@@ -284,6 +289,10 @@ const ReturnPage = () => {
               })}
             </motion.div>
           )}
+        </div>
+      ) : (
+        <div>
+          <h1>Payment Failed</h1>
         </div>
       )}
     </>

@@ -83,12 +83,14 @@ export class PaymentService {
       );
 
       //Update user role and subscription
-      await handleSubscription(
-        this.prisma,
-        userId,
-        customer.id as string,
-        product.name.toLocaleUpperCase() as Role,
-      );
+      if (session.payment_status === 'paid') {
+        await handleSubscription(
+          this.prisma,
+          userId,
+          customer.id as string,
+          product.name.toLocaleUpperCase() as Role,
+        );
+      }
 
       const { phone, tax_exempt, tax_ids, ...customer_details } =
         customer.customer_details;
