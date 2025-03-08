@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { containerVariants, itemVariants } from "./Animations";
 import { CustomerDetails } from "./CustomerDetails";
 import { FC } from "react";
+import { userStore } from "@/data/userStore";
 
 interface SuccessCardProps {
   customer?: Customer;
@@ -16,6 +17,7 @@ interface SuccessCardProps {
 
 const SuccessCard: FC<SuccessCardProps> = ({ customer, product }) => {
   const router = useRouter();
+  const { fetchUser } = userStore();
 
   return (
     <motion.div
@@ -80,7 +82,10 @@ const SuccessCard: FC<SuccessCardProps> = ({ customer, product }) => {
               endContent={
                 <Icon icon="solar:arrow-right-linear" fontSize={20} />
               }
-              onPress={() => router.push("/dashboard")}
+              onPress={() => {
+                router.push("/dashboard");
+                fetchUser();
+              }}
               fullWidth
               size="lg"
               className="text-lg h-14"
