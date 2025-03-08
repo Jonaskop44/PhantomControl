@@ -47,21 +47,24 @@ const Checkout: FC<CheckoutProps> = ({ plan }) => {
   }, [plan]);
 
   return (
-    <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 text-blackho">
-          Subscribe to {plan}
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          You are about to subscribe to the {plan} plan. Please enter your
-          payment details below to proceed.
-        </p>
+    <div className="text-center">
+      <h1 className="text-4xl font-bold mb-4 text-blackho">
+        Subscribe to {plan}
+      </h1>
+      <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        You are about to subscribe to the {plan} plan. Please enter your payment
+        details below to proceed.
+      </p>
 
-        <div className="mt-8">
-          <EmbeddedCheckout />
-        </div>
+      <div className="mt-8">
+        <EmbeddedCheckoutProvider
+          stripe={stripePromise}
+          options={{ clientSecret }}
+        >
+          <EmbeddedCheckout className="" />
+        </EmbeddedCheckoutProvider>
       </div>
-    </EmbeddedCheckoutProvider>
+    </div>
   );
 };
 

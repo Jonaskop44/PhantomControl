@@ -57,6 +57,7 @@ export class PaymentService {
         ],
         mode: 'subscription',
         billing_address_collection: 'required',
+        automatic_tax: { enabled: true },
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
       });
 
