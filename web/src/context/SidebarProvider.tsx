@@ -1,7 +1,21 @@
 "use client";
 
+import type React from "react";
 import useIsMobile from "@/hooks/use-mobile";
-import { createContext, FC, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  type FC,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+import { type AnimationControls, useAnimationControls } from "framer-motion";
+import {
+  type AnimationState,
+  type TransitionSettings,
+  defaultTransitionSettings,
+} from "@/components/Layout/Sidebar/sidebar-animations";
 
 type SidebarState = "EXPANDED" | "COLLAPSED";
 
@@ -11,11 +25,18 @@ interface SidebarContextProps {
   setIsOpen: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  animationControls: AnimationControls;
+  animationState: AnimationState;
+  transitionSettings: TransitionSettings;
+  animateIcon: (icon: string) => void;
+  animatedIcons: Set<string>;
 }
 
 interface SidebarProviderProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
+  stiffness?: number;
+  damping?: number;
 }
 
 const SidebarContext = createContext<SidebarContextProps | null>(null);
@@ -30,21 +51,51 @@ export const useSidebarContext = () => {
 
 const SidebarProvider: FC<SidebarProviderProps> = ({
   children,
-  defaultOpen = true,
+  defaultOpen = false,
+  stiffness = defaultTransitionSettings.stiffness,
+  damping = defaultTransitionSettings.damping,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const isMobile = useIsMobile();
+  const animationControls = useAnimationControls();
+  const [animationState, setAnimationState] = useState<AnimationState>(
+    defaultOpen ? "open" : "closed"
+  );
+  const animatedIcons = useRef(new Set<string>()).current;
+
+  const transitionSettings: TransitionSettings = {
+    type: "spring",
+    stiffness,
+    damping,
+  };
 
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
+      setAnimationState("closed");
+      animationControls.start("closed");
     } else {
       setIsOpen(true);
+      setAnimationState("open");
+      animationControls.start("open");
     }
-  }, [isMobile]);
+  }, [isMobile, animationControls]);
+
+  useEffect(() => {
+    setAnimationState(isOpen ? "open" : "closed");
+    animationControls.start(isOpen ? "open" : "closed");
+  }, [isOpen, animationControls]);
 
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
+  };
+
+  // Function to track animated icons to prevent duplicate animations
+  const animateIcon = (icon: string) => {
+    animatedIcons.add(icon);
+    setTimeout(() => {
+      animatedIcons.delete(icon);
+    }, 1000);
   };
 
   return (
@@ -55,6 +106,11 @@ const SidebarProvider: FC<SidebarProviderProps> = ({
         setIsOpen,
         isMobile,
         toggleSidebar,
+        animationControls,
+        animationState,
+        transitionSettings,
+        animateIcon,
+        animatedIcons,
       }}
     >
       {children}

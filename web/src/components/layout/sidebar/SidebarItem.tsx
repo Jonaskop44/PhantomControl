@@ -1,6 +1,12 @@
+"use client";
+
+import type React from "react";
+
 import Link from "next/link";
 import { useSidebarContext } from "@/context/SidebarProvider";
 import clsx from "clsx";
+import { motion } from "framer-motion";
+import { itemVariants } from "./sidebar-animations";
 
 const SidebarItem = (
   props: {
@@ -9,7 +15,7 @@ const SidebarItem = (
     isActive: boolean;
   } & ({ as?: "button"; onClick: () => void } | { as: "link"; href: string })
 ) => {
-  const { toggleSidebar, isMobile } = useSidebarContext();
+  const { toggleSidebar, isMobile, transitionSettings } = useSidebarContext();
 
   const baseStyles =
     "rounded-lg px-3.5 font-medium text-dark-4 transition-all duration-200";
@@ -32,24 +38,40 @@ const SidebarItem = (
 
   if (props.as === "link") {
     return (
-      <Link
-        href={props.href}
-        onClick={() => isMobile && toggleSidebar()}
-        className={linkStyles}
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        whileTap="tap"
+        variants={itemVariants(transitionSettings)}
       >
-        {props.children}
-      </Link>
+        <Link
+          href={props.href}
+          onClick={() => isMobile && toggleSidebar()}
+          className={linkStyles}
+        >
+          {props.children}
+        </Link>
+      </motion.div>
     );
   }
 
   return (
-    <button
-      onClick={props.onClick}
-      aria-expanded={props.isActive}
-      className={buttonStyles}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
+      whileTap="tap"
+      variants={itemVariants(transitionSettings)}
     >
-      {props.children}
-    </button>
+      <button
+        onClick={props.onClick}
+        aria-expanded={props.isActive}
+        className={buttonStyles}
+      >
+        {props.children}
+      </button>
+    </motion.div>
   );
 };
 
