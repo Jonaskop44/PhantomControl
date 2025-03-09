@@ -1,5 +1,6 @@
 export enum Role {
   ADMIN = "ADMIN",
+  CUSTOM = "CUSTOM",
   VIP = "VIP",
   PREMIUM = "PREMIUM",
   USER = "USER",

@@ -35,7 +35,7 @@ const PricingPage = () => {
   };
 
   const handleSubscribe = (plan: Role) => {
-    router.push(`/payment?plan=${plan.toLowerCase()}`);
+    router.push(`/payment?plan=${plan}`);
   };
 
   return (
@@ -62,7 +62,7 @@ const PricingPage = () => {
               PREMIUM
             </Chip>
             <div className="flex items-baseline mt-3">
-              <span className="text-4xl font-bold">$20</span>
+              <span className="text-4xl font-bold">€20</span>
               <span className="text-small text-default-500 ml-1">/month</span>
             </div>
           </CardHeader>
@@ -116,7 +116,7 @@ const PricingPage = () => {
               VIP
             </Chip>
             <div className="flex items-baseline mt-3">
-              <span className="text-4xl font-bold">$50</span>
+              <span className="text-4xl font-bold">€50</span>
               <span className="text-small text-default-500 ml-1">/month</span>
             </div>
           </CardHeader>
@@ -173,7 +173,7 @@ const PricingPage = () => {
               CUSTOM
             </Chip>
             <div className="flex items-baseline mt-3">
-              <span className="text-4xl font-bold">${customPrice}</span>
+              <span className="text-4xl font-bold">€{customPrice}</span>
               <span className="text-small text-default-500 ml-1">/month</span>
             </div>
           </CardHeader>
@@ -233,6 +233,7 @@ const PricingPage = () => {
               size="lg"
               aria-label="Subscribe to custom plan"
               startContent={<Icon icon="mdi:credit-card" className="h-4 w-4" />}
+              onPress={() => handleSubscribe(Role.CUSTOM)}
             >
               Subscribe Now
             </Button>

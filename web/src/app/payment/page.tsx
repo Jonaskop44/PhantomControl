@@ -18,11 +18,11 @@ const PaymentPage = () => {
 
     if (
       planParam &&
-      Object.values(Role).includes(planParam.toUpperCase() as Role) &&
+      Object.values(Role).includes(planParam as Role) &&
       planParam !== Role.USER &&
       planParam !== Role.ADMIN
     ) {
-      setPlan({ type: planParam.toUpperCase() as Role, valid: true });
+      setPlan({ type: planParam as Role, valid: true });
     } else {
       setPlan({ type: null, valid: false });
       router.push("/dashboard");
