@@ -64,12 +64,16 @@ export class PaymentService {
         subscriptionInfo.items.data[0].plan.product as string,
       );
 
+      console.log('[STRIPE subscription]: ', subscription);
+      console.log('[STRIPE subscriptionInfo]: ', subscriptionInfo);
+
       //Update user role and subscription
       if (session.payment_status === 'paid') {
         await handleSubscription(
           this.prisma,
           userId,
           customer.id as string,
+          subscriptionInfo.id,
           product.name.toLocaleUpperCase() as Role,
         );
       }
@@ -129,8 +133,9 @@ export class PaymentService {
       throw new NotFoundException('This user has no subscription');
 
     const stripeSubscription = await this.stripe.subscriptions
-      .retrieve(subscription.customerId)
-      .catch(() => {
+      .retrieve(subscription.subscriptionId)
+      .catch((error) => {
+        console.log('[STRIPE getCurrentSubscription]: ', error);
         throw new ConflictException(
           'There was an error while fetching subscription',
         );

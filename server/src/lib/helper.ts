@@ -7,6 +7,7 @@ export const handleSubscription = async (
   prisma: PrismaService,
   userId: number,
   customerId: string,
+  subscriptionId: string,
   role: Role,
 ) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -20,9 +21,11 @@ export const handleSubscription = async (
     create: {
       userId: userId,
       customerId: customerId,
+      subscriptionId: subscriptionId,
     },
     update: {
       customerId: customerId,
+      subscriptionId: subscriptionId,
     },
   });
 

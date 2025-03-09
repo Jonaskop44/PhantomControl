@@ -79,6 +79,7 @@ CREATE TABLE "FileExplorer" (
 CREATE TABLE "Subscription" (
     "id" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
+    "subscriptionId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
