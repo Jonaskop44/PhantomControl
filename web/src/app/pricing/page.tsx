@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -8,7 +7,6 @@ import {
   CardFooter,
   Divider,
   Button,
-  Slider,
   Chip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -16,23 +14,7 @@ import { useRouter } from "next/navigation";
 import { Role } from "@/types/user";
 
 const PricingPage = () => {
-  const [clientCount, setClientCount] = useState(60);
-  const [customPrice, setCustomPrice] = useState(80);
   const router = useRouter();
-
-  const calculatePrice = (clients: number) => {
-    const baseClients = 60;
-    const basePrice = 80;
-    const pricePerClient = 0.4;
-
-    return Math.round(basePrice + (clients - baseClients) * pricePerClient);
-  };
-
-  const handleSliderChange = (value: number | number[]) => {
-    const newValue = Array.isArray(value) ? value[0] : value;
-    setClientCount(newValue);
-    setCustomPrice(calculatePrice(newValue));
-  };
 
   const handleSubscribe = (plan: Role) => {
     router.push(`/payment?plan=${plan}`);
@@ -50,7 +32,7 @@ const PricingPage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         {/* Premium Plan */}
         <Card className="p-4 border-2 border-transparent hover:border-primary/20 transition-all">
           <CardHeader className="flex flex-col items-start gap-2 pb-0">
@@ -156,86 +138,6 @@ const PricingPage = () => {
               onPress={() => handleSubscribe(Role.VIP)}
             >
               Get Started
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Custom Plan */}
-        <Card className="p-4 border-2 border-transparent hover:border-primary/20 transition-all">
-          <CardHeader className="flex flex-col items-start gap-2 pb-0">
-            <Chip
-              color="secondary"
-              variant="flat"
-              startContent={
-                <Icon icon="mdi:account-group" className="h-4 w-4" />
-              }
-            >
-              CUSTOM
-            </Chip>
-            <div className="flex items-baseline mt-3">
-              <span className="text-4xl font-bold">€{customPrice}</span>
-              <span className="text-small text-default-500 ml-1">/month</span>
-            </div>
-          </CardHeader>
-          <CardBody>
-            <p className="text-default-500 mb-4">
-              Tailored to your exact requirements.
-            </p>
-            <Divider className="my-4" />
-
-            <div className="mb-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm">Client Limit</span>
-                <span className="text-sm font-semibold">
-                  {clientCount} clients
-                </span>
-              </div>
-              <Slider
-                size="sm"
-                step={10}
-                minValue={60}
-                maxValue={200}
-                defaultValue={60}
-                value={clientCount}
-                onChange={handleSliderChange}
-                className="max-w-full"
-                color="secondary"
-                aria-label="Client limit slider"
-                showSteps={true}
-                marks={[
-                  { value: 60, label: "60" },
-                  { value: 100, label: "100" },
-                  { value: 150, label: "150" },
-                  { value: 200, label: "200" },
-                ]}
-              />
-            </div>
-
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2">
-                <Icon icon="mdi:check" className="h-5 w-5 text-primary" />
-                <span>Up to {clientCount} clients</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Icon icon="mdi:check" className="h-5 w-5 text-primary" />
-                <span>Full analytics suite</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Icon icon="mdi:check" className="h-5 w-5 text-primary" />
-                <span>24/7 dedicated support</span>
-              </li>
-            </ul>
-          </CardBody>
-          <CardFooter>
-            <Button
-              color="secondary"
-              className="w-full"
-              size="lg"
-              aria-label="Subscribe to custom plan"
-              startContent={<Icon icon="mdi:credit-card" className="h-4 w-4" />}
-              onPress={() => handleSubscribe(Role.CUSTOM)}
-            >
-              Subscribe Now
             </Button>
           </CardFooter>
         </Card>

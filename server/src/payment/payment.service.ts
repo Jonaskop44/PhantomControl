@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
-import { handleSubscription } from 'src/lib/helper';
+import { getPlanAndPrice, handleSubscription } from 'src/lib/helper';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -24,34 +24,16 @@ export class PaymentService {
     });
   }
 
-  async createCheckoutSession(request: Request, planName: string) {
-    try {
-      const planId = await this.stripe.products.search({
-        query: `name:'${planName}'`,
-        expand: ['data.default_price'],
-      });
+  async createCheckoutSession(request: Request, planName: Role) {
+    const priceId = await getPlanAndPrice(this.stripe, planName);
 
-      if (!planId.data.length) {
-        throw new ConflictException('Plan not found');
-      }
-
-      const product = planId.data[0];
-
-      if (!product.default_price) {
-        throw new ConflictException('Price not found');
-      }
-
-      const priceId =
-        typeof product.default_price === 'string'
-          ? product.default_price
-          : product.default_price.id;
-
-      const session = await this.stripe.checkout.sessions.create({
+    const session = await this.stripe.checkout.sessions
+      .create({
         ui_mode: 'embedded',
         payment_method_types: ['card', 'paypal'],
         line_items: [
           {
-            price: priceId,
+            price: priceId.price,
             quantity: 1,
           },
         ],
@@ -59,13 +41,12 @@ export class PaymentService {
         billing_address_collection: 'required',
         automatic_tax: { enabled: true },
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
+      })
+      .catch(() => {
+        throw new ConflictException('Error creating checkout session');
       });
 
-      return { sessionId: session.id, client_secret: session.client_secret };
-    } catch (error) {
-      console.log('[STRIPE createCheckoutSession]: ', error);
-      throw new ConflictException('Error creating checkout session');
-    }
+    return { sessionId: session.id, client_secret: session.client_secret };
   }
 
   async getSessionStatus(sessionId: string, userId: number) {

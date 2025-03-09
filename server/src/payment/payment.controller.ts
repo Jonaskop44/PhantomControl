@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
+import { Role } from '@prisma/client';
 
 @Controller('payment')
 @UseGuards(JwtGuard)
@@ -22,7 +23,7 @@ export class PaymentController {
   ) {
     if (!planName) throw new BadRequestException('Plan is required');
 
-    return this.paymentService.createCheckoutSession(request, planName);
+    return this.paymentService.createCheckoutSession(request, planName as Role);
   }
 
   @Get('session-status')
