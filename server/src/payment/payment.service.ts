@@ -118,7 +118,7 @@ export class PaymentService {
     }));
   }
 
-  async getcurrentSubscription(userId: number) {
+  async getCurrentSubscription(userId: number) {
     const subscription = await this.prisma.subscription.findUnique({
       where: {
         userId: userId,

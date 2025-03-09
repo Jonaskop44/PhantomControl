@@ -42,7 +42,7 @@ export class PaymentController {
   }
 
   @Get('subscription')
-  async getcurrentSubscription(@Request() request) {
-    return this.paymentService.getcurrentSubscription(request.user.sub.id);
+  async getCurrentSubscription(@Request() request) {
+    return this.paymentService.getCurrentSubscription(request.user.sub.id);
   }
 }
