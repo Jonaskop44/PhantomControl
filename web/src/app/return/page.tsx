@@ -25,7 +25,7 @@ const ReturnPage = () => {
 
     if (!sessionId) return;
 
-    apiClient.stripe.helper.getSessionStatus(sessionId).then((response) => {
+    apiClient.payment.helper.getSessionStatus(sessionId).then((response) => {
       if (response.status) {
         if (response.data.status === "paid") {
           setStatus("SUCCESS");

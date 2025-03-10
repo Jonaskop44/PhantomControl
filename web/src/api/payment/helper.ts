@@ -31,4 +31,18 @@ export class Helper {
         return { data: null, status: false };
       });
   }
+
+  async getAllInvoices() {
+    return axios
+      .get("payment/invoices")
+      .then((response) => {
+        if (response.status !== 200) return { data: null, status: false };
+
+        const data = response.data;
+        return { data: data, status: true };
+      })
+      .catch(() => {
+        return { data: null, status: false };
+      });
+  }
 }

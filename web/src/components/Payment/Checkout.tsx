@@ -20,7 +20,7 @@ const Checkout: FC<CheckoutProps> = ({ plan }) => {
   const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 
   useEffect(() => {
-    apiClient.stripe.helper.createCheckoutSession(plan).then((response) => {
+    apiClient.payment.helper.createCheckoutSession(plan).then((response) => {
       if (response.status) {
         setClientSecret(response.data.client_secret);
       }
