@@ -62,3 +62,24 @@ export const getPlanAndPrice = async (stripe: Stripe, planName: Role) => {
 
   return { price: priceId };
 };
+
+export const checkForExistingCustomer = async (
+  prisma: PrismaService,
+  userId: number,
+) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) return { status: false, subscription: null };
+
+  if (user) {
+    const subscription = await prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription) return { status: false, subscription: null };
+
+    return { status: true, subscription: subscription };
+  }
+};

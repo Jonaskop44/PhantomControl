@@ -7,3 +7,15 @@ declare namespace NodeJS {
     STRIPE_SECRET_KEY: string;
   }
 }
+
+declare namespace Express {
+  export interface Request {
+    user?: {
+      email: string;
+      sub: {
+        id: number;
+        username: string;
+      };
+    };
+  }
+}

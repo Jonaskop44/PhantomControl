@@ -7,7 +7,11 @@ import {
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
-import { getPlanAndPrice, handleSubscription } from 'src/lib/helper';
+import {
+  checkForExistingCustomer,
+  getPlanAndPrice,
+  handleSubscription,
+} from 'src/lib/helper';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -26,6 +30,10 @@ export class PaymentService {
 
   async createCheckoutSession(request: Request, planName: Role) {
     const priceId = await getPlanAndPrice(this.stripe, planName);
+    const customer = await checkForExistingCustomer(
+      this.prisma,
+      request.user.sub.id,
+    );
 
     const session = await this.stripe.checkout.sessions
       .create({
@@ -40,6 +48,9 @@ export class PaymentService {
         mode: 'subscription',
         billing_address_collection: 'required',
         automatic_tax: { enabled: true },
+        customer: customer.status
+          ? customer.subscription.customerId
+          : undefined,
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
       })
       .catch(() => {
@@ -63,9 +74,6 @@ export class PaymentService {
       const product = await this.stripe.products.retrieve(
         subscriptionInfo.items.data[0].plan.product as string,
       );
-
-      console.log('[STRIPE subscription]: ', subscription);
-      console.log('[STRIPE subscriptionInfo]: ', subscriptionInfo);
 
       //Update user role and subscription
       if (session.payment_status === 'paid') {
