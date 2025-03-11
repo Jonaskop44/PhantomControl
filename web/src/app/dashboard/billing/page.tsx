@@ -22,8 +22,7 @@ import {
 
 interface BillingProps {
   amount_paid: number;
-  amount_due: number;
-  status: "paid" | "unpaid";
+  status: "paid" | "unpaid" | "trial";
   createdAt: number;
 }
 
@@ -242,11 +241,7 @@ const Billing = () => {
                             </Chip>
 
                             <p className="font-bold text-lg tabular-nums">
-                              {formatAmount(
-                                record.amount_due > 0
-                                  ? record.amount_due
-                                  : record.amount_paid
-                              )}
+                              {formatAmount(record.amount_paid)}
                             </p>
                           </div>
                         </div>
