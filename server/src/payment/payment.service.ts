@@ -45,6 +45,9 @@ export class PaymentService {
             quantity: 1,
           },
         ],
+        subscription_data: {
+          trial_period_days: 7,
+        },
         mode: 'subscription',
         billing_address_collection: 'required',
         automatic_tax: { enabled: true },
