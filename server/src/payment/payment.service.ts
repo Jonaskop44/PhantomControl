@@ -32,6 +32,7 @@ export class PaymentService {
     const priceId = await getPlanAndPrice(this.stripe, planName);
     const customer = await checkForExistingCustomer(
       this.prisma,
+      this.stripe,
       request.user.sub.id,
     );
 
@@ -133,8 +134,13 @@ export class PaymentService {
         );
       });
 
+    const stripeSubscription = await this.stripe.subscriptions.retrieve(
+      subscription.subscriptionId,
+    );
+
     return invoices.data.map((invoice) => ({
-      amount: invoice.amount_paid / 100,
+      amount_paid: invoice.amount_paid / 100,
+      amount_due: stripeSubscription.items.data[0].plan.amount / 100,
       status: invoice.status,
       createdAt: invoice.created,
     }));

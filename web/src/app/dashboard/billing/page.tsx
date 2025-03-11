@@ -1,9 +1,17 @@
 "use client";
 
 import ApiClient from "@/api";
-import { Card, CardBody, Chip, Skeleton, Tab, Tabs } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  Chip,
+  Skeleton,
+  Tab,
+  Tabs,
+  Pagination,
+} from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Key, useEffect, useState } from "react";
+import { type Key, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import {
@@ -13,7 +21,8 @@ import {
 } from "@/components/Dashboard/Billing/animations";
 
 interface BillingProps {
-  amount: number;
+  amount_paid: number;
+  amount_due: number;
   status: "paid" | "unpaid";
   createdAt: number;
 }
@@ -27,6 +36,10 @@ const Billing = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 4;
+
   useEffect(() => {
     apiClient.payment.helper.getAllInvoices().then((response) => {
       if (response.status) {
@@ -37,6 +50,11 @@ const Billing = () => {
       }
     });
   }, []);
+
+  // Reset to first page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
@@ -49,7 +67,7 @@ const Billing = () => {
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "EUR",
       minimumFractionDigits: 2,
     }).format(amount);
   };
@@ -58,6 +76,15 @@ const Billing = () => {
     if (filter === "all") return true;
     return item.status === filter;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRecords.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
@@ -127,101 +154,121 @@ const Billing = () => {
           ))}
         </motion.div>
       ) : (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={filter}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            className="space-y-4"
-          >
-            {filteredRecords.length === 0 ? (
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col items-center justify-center py-16 text-center"
-              >
-                <div className="bg-gray-100 p-4 rounded-full mb-4">
-                  <Icon
-                    icon="fa6-solid:receipt"
-                    className="h-8 w-8 text-gray-500"
-                  />
-                </div>
-                <h3 className="text-lg font-medium mb-1">No invoices found</h3>
-                <p className="text-gray-500">
-                  No invoices were found with the selected filter.
-                </p>
-              </motion.div>
-            ) : (
-              filteredRecords.map((record, index) => (
+        <>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${filter}-${currentPage}`}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              className="space-y-4"
+            >
+              {currentRecords.length === 0 ? (
                 <motion.div
-                  key={`${record.createdAt}-${index}`}
                   variants={itemVariants}
-                  layout
-                  whileHover={{
-                    scale: 1.01,
-                    transition: { duration: 0.2 },
-                  }}
-                  whileTap={{ scale: 0.99 }}
+                  className="flex flex-col items-center justify-center py-16 text-center"
                 >
-                  <Card className="w-full" shadow="sm" isPressable>
-                    <CardBody className="p-6">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`
-                            flex items-center justify-center w-12 h-12 rounded-full
-                            ${
-                              record.status === "paid"
-                                ? "bg-green-100 text-green-600"
-                                : "bg-amber-100 text-amber-600"
-                            }
-                          `}
-                          >
-                            {record.status === "paid" ? (
-                              <Icon
-                                icon="solar:check-circle-broken"
-                                className="h-6 w-6"
-                              />
-                            ) : (
-                              <Icon
-                                icon="solar:clock-circle-bold-duotone"
-                                className="h-6 w-6"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium text-lg">
-                              Invoice #{index + 1}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {formatDate(record.createdAt)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-4 ml-16 sm:ml-0">
-                          <Chip
-                            color={
-                              record.status === "paid" ? "success" : "warning"
-                            }
-                            variant="flat"
-                            className="px-3 py-1"
-                          >
-                            {record.status === "paid" ? "Paid" : "Open"}
-                          </Chip>
-                          <p className="font-bold text-lg tabular-nums">
-                            {formatAmount(record.amount)}
-                          </p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
+                  <div className="bg-gray-100 p-4 rounded-full mb-4">
+                    <Icon
+                      icon="solar:bill-list-linear"
+                      className="h-8 w-8 text-gray-500"
+                    />
+                  </div>
+                  <h3 className="text-lg font-medium mb-1">
+                    No invoices found
+                  </h3>
+                  <p className="text-gray-500">
+                    No invoices were found with the selected filter.
+                  </p>
                 </motion.div>
-              ))
-            )}
-          </motion.div>
-        </AnimatePresence>
+              ) : (
+                currentRecords.map((record, index) => (
+                  <motion.div
+                    key={`${record.createdAt}-${index}`}
+                    variants={itemVariants}
+                    layout
+                    whileHover={{
+                      scale: 1.01,
+                      transition: { duration: 0.2 },
+                    }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <Card className="w-full" shadow="sm" isPressable>
+                      <CardBody className="p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`
+                              flex items-center justify-center w-12 h-12 rounded-full
+                              ${
+                                record.status === "paid"
+                                  ? "bg-green-100 text-green-600"
+                                  : "bg-amber-100 text-amber-600"
+                              }
+                            `}
+                            >
+                              {record.status === "paid" ? (
+                                <Icon
+                                  icon="solar:check-circle-broken"
+                                  className="h-6 w-6"
+                                />
+                              ) : (
+                                <Icon
+                                  icon="solar:clock-circle-bold-duotone"
+                                  className="h-6 w-6"
+                                />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-lg">
+                                Invoice #{indexOfFirstRecord + index + 1}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(record.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4 ml-16 sm:ml-0">
+                            <Chip
+                              color={
+                                record.status === "paid" ? "success" : "warning"
+                              }
+                              variant="flat"
+                              className="px-3 py-1"
+                            >
+                              {record.status === "paid" ? "Paid" : "Open"}
+                            </Chip>
+                            <p className="font-bold text-lg tabular-nums">
+                              {formatAmount(record.amount_paid)}
+                            </p>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Pagination component */}
+          {filteredRecords.length > recordsPerPage && (
+            <div className="flex justify-center mt-8">
+              <Pagination
+                total={totalPages}
+                initialPage={1}
+                page={currentPage}
+                onChange={setCurrentPage}
+                color="primary"
+                showControls
+                showShadow
+                size="lg"
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

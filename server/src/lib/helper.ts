@@ -65,6 +65,7 @@ export const getPlanAndPrice = async (stripe: Stripe, planName: Role) => {
 
 export const checkForExistingCustomer = async (
   prisma: PrismaService,
+  stripe: Stripe,
   userId: number,
 ) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -79,6 +80,25 @@ export const checkForExistingCustomer = async (
     });
 
     if (!subscription) return { status: false, subscription: null };
+
+    //Check if the user exists in Stripe
+    const customer = await stripe.customers
+      .retrieve(subscription.customerId)
+      .catch(() => {
+        throw new ConflictException(
+          'There was an error while fetching customer',
+        );
+      });
+
+    if (!customer || customer.deleted) {
+      await prisma.subscription.delete({
+        where: {
+          userId: userId,
+        },
+      });
+
+      return { status: false, subscription: null };
+    }
 
     return { status: true, subscription: subscription };
   }
