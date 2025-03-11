@@ -91,11 +91,19 @@ export const checkForExistingCustomer = async (
       });
 
     if (!customer || customer.deleted) {
-      await prisma.subscription.delete({
-        where: {
-          userId: userId,
-        },
-      });
+      await prisma.subscription
+        .delete({
+          where: {
+            userId: userId,
+          },
+        })
+        .catch((error) => {
+          if (error.code !== 'P2025') {
+            throw new ConflictException(
+              'There was an error while deleting subscription',
+            );
+          }
+        });
 
       return { status: false, subscription: null };
     }
