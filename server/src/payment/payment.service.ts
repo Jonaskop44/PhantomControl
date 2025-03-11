@@ -99,7 +99,10 @@ export class PaymentService {
       return {
         status: session.payment_status,
         customer: customer_details,
-        product: { name: product.name, price: session.amount_total / 100 },
+        product: {
+          name: product.name,
+          price: subscriptionInfo.items.data[0].plan.amount / 100,
+        },
       };
     } catch (error) {
       if (error.type === 'StripeInvalidRequestError')
