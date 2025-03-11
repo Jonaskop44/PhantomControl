@@ -241,7 +241,6 @@ const Billing = () => {
                               {record.status === "paid" ? "Paid" : "Open"}
                             </Chip>
 
-                            {/* Clean amount display */}
                             <p className="font-bold text-lg tabular-nums">
                               {formatAmount(
                                 record.amount_due > 0
