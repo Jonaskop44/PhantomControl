@@ -48,6 +48,9 @@ export class PaymentService {
         subscription_data: {
           trial_period_days: 7,
         },
+        saved_payment_method_options: {
+          payment_method_save: 'enabled',
+        },
         mode: 'subscription',
         billing_address_collection: 'required',
         automatic_tax: { enabled: true },
@@ -56,7 +59,8 @@ export class PaymentService {
           : undefined,
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log('[STRIPE createCheckoutSession]: ', error);
         throw new ConflictException('Error creating checkout session');
       });
 
