@@ -134,17 +134,8 @@ export class PaymentService {
         );
       });
 
-    const stripeSubscriptions = await Promise.all(
-      invoices.data.map(async (invoice) => {
-        return this.stripe.subscriptions.retrieve(
-          invoice.subscription as string,
-        );
-      }),
-    );
-
     return invoices.data.map((invoice) => ({
       amount_paid: invoice.amount_paid / 100,
-      amount_due: 'TODO',
       status: invoice.status,
       createdAt: invoice.created,
     }));
