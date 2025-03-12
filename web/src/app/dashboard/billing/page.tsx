@@ -12,7 +12,6 @@ import {
 } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { type Key, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import {
   containerVariants,
@@ -45,14 +44,18 @@ const Billing = () => {
   const recordsPerPage = 4;
 
   useEffect(() => {
-    apiClient.payment.helper.getAllInvoices().then((response) => {
-      if (response.status) {
-        setBilling(response.data);
+    apiClient.payment.helper
+      .getAllInvoices()
+      .then((response) => {
+        if (response.status) {
+          setBilling(response.data);
+        } else {
+          setBilling([]);
+        }
+      })
+      .finally(() => {
         setIsLoading(false);
-      } else {
-        toast.error("There was an error while getting invoices");
-      }
-    });
+      });
   }, []);
 
   // Reset to first page when filter changes
