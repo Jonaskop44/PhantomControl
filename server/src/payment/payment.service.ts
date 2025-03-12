@@ -136,7 +136,7 @@ export class PaymentService {
 
     return invoices.data.map((invoice) => ({
       amount_paid: invoice.amount_paid / 100,
-      status: invoice.status,
+      status: invoice.amount_paid === 0 ? 'trial' : invoice.status,
       createdAt: invoice.created,
     }));
   }

@@ -19,18 +19,23 @@ import {
   headerVariants,
   itemVariants,
 } from "@/components/Dashboard/Billing/animations";
-
-interface BillingProps {
-  amount_paid: number;
-  status: "paid" | "unpaid" | "trial";
-  createdAt: number;
-}
-
-type Filter = "all" | "paid" | "open";
+import { useBillingHelpers } from "@/hooks/useBillingHelpers";
+import { BillingProps, Filter } from "@/types/billing";
 
 const apiClient = new ApiClient();
 
 const Billing = () => {
+  const {
+    formatDate,
+    getStatusText,
+    getStatusColor,
+    getStatusIcon,
+    getStatusBgColor,
+    filterRecords,
+    getDisplayAmount,
+    getPaginationData,
+  } = useBillingHelpers();
+
   const [billing, setBilling] = useState<BillingProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
@@ -55,34 +60,14 @@ const Billing = () => {
     setCurrentPage(1);
   }, [filter]);
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const filteredRecords = billing.filter((item) => {
-    if (filter === "all") return true;
-    return item.status === filter;
-  });
+  // Filter records based on selected filter
+  const filteredRecords = filterRecords(billing, filter);
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredRecords.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
+  const { totalPages, indexOfFirstRecord, currentRecords } = getPaginationData(
+    filteredRecords,
+    currentPage,
+    recordsPerPage
   );
 
   return (
@@ -110,9 +95,7 @@ const Billing = () => {
         <Tabs
           aria-label="Billing filter options"
           selectedKey={filter}
-          onSelectionChange={(key: Key) =>
-            setFilter(key as "all" | "open" | "paid")
-          }
+          onSelectionChange={(key: Key) => setFilter(key as Filter)}
           color="primary"
           variant="underlined"
           classNames={{
@@ -123,6 +106,7 @@ const Billing = () => {
           <Tab key="all" title="All" />
           <Tab key="paid" title="Paid" />
           <Tab key="open" title="Open" />
+          <Tab key="trial" title="Trial" />
         </Tabs>
       </div>
 
@@ -199,25 +183,14 @@ const Billing = () => {
                           <div className="flex items-center gap-4">
                             <div
                               className={`
-                              flex items-center justify-center w-12 h-12 rounded-full
-                              ${
-                                record.status === "paid"
-                                  ? "bg-green-100 text-green-600"
-                                  : "bg-amber-100 text-amber-600"
-                              }
+                              flex items-center justify-center w-12 h-12 rounded-full 
+                              ${getStatusBgColor(record.status)}
                             `}
                             >
-                              {record.status === "paid" ? (
-                                <Icon
-                                  icon="solar:check-circle-broken"
-                                  className="h-6 w-6"
-                                />
-                              ) : (
-                                <Icon
-                                  icon="solar:clock-circle-bold-duotone"
-                                  className="h-6 w-6"
-                                />
-                              )}
+                              <Icon
+                                icon={getStatusIcon(record.status)}
+                                className="h-6 w-6"
+                              />
                             </div>
                             <div>
                               <p className="font-medium text-lg">
@@ -231,17 +204,15 @@ const Billing = () => {
 
                           <div className="flex items-center gap-4 ml-16 sm:ml-0">
                             <Chip
-                              color={
-                                record.status === "paid" ? "success" : "warning"
-                              }
+                              color={getStatusColor(record.status)}
                               variant="flat"
                               className="px-3 py-1"
                             >
-                              {record.status === "paid" ? "Paid" : "Open"}
+                              {getStatusText(record.status)}
                             </Chip>
 
                             <p className="font-bold text-lg tabular-nums">
-                              {formatAmount(record.amount_paid)}
+                              {getDisplayAmount(record)}
                             </p>
                           </div>
                         </div>
