@@ -1,7 +1,6 @@
 import { BillingProps, Filter } from "@/types/billing";
 
 export function useBillingHelpers() {
-  // Format date from timestamp
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
       day: "numeric",
@@ -10,7 +9,6 @@ export function useBillingHelpers() {
     });
   };
 
-  // Format amount with currency
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -19,7 +17,6 @@ export function useBillingHelpers() {
     }).format(amount);
   };
 
-  // Get status display text
   const getStatusText = (status: string) => {
     switch (status) {
       case "paid":
@@ -33,7 +30,6 @@ export function useBillingHelpers() {
     }
   };
 
-  // Get status color for chip
   const getStatusColor = (status: string) => {
     switch (status) {
       case "paid":
@@ -47,7 +43,6 @@ export function useBillingHelpers() {
     }
   };
 
-  // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "paid":
@@ -61,7 +56,6 @@ export function useBillingHelpers() {
     }
   };
 
-  // Get status background color
   const getStatusBgColor = (status: string) => {
     switch (status) {
       case "paid":
@@ -75,7 +69,6 @@ export function useBillingHelpers() {
     }
   };
 
-  // Filter records based on selected filter
   const filterRecords = (records: BillingProps[], filter: Filter) => {
     return records.filter((item) => {
       if (filter === "all") return true;
@@ -84,12 +77,10 @@ export function useBillingHelpers() {
     });
   };
 
-  // Get display amount (special handling for trial)
   const getDisplayAmount = (record: BillingProps) => {
     return formatAmount(record.amount_paid);
   };
-
-  // Calculate pagination
+  
   const getPaginationData = (
     records: BillingProps[],
     currentPage: number,
