@@ -227,13 +227,15 @@ export class AnalyticsService {
         'You are not allowed to access this resource',
       );
 
-    const clients = await this.prisma.client.groupBy({
-      by: ['updatedAt'],
+    const clients = await this.prisma.clientRegisterHistory.groupBy({
+      by: ['registeredAt'],
       where: {
-        userId: user.role === 'ADMIN' ? undefined : userId,
-        updatedAt: {
-          gte: this.lastMonthStart,
-          lte: this.lastMonthEnd,
+        client: {
+          userId: user.role === 'ADMIN' ? undefined : userId,
+        },
+        registeredAt: {
+          gte: this.currentMonthStart,
+          lte: this.currentMonthEnd,
         },
       },
       _count: {
@@ -241,22 +243,24 @@ export class AnalyticsService {
       },
     });
 
-    const daysInLastMonth = Array.from(
-      { length: this.lastMonthEnd.getDate() },
+    const daysInMonth = Array.from(
+      { length: this.currentMonthEnd.getDate() },
       (_, i) => {
-        const date = new Date(this.lastMonthStart);
+        const date = new Date(this.currentMonthStart);
         date.setDate(i + 1);
-        const formattedDate = format(date, 'yyyy-MM-dd');
-
-        const count =
-          clients.find(
-            (c) => format(c.updatedAt, 'yyyy-MM-dd') === formattedDate,
-          )?._count.id || 0;
-
-        return { x: formattedDate, y: count };
+        return { x: format(date, 'yyyy-MM-dd'), y: 0 };
       },
     );
 
-    return daysInLastMonth;
+    clients.forEach((entry) => {
+      const dateKey = format(entry.registeredAt, 'yyyy-MM-dd');
+      const index = daysInMonth.findIndex((d) => d.x === dateKey);
+
+      if (index !== -1) {
+        daysInMonth[index].y += entry._count.id;
+      }
+    });
+
+    return daysInMonth;
   }
 }

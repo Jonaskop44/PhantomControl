@@ -42,8 +42,17 @@ model Client {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  Console      Console[]
-  FileExplorer FileExplorer[]
+  Console         Console[]
+  FileExplorer    FileExplorer[]
+  RegisterHistory ClientRegisterHistory[]
+}
+
+model ClientRegisterHistory {
+  id           Int      @id @default(autoincrement())
+  clientId     Int
+  registeredAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model ClientKey {

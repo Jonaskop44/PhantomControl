@@ -86,7 +86,7 @@ export class ClientService {
       if (clientCount >= maxClients) return null;
     }
 
-    return this.prisma.client.upsert({
+    const client = await this.prisma.client.upsert({
       where: {
         hwid: data.hwid,
       },
@@ -108,6 +108,15 @@ export class ClientService {
         online: true,
       },
     });
+
+    //Create the register history
+    await this.prisma.clientRegisterHistory.create({
+      data: {
+        clientId: client.id,
+      },
+    });
+
+    return client;
   }
 
   async updateClientStatus(hwid: string, online: boolean) {
