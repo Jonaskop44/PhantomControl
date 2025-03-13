@@ -6,36 +6,31 @@ import ApiClient from "./api";
 const apiClient = new ApiClient();
 
 export default async function middleware(req: NextRequest) {
-  // Parse cookies from the request headers
   const cookies = cookie.parse(req.headers.get("cookie") || "");
   const token = cookies.accessToken;
   const url = req.nextUrl.clone();
   const path = url.pathname;
 
-  if (path.startsWith("/dashboard")) {
-    // Redirect to the login page if the token is not present
-    if (!token) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
+  const protectedPaths = ["/dashboard", "/pricing"];
 
-    // Verify the token
-    const response = await apiClient.auth.helper.verifyToken(token);
-    if (response.status === false) {
+  if (protectedPaths.some((protectedPath) => path.startsWith(protectedPath))) {
+    if (!token || !(await isTokenValid(token))) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   } else if (path.startsWith("/")) {
-    if (token) {
-      const response = await apiClient.auth.helper.verifyToken(token);
-
-      if (response.status === true) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
+    if (token && (await isTokenValid(token))) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }
 
   return NextResponse.next();
 }
 
+async function isTokenValid(token: string) {
+  const response = await apiClient.auth.helper.verifyToken(token);
+  return response.status === true;
+}
+
 export const config = {
-  matcher: ["/dashboard/:path*", "/"],
+  matcher: ["/dashboard/:path*", "/pricing", "/"],
 };
