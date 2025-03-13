@@ -59,13 +59,13 @@ export function useBillingHelpers() {
   const getStatusBgColor = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 text-green-600";
+        return "bg-success-100 text-success-600";
       case "unpaid":
-        return "bg-amber-100 text-amber-600";
+        return "bg-warning-100 text-warning-600";
       case "trial":
-        return "bg-blue-100 text-blue-600";
+        return "bg-primary-100 text-primary-600";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-100 text-red-600";
     }
   };
 
@@ -80,7 +80,7 @@ export function useBillingHelpers() {
   const getDisplayAmount = (record: BillingProps) => {
     return formatAmount(record.amount_paid);
   };
-  
+
   const getPaginationData = (
     records: BillingProps[],
     currentPage: number,
