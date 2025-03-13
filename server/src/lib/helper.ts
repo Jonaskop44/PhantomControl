@@ -126,8 +126,6 @@ export const checkForExistingSubscription = async (
       .retrieve(customer.subscription.subscriptionId)
       .catch(() => null);
 
-    console.log(subscription);
-
     if (
       subscription &&
       (subscription.status === 'active' || subscription.status === 'trialing')
