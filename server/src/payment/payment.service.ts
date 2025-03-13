@@ -49,7 +49,7 @@ export class PaymentService {
           },
         ],
         subscription_data: {
-          trial_period_days: 7,
+          trial_period_days: customer.status ? 0 : 7,
         },
         saved_payment_method_options: {
           payment_method_save: 'enabled',

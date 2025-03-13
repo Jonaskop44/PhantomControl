@@ -2,7 +2,6 @@ import {
   ConflictException,
   ForbiddenException,
   NotFoundException,
-  Request,
 } from '@nestjs/common';
 import { Role, Subscription } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
