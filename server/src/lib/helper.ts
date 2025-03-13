@@ -1,5 +1,10 @@
-import { ConflictException, NotFoundException, Request } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+  Request,
+} from '@nestjs/common';
+import { Role, Subscription } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -46,13 +51,13 @@ export const getPlanAndPrice = async (stripe: Stripe, planName: Role) => {
   });
 
   if (!planId.data.length) {
-    throw new ConflictException('Plan not found');
+    throw new NotFoundException('Plan not found');
   }
 
   const product = planId.data[0];
 
   if (!product.default_price) {
-    throw new ConflictException('Price not found');
+    throw new NotFoundException('Price not found');
   }
 
   const priceId =
@@ -109,5 +114,27 @@ export const checkForExistingCustomer = async (
     }
 
     return { status: true, subscription: subscription };
+  }
+};
+
+export const checkForExistingSubscription = async (
+  stripe: Stripe,
+  customer: { status: boolean; subscription: Subscription },
+) => {
+  if (customer.status) {
+    const subscription = await stripe.subscriptions
+      .retrieve(customer.subscription.subscriptionId)
+      .catch(() => null);
+
+    console.log(subscription);
+
+    if (
+      subscription &&
+      (subscription.status === 'active' || subscription.status === 'trialing')
+    ) {
+      throw new ForbiddenException(
+        'You already have an active subscription. Please cancel it before subscribing to a new plan.',
+      );
+    }
   }
 };

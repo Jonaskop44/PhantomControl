@@ -13,8 +13,11 @@ export class Helper {
         const data = response.data;
         return { data: data, status: true };
       })
-      .catch(() => {
-        return { data: null, status: false };
+      .catch((error) => {
+        return {
+          data: error.response.status === 403 ? 403 : null,
+          status: false,
+        };
       });
   }
 

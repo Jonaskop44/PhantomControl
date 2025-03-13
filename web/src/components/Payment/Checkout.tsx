@@ -8,6 +8,8 @@ import {
 import { STRIPE_PUBLIC_KEY } from "@/lib/constants";
 import { Role } from "@/types/user";
 import ApiClient from "@/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface CheckoutProps {
   plan: Role | null;
@@ -18,14 +20,21 @@ const apiClient = new ApiClient();
 const Checkout: FC<CheckoutProps> = ({ plan }) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
+  const router = useRouter();
 
   useEffect(() => {
     apiClient.payment.helper.createCheckoutSession(plan).then((response) => {
+      console.log(response);
       if (response.status) {
         setClientSecret(response.data.client_secret);
+      } else if (response.data === 403) {
+        router.push("/dashboard");
+        toast.warning(
+          "You are already subscribed to a plan. Please cancel your current subscription to subscribe to a new plan."
+        );
       }
     });
-  }, [plan]);
+  }, [plan, router]);
 
   return (
     <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>

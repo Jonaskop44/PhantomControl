@@ -9,6 +9,7 @@ import { Role } from '@prisma/client';
 import { Request } from 'express';
 import {
   checkForExistingCustomer,
+  checkForExistingSubscription,
   getPlanAndPrice,
   handleSubscription,
 } from 'src/lib/helper';
@@ -35,6 +36,7 @@ export class PaymentService {
       this.stripe,
       request.user.sub.id,
     );
+    await checkForExistingSubscription(this.stripe, customer);
 
     const session = await this.stripe.checkout.sessions
       .create({
