@@ -69,49 +69,49 @@ export class PaymentService {
   }
 
   async getSessionStatus(sessionId: string, userId: number) {
-    try {
-      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
-      const customer = {
-        id: session.customer,
-        customer_details: session.customer_details,
-      };
-      const subscription = session.subscription;
-      const subscriptionInfo = await this.stripe.subscriptions.retrieve(
-        typeof subscription === 'string' ? subscription : subscription.id,
-      );
-      const product = await this.stripe.products.retrieve(
-        subscriptionInfo.items.data[0].plan.product as string,
-      );
-
-      //Update user role and subscription
-      if (session.payment_status === 'paid') {
-        await handleSubscription(
-          this.prisma,
-          userId,
-          customer.id as string,
-          subscriptionInfo.id,
-          product.name.toLocaleUpperCase() as Role,
-        );
-      }
-
-      const { phone, tax_exempt, tax_ids, ...customer_details } =
-        customer.customer_details;
-
-      return {
-        status: session.payment_status,
-        customer: customer_details,
-        product: {
-          name: product.name,
-          price: subscriptionInfo.items.data[0].plan.amount / 100,
-        },
-      };
-    } catch (error) {
-      if (error.type === 'StripeInvalidRequestError')
+    const session = await this.stripe.checkout.sessions
+      .retrieve(sessionId)
+      .catch(() => {
         throw new NotFoundException('Session not found');
+      });
+    const customer = {
+      id: session.customer,
+      customer_details: session.customer_details,
+    };
+    const subscription = session.subscription;
+    const subscriptionInfo = await this.stripe.subscriptions
+      .retrieve(subscription as string)
+      .catch(() => {
+        throw new NotFoundException('Subscription not found');
+      });
+    const product = await this.stripe.products
+      .retrieve(subscriptionInfo.items.data[0].plan.product as string)
+      .catch(() => {
+        throw new NotFoundException('Product not found');
+      });
 
-      console.log('[STRIPE getSessionStatus]: ', error);
-      throw new InternalServerErrorException('Error getting session status');
+    //Update user role and subscription
+    if (session.payment_status === 'paid') {
+      await handleSubscription(
+        this.prisma,
+        userId,
+        customer.id as string,
+        subscriptionInfo.id,
+        product.name.toLocaleUpperCase() as Role,
+      );
     }
+
+    const { phone, tax_exempt, tax_ids, ...customer_details } =
+      customer.customer_details;
+
+    return {
+      status: session.payment_status,
+      customer: customer_details,
+      product: {
+        name: product.name,
+        price: subscriptionInfo.items.data[0].plan.amount / 100,
+      },
+    };
   }
 
   async getAllInvoices(userId: number) {
