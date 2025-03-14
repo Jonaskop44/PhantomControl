@@ -1,5 +1,5 @@
-import Navbar from "@/components/Layout/Navbar/Navbar";
-import Sidebar from "@/components/Layout/Sidebar/Sidebar";
+import Navbar from "@/components/Layout/Navbar_t/Navbar";
+import Sidebar from "@/components/Layout/Sidebar_T/Sidebar";
 import SidebarProvider from "@/context/SidebarProvider";
 import { FC } from "react";
 

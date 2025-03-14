@@ -15,7 +15,7 @@ import {
   type AnimationState,
   type TransitionSettings,
   defaultTransitionSettings,
-} from "@/components/Layout/Sidebar/sidebar-animations";
+} from "@/components/Layout/Sidebar_T/sidebar-animations";
 
 type SidebarState = "EXPANDED" | "COLLAPSED";
 

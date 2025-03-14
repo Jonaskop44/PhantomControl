@@ -1,8 +1,8 @@
 "use client";
 
-import KPIStat from "@/components/Dashboard/KPIStat";
-import RegisteredClientsSpline from "@/components/Dashboard/RegisteredClientsSpline";
-import UsedDevices from "@/components/Dashboard/UsedDevices";
+import KPIStat from "@/components/Dashboard_t/KPIStat";
+import RegisteredClientsSpline from "@/components/Dashboard_t/RegisteredClientsSpline";
+import UsedDevices from "@/components/Dashboard_t/UsedDevices";
 import { userStore } from "@/data/userStore";
 import { useKpiData, useRegisteredClients } from "@/hooks/analytics";
 import { useUsedDevices } from "@/hooks/analytics";

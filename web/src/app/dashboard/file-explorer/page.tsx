@@ -19,9 +19,9 @@ import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import useIsMobile from "@/hooks/use-mobile";
 import clsx from "clsx";
-import CreateFileModal from "@/components/Dashboard/FileExplorer/CreateFileModal";
-import ReadFileModal from "@/components/Dashboard/FileExplorer/ReadFileModal";
-import UpdateFileModal from "@/components/Dashboard/FileExplorer/UpdateFileModal";
+import CreateFileModal from "@/components/Dashboard_t/FileExplorer/CreateFileModal";
+import ReadFileModal from "@/components/Dashboard_t/FileExplorer/ReadFileModal";
+import UpdateFileModal from "@/components/Dashboard_t/FileExplorer/UpdateFileModal";
 
 const apiClient = new ApiClient();
 
