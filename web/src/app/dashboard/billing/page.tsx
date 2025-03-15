@@ -214,7 +214,10 @@ const Billing = () => {
                             </Chip>
 
                             <p className="font-bold text-lg tabular-nums">
-                              {formatAmount(record.amount_paid)}
+                              {formatAmount(
+                                record.amount_paid,
+                                record.currency
+                              )}
                             </p>
                           </div>
                         </div>

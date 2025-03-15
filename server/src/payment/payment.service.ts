@@ -63,7 +63,6 @@ export class PaymentService {
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
       })
       .catch((error) => {
-        console.log('[STRIPE createCheckoutSession]: ', error);
         throw new ConflictException('Error creating checkout session');
       });
 
@@ -138,6 +137,7 @@ export class PaymentService {
 
     return invoices.data.map((invoice) => ({
       amount_paid: invoice.amount_paid / 100,
+      currency: invoice.currency,
       status: invoice.amount_paid === 0 ? 'trial' : invoice.status,
       createdAt: invoice.created,
     }));
@@ -156,7 +156,6 @@ export class PaymentService {
     const stripeSubscription = await this.stripe.subscriptions
       .retrieve(subscription.subscriptionId)
       .catch((error) => {
-        console.log('[STRIPE getCurrentSubscription]: ', error);
         throw new ConflictException(
           'There was an error while fetching subscription',
         );
@@ -226,15 +225,13 @@ export class PaymentService {
       ...productRest
     } = stripeProduct;
 
-    const {
-      card: { checks, networks, three_d_secure_usage },
-      ...paymentMethodRest
-    } = stripePaymentMethod;
+    const { card, ...paymentMethodRest } = stripePaymentMethod;
+    const { checks, networks, three_d_secure_usage, ...filteredCard } = card;
 
     return {
       subscription: subscriptionRest,
       product: productRest,
-      paymentMethod: paymentMethodRest,
+      paymentMethod: { ...paymentMethodRest, card: filteredCard },
     };
   }
 }

@@ -1,6 +1,7 @@
 export interface BillingProps {
   amount_paid: number;
   status: "paid" | "unpaid" | "trial";
+  currency: string;
   createdAt: number;
 }
 
@@ -68,6 +69,20 @@ export interface Product {
   type: "service" | "good";
 }
 
+export interface CardDetails {
+  brand: string;
+  country: string;
+  display_brand: string;
+  exp_month: number;
+  exp_year: number;
+  fingerprint: string;
+  funding: "credit" | "debit" | "prepaid" | "unknown";
+  generated_from: string | null;
+  last4: string;
+  regulated_status: string;
+  wallet: string | null;
+}
+
 export interface PaymentMethod {
   id: string;
   object: "payment_method";
@@ -90,6 +105,7 @@ export interface PaymentMethod {
   livemode: boolean;
   metadata: Record<string, string>;
   type: "card";
+  card: CardDetails;
 }
 
 export interface StripeResponse {

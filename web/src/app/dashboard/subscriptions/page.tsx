@@ -14,6 +14,7 @@ import {
   Spinner,
   Progress,
 } from "@heroui/react";
+import { useFormat } from "@/hooks/useFormat";
 
 const apiClient = new ApiClient();
 
@@ -22,6 +23,7 @@ const Subscriptions = () => {
     useState<StripeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
+  const { formatDate, formatAmount } = useFormat();
 
   useEffect(() => {
     fetchSubscription();
@@ -38,22 +40,6 @@ const Subscriptions = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatPrice = (amount: number, currency: string) => {
-    const formatter = new Intl.NumberFormat("de-DE", {
-      style: "currency",
-      currency: currency.toUpperCase(),
-    });
-    return formatter.format(amount / 100);
   };
 
   const getStatusColor = (status: string) => {
@@ -186,7 +172,7 @@ const Subscriptions = () => {
     );
   }
 
-  const { subscription, product } = currentSubscription;
+  const { subscription, product, paymentMethod } = currentSubscription;
   const daysRemaining = getDaysRemaining(subscription.current_period_end);
   const progressPercentage = getProgressPercentage(
     subscription.current_period_start,
@@ -225,23 +211,14 @@ const Subscriptions = () => {
         className="max-w-4xl mx-auto"
       >
         <motion.div variants={itemVariants} className="mb-8 text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-            Dein Abonnement
-          </h1>
+          <h1 className="text-4xl font-bold text-black">Your subscription</h1>
           <p className="text-gray-500 mt-2">
-            Verwalte dein {product.name} Abonnement
+            Manage your {product.name} subscription
           </p>
         </motion.div>
 
         <motion.div variants={itemVariants}>
           <Card className="overflow-hidden border-none shadow-xl bg-white">
-            <div className="absolute top-0 left-0 right-0 h-1">
-              <div
-                className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-
             <div className="p-6 pt-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                 <motion.div
@@ -268,22 +245,13 @@ const Subscriptions = () => {
                           color={getStatusColor(subscription.status)}
                           variant="flat"
                           size="sm"
-                          className={
-                            subscription.status === "active"
-                              ? "from-green-500/20 to-green-600/20"
-                              : subscription.status === "trialing"
-                              ? "from-blue-500/20 to-blue-600/20"
-                              : subscription.status === "past_due"
-                              ? "from-yellow-500/20 to-yellow-600/20"
-                              : "from-red-500/20 to-red-600/20"
-                          }
                         >
                           {subscription.status.charAt(0).toUpperCase() +
                             subscription.status.slice(1)}
                         </Chip>
                         {subscription.cancel_at_period_end && (
                           <Chip color="warning" variant="flat" size="sm">
-                            Endet am{" "}
+                            Ends at{" "}
                             {formatDate(subscription.current_period_end)}
                           </Chip>
                         )}
@@ -299,11 +267,11 @@ const Subscriptions = () => {
                   className="mt-4 md:mt-0"
                 >
                   <div className="flex items-center justify-center md:justify-end gap-2">
-                    <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-[1px] rounded-full">
+                    <div className="bg-gradient-to-r from-blue-500 to-violet-500 p-[1px] rounded-full">
                       <div className="bg-white rounded-full px-4 py-2">
-                        <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-                          {formatPrice(
-                            subscription.plan.amount,
+                        <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
+                          {formatAmount(
+                            subscription.plan.amount / 100,
                             subscription.currency
                           )}
                         </span>
@@ -330,7 +298,7 @@ const Subscriptions = () => {
                         : "text-gray-500"
                     }`}
                   >
-                    <Icon icon="solar:info-circle-bold" className="w-4 h-4" />
+                    <Icon icon="solar:info-circle-linear" className="w-4 h-4" />
                     <span>Details</span>
                   </motion.button>
 
@@ -365,10 +333,10 @@ const Subscriptions = () => {
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-500">
-                            Abonnementzeitraum
+                            Subscription period
                           </span>
                           <span className="text-sm font-medium">
-                            {daysRemaining} Tage verbleibend
+                            {daysRemaining} days remaining
                           </span>
                         </div>
                         <Progress
@@ -404,7 +372,7 @@ const Subscriptions = () => {
                             </div>
                             <div>
                               <p className="text-sm text-gray-500">
-                                Nächste Abrechnung
+                                Next settlement
                               </p>
                               <p className="font-semibold">
                                 {formatDate(subscription.current_period_end)}
@@ -426,7 +394,7 @@ const Subscriptions = () => {
                             </div>
                             <div>
                               <p className="text-sm text-gray-500">
-                                Abonniert seit
+                                Subscribed since
                               </p>
                               <p className="font-semibold">
                                 {formatDate(subscription.current_period_start)}
@@ -448,15 +416,15 @@ const Subscriptions = () => {
                             </div>
                             <div>
                               <p className="text-sm text-gray-500">
-                                Abrechnungszyklus
+                                Billing cycle
                               </p>
                               <p className="font-semibold capitalize">
                                 {subscription.plan.interval_count === 1
                                   ? ""
                                   : subscription.plan.interval_count}{" "}
                                 {subscription.plan.interval === "month"
-                                  ? "Monatlich"
-                                  : "Jährlich"}
+                                  ? "Monthly"
+                                  : "Yearly"}
                               </p>
                             </div>
                           </div>
@@ -475,12 +443,12 @@ const Subscriptions = () => {
                             </div>
                             <div>
                               <p className="text-sm text-gray-500">
-                                Zahlungsmethode
+                                Payment method
                               </p>
                               <p className="font-semibold">
-                                {subscription.default_payment_method
-                                  ? "•••• •••• •••• 0000"
-                                  : "Keine Zahlungsmethode"}
+                                {paymentMethod.type === "card"
+                                  ? `•••• •••• •••• ${paymentMethod.card.last4}`
+                                  : "PayPal"}
                               </p>
                             </div>
                           </div>
@@ -511,8 +479,8 @@ const Subscriptions = () => {
                           <div className="flex justify-between mb-2">
                             <span className="text-gray-500">Preis</span>
                             <span className="font-medium">
-                              {formatPrice(
-                                subscription.plan.amount,
+                              {formatAmount(
+                                subscription.plan.amount / 100,
                                 subscription.currency
                               )}{" "}
                               / {subscription.plan.interval}
@@ -520,7 +488,7 @@ const Subscriptions = () => {
                           </div>
                           <div className="flex justify-between mb-2">
                             <span className="text-gray-500">
-                              Nächste Abrechnung
+                              Next settlement
                             </span>
                             <span className="font-medium">
                               {formatDate(subscription.current_period_end)}

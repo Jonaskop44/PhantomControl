@@ -7,10 +7,10 @@ export function useFormat() {
     });
   };
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "EUR",
+      currency: currency.toUpperCase(),
       minimumFractionDigits: 2,
     }).format(amount);
   };
