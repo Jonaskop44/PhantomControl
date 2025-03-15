@@ -305,8 +305,8 @@ const Subscriptions = () => {
                         : "text-gray-500"
                     }`}
                   >
-                    <Icon icon="solar:card-bold" className="w-4 h-4" />
-                    <span>Abrechnung</span>
+                    <Icon icon="solar:card-linear" className="w-4 h-4" />
+                    <span>Billing</span>
                   </motion.button>
                 </div>
               </div>
@@ -357,7 +357,7 @@ const Subscriptions = () => {
                           <div className="flex items-start gap-3">
                             <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
-                                icon="solar:calendar-bold"
+                                icon="solar:calendar-linear"
                                 className="w-6 h-6 text-purple-500"
                               />
                             </div>
@@ -379,7 +379,7 @@ const Subscriptions = () => {
                           <div className="flex items-start gap-3">
                             <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
-                                icon="solar:calendar-mark-bold"
+                                icon="solar:calendar-mark-linear"
                                 className="w-6 h-6 text-blue-500"
                               />
                             </div>
@@ -401,7 +401,7 @@ const Subscriptions = () => {
                           <div className="flex items-start gap-3">
                             <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
-                                icon="solar:refresh-circle-bold"
+                                icon="solar:refresh-bold"
                                 className="w-6 h-6 text-green-500"
                               />
                             </div>
@@ -428,7 +428,7 @@ const Subscriptions = () => {
                           <div className="flex items-start gap-3">
                             <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
-                                icon="solar:card-recive-bold"
+                                icon="solar:card-recive-linear"
                                 className="w-6 h-6 text-orange-500"
                               />
                             </div>
@@ -471,7 +471,7 @@ const Subscriptions = () => {
                               <div className="flex items-start gap-3">
                                 <div className="bg-blue-500/10 p-2 rounded-lg">
                                   <Icon
-                                    icon="solar:card-bold"
+                                    icon="solar:card-linear"
                                     className="w-6 h-6 text-purple-500"
                                   />
                                 </div>
@@ -505,7 +505,7 @@ const Subscriptions = () => {
                               <div className="flex items-start gap-3">
                                 <div className="bg-blue-500/10 p-2 rounded-lg">
                                   <Icon
-                                    icon="solar:user-id-bold"
+                                    icon="solar:user-id-linear"
                                     className="w-6 h-6 text-blue-500"
                                   />
                                 </div>
@@ -572,7 +572,10 @@ const Subscriptions = () => {
                   color="danger"
                   variant="flat"
                   startContent={
-                    <Icon icon="solar:close-circle-bold" className="w-4 h-4" />
+                    <Icon
+                      icon="solar:close-circle-linear"
+                      className="w-4 h-4"
+                    />
                   }
                   isDisabled={
                     subscription.status === "canceled" ||
