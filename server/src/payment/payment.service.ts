@@ -2,10 +2,10 @@ import {
   ConflictException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { sub } from 'date-fns';
 import { Request } from 'express';
 import {
   checkForExistingCustomer,
@@ -49,7 +49,7 @@ export class PaymentService {
           },
         ],
         subscription_data: {
-          trial_period_days: customer.status ? 0 : 7,
+          trial_period_days: customer.status ? undefined : 7,
         },
         saved_payment_method_options: {
           payment_method_save: 'enabled',
@@ -162,6 +162,34 @@ export class PaymentService {
         );
       });
 
-    return stripeSubscription;
+    const stripeProduct = await this.stripe.products
+      .retrieve(stripeSubscription.items.data[0].plan.product as string)
+      .catch(() => {
+        throw new NotFoundException('Product not found');
+      });
+
+    const stripePaymentMethod = await this.stripe.paymentMethods
+      .retrieve(stripeSubscription.default_payment_method as string)
+      .catch(() => {
+        throw new NotFoundException('Payment method not found');
+      });
+
+    console.log(stripePaymentMethod);
+
+    const {
+      trial_settings,
+      payment_settings,
+      invoice_settings,
+      cancellation_details,
+      automatic_tax,
+      transfer_data,
+      test_clock,
+      trial_start,
+      trial_end,
+      items,
+      ...subscriptionRest
+    } = stripeSubscription;
+
+    return { subscription: subscriptionRest, product: stripeProduct };
   }
 }

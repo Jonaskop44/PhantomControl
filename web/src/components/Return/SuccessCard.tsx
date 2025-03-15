@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { containerVariants, itemVariants } from "./Animations";
-import { CustomerDetails } from "./CustomerDetails";
+import CustomerDetails from "./CustomerDetails";
 import { FC } from "react";
 import { userStore } from "@/data/userStore";
 

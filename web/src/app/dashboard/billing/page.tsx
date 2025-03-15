@@ -19,27 +19,27 @@ import {
   itemVariants,
 } from "@/components/Dashboard/Billing/animations";
 import { useBillingHelpers } from "@/hooks/useBillingHelpers";
-import { BillingProps, Filter } from "@/types/billing";
+import { BillingProps, Filter } from "@/types/payment";
+import { useFormat } from "@/hooks/useFormat";
 
 const apiClient = new ApiClient();
 
 const Billing = () => {
   const {
-    formatDate,
     getStatusText,
     getStatusColor,
     getStatusIcon,
     getStatusBgColor,
     filterRecords,
-    getDisplayAmount,
     getPaginationData,
   } = useBillingHelpers();
+
+  const { formatDate, formatAmount } = useFormat();
 
   const [billing, setBilling] = useState<BillingProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 4;
 
@@ -63,7 +63,6 @@ const Billing = () => {
     setCurrentPage(1);
   }, [filter]);
 
-  // Filter records based on selected filter
   const filteredRecords = filterRecords(billing, filter);
 
   // Calculate pagination
@@ -215,7 +214,7 @@ const Billing = () => {
                             </Chip>
 
                             <p className="font-bold text-lg tabular-nums">
-                              {getDisplayAmount(record)}
+                              {formatAmount(record.amount_paid)}
                             </p>
                           </div>
                         </div>

@@ -4,16 +4,14 @@ import type { Customer, Product } from "@/types/customer";
 import { Chip, Divider } from "@heroui/react";
 import { motion } from "framer-motion";
 import { itemVariants } from "./Animations";
+import { FC } from "react";
 
 interface CustomerDetailsProps {
   customer?: Customer;
   product?: Product;
 }
 
-export const CustomerDetails = ({
-  customer,
-  product,
-}: CustomerDetailsProps) => (
+const CustomerDetails: FC<CustomerDetailsProps> = ({ customer, product }) => (
   <motion.div variants={itemVariants} className="space-y-6">
     {product && (
       <div>
@@ -57,3 +55,5 @@ export const CustomerDetails = ({
     )}
   </motion.div>
 );
+
+export default CustomerDetails;

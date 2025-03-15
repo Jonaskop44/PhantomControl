@@ -1,22 +1,6 @@
-import { BillingProps, Filter } from "@/types/billing";
+import { BillingProps, Filter } from "@/types/payment";
 
 export function useBillingHelpers() {
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case "paid":
@@ -77,10 +61,6 @@ export function useBillingHelpers() {
     });
   };
 
-  const getDisplayAmount = (record: BillingProps) => {
-    return formatAmount(record.amount_paid);
-  };
-
   const getPaginationData = (
     records: BillingProps[],
     currentPage: number,
@@ -100,14 +80,11 @@ export function useBillingHelpers() {
   };
 
   return {
-    formatDate,
-    formatAmount,
     getStatusText,
     getStatusColor,
     getStatusIcon,
     getStatusBgColor,
     filterRecords,
-    getDisplayAmount,
     getPaginationData,
   };
 }
