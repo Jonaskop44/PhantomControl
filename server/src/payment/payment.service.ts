@@ -174,22 +174,67 @@ export class PaymentService {
         throw new NotFoundException('Payment method not found');
       });
 
-    console.log(stripePaymentMethod);
-
     const {
-      trial_settings,
-      payment_settings,
-      invoice_settings,
-      cancellation_details,
-      automatic_tax,
-      transfer_data,
+      id,
+      object,
+      application,
+      application_fee_percent,
+      billing_cycle_anchor_config,
+      billing_thresholds,
+      cancel_at,
+      canceled_at,
+      days_until_due,
+      discount,
+      discounts,
+      ended_at,
+      next_pending_invoice_item_invoice,
+      on_behalf_of,
+      pause_collection,
+      pending_invoice_item_interval,
+      pending_setup_intent,
+      pending_update,
+      schedule,
+      start_date,
       test_clock,
       trial_start,
       trial_end,
+      transfer_data,
+      automatic_tax,
+      invoice_settings,
+      payment_settings,
+      cancellation_details,
+      trial_settings,
       items,
+      metadata,
       ...subscriptionRest
     } = stripeSubscription;
 
-    return { subscription: subscriptionRest, product: stripeProduct };
+    const {
+      id: productId,
+      object: productObject,
+      created,
+      livemode,
+      marketing_features,
+      metadata: productMetadata,
+      package_dimensions,
+      shippable,
+      statement_descriptor,
+      tax_code,
+      unit_label,
+      updated,
+      url,
+      ...productRest
+    } = stripeProduct;
+
+    const {
+      card: { checks, networks, three_d_secure_usage },
+      ...paymentMethodRest
+    } = stripePaymentMethod;
+
+    return {
+      subscription: subscriptionRest,
+      product: productRest,
+      paymentMethod: paymentMethodRest,
+    };
   }
 }

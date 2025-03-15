@@ -21,6 +21,7 @@ const Subscriptions = () => {
   const [currentSubscription, setCurrentSubscription] =
     useState<StripeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
     fetchSubscription();
@@ -40,7 +41,7 @@ const Subscriptions = () => {
   };
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+    return new Date(timestamp * 1000).toLocaleDateString("de-DE", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -48,7 +49,7 @@ const Subscriptions = () => {
   };
 
   const formatPrice = (amount: number, currency: string) => {
-    const formatter = new Intl.NumberFormat("en-US", {
+    const formatter = new Intl.NumberFormat("de-DE", {
       style: "currency",
       currency: currency.toUpperCase(),
     });
@@ -211,6 +212,11 @@ const Subscriptions = () => {
     },
   };
 
+  const tabVariants = {
+    inactive: { opacity: 0.7, y: 0 },
+    active: { opacity: 1, y: 0, scale: 1.05 },
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div
@@ -219,14 +225,23 @@ const Subscriptions = () => {
         className="max-w-4xl mx-auto"
       >
         <motion.div variants={itemVariants} className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-black">Your subscription</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+            Dein Abonnement
+          </h1>
           <p className="text-gray-500 mt-2">
-            Manage your {product.name} subscription
+            Verwalte dein {product.name} Abonnement
           </p>
         </motion.div>
 
         <motion.div variants={itemVariants}>
           <Card className="overflow-hidden border-none shadow-xl bg-white">
+            <div className="absolute top-0 left-0 right-0 h-1">
+              <div
+                className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+
             <div className="p-6 pt-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                 <motion.div
@@ -253,6 +268,15 @@ const Subscriptions = () => {
                           color={getStatusColor(subscription.status)}
                           variant="flat"
                           size="sm"
+                          className={
+                            subscription.status === "active"
+                              ? "from-green-500/20 to-green-600/20"
+                              : subscription.status === "trialing"
+                              ? "from-blue-500/20 to-blue-600/20"
+                              : subscription.status === "past_due"
+                              ? "from-yellow-500/20 to-yellow-600/20"
+                              : "from-red-500/20 to-red-600/20"
+                          }
                         >
                           {subscription.status.charAt(0).toUpperCase() +
                             subscription.status.slice(1)}
@@ -275,9 +299,9 @@ const Subscriptions = () => {
                   className="mt-4 md:mt-0"
                 >
                   <div className="flex items-center justify-center md:justify-end gap-2">
-                    <div className="bg-gradient-to-r from-blue-500 to-violet-500 p-[1px] rounded-full">
+                    <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-[1px] rounded-full">
                       <div className="bg-white rounded-full px-4 py-2">
-                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-500 bg-clip-text text-transparent">
+                        <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
                           {formatPrice(
                             subscription.plan.amount,
                             subscription.currency
@@ -292,141 +316,273 @@ const Subscriptions = () => {
                 </motion.div>
               </div>
 
+              <div className="flex justify-center mb-6">
+                <div className="flex space-x-4 bg-gray-100 rounded-full p-1">
+                  <motion.button
+                    variants={tabVariants}
+                    animate={activeTab === "details" ? "active" : "inactive"}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab("details")}
+                    className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                      activeTab === "details"
+                        ? "bg-white shadow-md"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    <Icon icon="solar:info-circle-bold" className="w-4 h-4" />
+                    <span>Details</span>
+                  </motion.button>
+
+                  <motion.button
+                    variants={tabVariants}
+                    animate={activeTab === "billing" ? "active" : "inactive"}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab("billing")}
+                    className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                      activeTab === "billing"
+                        ? "bg-white shadow-md"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    <Icon icon="solar:card-bold" className="w-4 h-4" />
+                    <span>Abrechnung</span>
+                  </motion.button>
+                </div>
+              </div>
+
               <AnimatePresence mode="wait">
-                <motion.div
-                  key="details"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="bg-white rounded-xl p-6 shadow-lg">
-                    <div className="mb-6">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500">
-                          Subscription period
-                        </span>
-                        <span className="text-sm font-medium">
-                          {daysRemaining} days remaining
-                        </span>
+                {activeTab === "details" && (
+                  <motion.div
+                    key="details"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-gray-500">
+                            Abonnementzeitraum
+                          </span>
+                          <span className="text-sm font-medium">
+                            {daysRemaining} Tage verbleibend
+                          </span>
+                        </div>
+                        <Progress
+                          value={progressPercentage}
+                          size="md"
+                          radius="full"
+                          classNames={{
+                            indicator:
+                              "bg-gradient-to-r from-purple-500 to-blue-500",
+                          }}
+                        />
+                        <div className="flex justify-between mt-1 text-xs text-gray-500">
+                          <span>
+                            {formatDate(subscription.current_period_start)}
+                          </span>
+                          <span>
+                            {formatDate(subscription.current_period_end)}
+                          </span>
+                        </div>
                       </div>
-                      <Progress
-                        value={progressPercentage}
-                        size="md"
-                        radius="full"
-                        classNames={{
-                          indicator:
-                            "bg-gradient-to-r from-purple-500 to-blue-500",
-                        }}
-                      />
-                      <div className="flex justify-between mt-1 text-xs text-gray-500">
-                        <span>
-                          {formatDate(subscription.current_period_start)}
-                        </span>
-                        <span>
-                          {formatDate(subscription.current_period_end)}
-                        </span>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <motion.div
+                          variants={itemVariants}
+                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                              <Icon
+                                icon="solar:calendar-bold"
+                                className="w-6 h-6 text-purple-500"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Nächste Abrechnung
+                              </p>
+                              <p className="font-semibold">
+                                {formatDate(subscription.current_period_end)}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        <motion.div
+                          variants={itemVariants}
+                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                              <Icon
+                                icon="solar:calendar-mark-bold"
+                                className="w-6 h-6 text-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Abonniert seit
+                              </p>
+                              <p className="font-semibold">
+                                {formatDate(subscription.current_period_start)}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        <motion.div
+                          variants={itemVariants}
+                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                              <Icon
+                                icon="solar:refresh-circle-bold"
+                                className="w-6 h-6 text-green-500"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Abrechnungszyklus
+                              </p>
+                              <p className="font-semibold capitalize">
+                                {subscription.plan.interval_count === 1
+                                  ? ""
+                                  : subscription.plan.interval_count}{" "}
+                                {subscription.plan.interval === "month"
+                                  ? "Monatlich"
+                                  : "Jährlich"}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        <motion.div
+                          variants={itemVariants}
+                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                              <Icon
+                                icon="solar:card-recive-bold"
+                                className="w-6 h-6 text-orange-500"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Zahlungsmethode
+                              </p>
+                              <p className="font-semibold">
+                                {subscription.default_payment_method
+                                  ? "•••• •••• •••• 0000"
+                                  : "Keine Zahlungsmethode"}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
                       </div>
                     </div>
+                  </motion.div>
+                )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <motion.div
-                        variants={itemVariants}
-                        className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
-                            <Icon
-                              icon="solar:calendar-bold"
-                              className="w-6 h-6 text-purple-500"
-                            />
+                {activeTab === "billing" && (
+                  <motion.div
+                    key="billing"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-4">
+                          Zahlungsübersicht
+                        </h3>
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                          <div className="flex justify-between mb-2">
+                            <span className="text-gray-500">Abonnement</span>
+                            <span className="font-medium">{product.name}</span>
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Next settlement
-                            </p>
-                            <p className="font-semibold">
+                          <div className="flex justify-between mb-2">
+                            <span className="text-gray-500">Preis</span>
+                            <span className="font-medium">
+                              {formatPrice(
+                                subscription.plan.amount,
+                                subscription.currency
+                              )}{" "}
+                              / {subscription.plan.interval}
+                            </span>
+                          </div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-gray-500">
+                              Nächste Abrechnung
+                            </span>
+                            <span className="font-medium">
                               {formatDate(subscription.current_period_end)}
-                            </p>
+                            </span>
                           </div>
-                        </div>
-                      </motion.div>
-
-                      <motion.div
-                        variants={itemVariants}
-                        className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
-                            <Icon
-                              icon="solar:calendar-mark-bold"
-                              className="w-6 h-6 text-blue-500"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Subscribed since
-                            </p>
-                            <p className="font-semibold">
-                              {formatDate(subscription.start_date)}
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-
-                      <motion.div
-                        variants={itemVariants}
-                        className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
-                            <Icon
-                              icon="solar:refresh-circle-bold"
-                              className="w-6 h-6 text-green-500"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Abrechnungszyklus
-                            </p>
-                            <p className="font-semibold capitalize">
-                              {subscription.plan.interval_count === 1
-                                ? ""
-                                : subscription.plan.interval_count}{" "}
-                              {subscription.plan.interval === "month"
-                                ? "Monatlich"
-                                : "Jährlich"}
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-
-                      <motion.div
-                        variants={itemVariants}
-                        className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
-                            <Icon
-                              icon="solar:card-recive-bold"
-                              className="w-6 h-6 text-orange-500"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">
                               Zahlungsmethode
-                            </p>
-                            <p className="font-semibold">
+                            </span>
+                            <span className="font-medium">
                               {subscription.default_payment_method
-                                ? "•••• •••• •••• 0000"
+                                ? "Kreditkarte •••• 0000"
                                 : "Keine Zahlungsmethode"}
-                            </p>
+                            </span>
                           </div>
                         </div>
-                      </motion.div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="flex-1"
+                          >
+                            <Button
+                              color="primary"
+                              variant="flat"
+                              className="w-full"
+                              startContent={
+                                <Icon
+                                  icon="solar:card-edit-bold"
+                                  className="w-4 h-4"
+                                />
+                              }
+                            >
+                              Zahlungsmethode ändern
+                            </Button>
+                          </motion.div>
+
+                          <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="flex-1"
+                          >
+                            <Button
+                              color="primary"
+                              variant="flat"
+                              className="w-full"
+                              startContent={
+                                <Icon
+                                  icon="solar:document-text-bold"
+                                  className="w-4 h-4"
+                                />
+                              }
+                            >
+                              Rechnungen anzeigen
+                            </Button>
+                          </motion.div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
 
