@@ -227,7 +227,7 @@ const Subscriptions = () => {
                   transition={{ duration: 0.5 }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="bg-white shadow-md px-9 py-2 rounded-3xl">
+                    <div className="px-9 py-2">
                       <h2 className="text-2xl font-bold text-gray-800">
                         {product.name} Plan
                       </h2>
@@ -355,7 +355,7 @@ const Subscriptions = () => {
                           className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                            <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
                                 icon="solar:calendar-bold"
                                 className="w-6 h-6 text-purple-500"
@@ -377,7 +377,7 @@ const Subscriptions = () => {
                           className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                            <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
                                 icon="solar:calendar-mark-bold"
                                 className="w-6 h-6 text-blue-500"
@@ -399,7 +399,7 @@ const Subscriptions = () => {
                           className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                            <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
                                 icon="solar:refresh-circle-bold"
                                 className="w-6 h-6 text-green-500"
@@ -426,7 +426,7 @@ const Subscriptions = () => {
                           className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-2 rounded-lg">
+                            <div className="bg-blue-500/10 p-2 rounded-lg">
                               <Icon
                                 icon="solar:card-recive-bold"
                                 className="w-6 h-6 text-orange-500"
@@ -460,83 +460,86 @@ const Subscriptions = () => {
                     <div className="bg-white rounded-xl p-6 shadow-lg">
                       <div className="mb-6">
                         <h3 className="text-lg font-semibold mb-4">
-                          Zahlungsübersicht
+                          Payment overview
                         </h3>
-                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                          <div className="flex justify-between mb-2">
-                            <span className="text-gray-500">Abonnement</span>
-                            <span className="font-medium">{product.name}</span>
-                          </div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-gray-500">Preis</span>
-                            <span className="font-medium">
-                              {formatAmount(
-                                subscription.plan.amount / 100,
-                                subscription.currency
-                              )}{" "}
-                              / {subscription.plan.interval}
-                            </span>
-                          </div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-gray-500">
-                              Next settlement
-                            </span>
-                            <span className="font-medium">
-                              {formatDate(subscription.current_period_end)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">
-                              Zahlungsmethode
-                            </span>
-                            <span className="font-medium">
-                              {subscription.default_payment_method
-                                ? "Kreditkarte •••• 0000"
-                                : "Keine Zahlungsmethode"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="flex-1"
-                          >
-                            <Button
-                              color="primary"
-                              variant="flat"
-                              className="w-full"
-                              startContent={
-                                <Icon
-                                  icon="solar:card-edit-bold"
-                                  className="w-4 h-4"
-                                />
-                              }
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                          {paymentMethod && (
+                            <motion.div
+                              variants={itemVariants}
+                              className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                             >
-                              Zahlungsmethode ändern
-                            </Button>
-                          </motion.div>
+                              <div className="flex items-start gap-3">
+                                <div className="bg-blue-500/10 p-2 rounded-lg">
+                                  <Icon
+                                    icon="solar:card-bold"
+                                    className="w-6 h-6 text-purple-500"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <p className="text-sm text-gray-500">
+                                    Card details
+                                  </p>
 
-                          <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="flex-1"
-                          >
-                            <Button
-                              color="primary"
-                              variant="flat"
-                              className="w-full"
-                              startContent={
-                                <Icon
-                                  icon="solar:document-text-bold"
-                                  className="w-4 h-4"
-                                />
-                              }
+                                  <Icon
+                                    icon={`logos:${paymentMethod.card.brand}`}
+                                    fontSize={12}
+                                  />
+
+                                  <p className="text-sm">
+                                    •••• •••• •••• {paymentMethod.card.last4}
+                                  </p>
+                                  <p className="text-sm">
+                                    Valid until: {paymentMethod.card.exp_month}/
+                                    {paymentMethod.card.exp_year}
+                                  </p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {paymentMethod && paymentMethod.billing_details && (
+                            <motion.div
+                              variants={itemVariants}
+                              className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                             >
-                              Rechnungen anzeigen
-                            </Button>
-                          </motion.div>
+                              <div className="flex items-start gap-3">
+                                <div className="bg-blue-500/10 p-2 rounded-lg">
+                                  <Icon
+                                    icon="solar:user-id-bold"
+                                    className="w-6 h-6 text-blue-500"
+                                  />
+                                </div>
+                                <div className="space-y-1 text-sm">
+                                  <p className="text-gray-500">
+                                    Billing address
+                                  </p>
+                                  <p className="font-semibold">
+                                    {paymentMethod.billing_details.name}
+                                  </p>
+                                  <p>{paymentMethod.billing_details.email}</p>
+                                  <p>
+                                    {
+                                      paymentMethod.billing_details.address
+                                        .line1
+                                    }
+                                  </p>
+                                  <p>
+                                    {
+                                      paymentMethod.billing_details.address
+                                        .postal_code
+                                    }{" "}
+                                    {paymentMethod.billing_details.address.city}
+                                  </p>
+                                  <p>
+                                    {
+                                      paymentMethod.billing_details.address
+                                        .country
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -577,7 +580,7 @@ const Subscriptions = () => {
                   }
                   id="cancel-subscription-button"
                 >
-                  Abonnement kündigen
+                  Cancel subscription
                 </Button>
               </motion.div>
             </CardFooter>
