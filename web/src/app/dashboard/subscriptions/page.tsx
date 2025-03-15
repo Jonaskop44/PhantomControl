@@ -227,16 +227,7 @@ const Subscriptions = () => {
                   transition={{ duration: 0.5 }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-md opacity-30" />
-                      <div className="relative bg-white rounded-full p-2 shadow-md">
-                        <Icon
-                          icon="solar:crown-bold"
-                          className="w-8 h-8 text-yellow-500"
-                        />
-                      </div>
-                    </div>
-                    <div>
+                    <div className="bg-white shadow-md px-9 py-2 rounded-3xl">
                       <h2 className="text-2xl font-bold text-gray-800">
                         {product.name} Plan
                       </h2>
