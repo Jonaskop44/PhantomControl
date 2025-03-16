@@ -63,7 +63,7 @@ export class PaymentService {
           : undefined,
         return_url: `${request.headers.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
       })
-      .catch((error) => {
+      .catch(() => {
         throw new ConflictException('Error creating checkout session');
       });
 
@@ -156,7 +156,7 @@ export class PaymentService {
 
     const stripeSubscription = await this.stripe.subscriptions
       .retrieve(subscription.subscriptionId)
-      .catch((error) => {
+      .catch(() => {
         throw new ConflictException(
           'There was an error while fetching subscription',
         );
@@ -248,7 +248,7 @@ export class PaymentService {
 
     const stripeSubscription = await this.stripe.subscriptions
       .retrieve(subscription.subscriptionId)
-      .catch((error) => {
+      .catch(() => {
         throw new ConflictException(
           'There was an error while fetching subscription',
         );
@@ -268,7 +268,6 @@ export class PaymentService {
         throw new ConflictException('Error canceling subscription');
       });
 
-    await changeRole(this.prisma, userId, Role.USER);
     await restClientList(this.prisma, userId, 'CANCEL');
 
     return { message: 'Subscription canceled' };
@@ -309,8 +308,7 @@ export class PaymentService {
         proration_behavior: 'create_prorations',
         cancel_at_period_end: false,
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         throw new ConflictException('Error updating subscription');
       });
 
@@ -324,5 +322,27 @@ export class PaymentService {
     await restClientList(this.prisma, userId, 'CHANGE');
 
     return { message: 'Subscription updated' };
+  }
+
+  async checkExpiredSubscriptions(userId: number) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription) return;
+
+    const stripeSubscription = await this.stripe.subscriptions
+      .retrieve(subscription.subscriptionId)
+      .catch(() => {
+        throw new ConflictException(
+          'There was an error while fetching subscription',
+        );
+      });
+
+    if (stripeSubscription.status === 'canceled') {
+      await changeRole(this.prisma, userId, Role.USER);
+    }
   }
 }
