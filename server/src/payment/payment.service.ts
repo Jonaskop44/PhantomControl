@@ -298,8 +298,8 @@ export class PaymentService {
       subscription.subscriptionId,
     );
 
-    console.log('PRICE: ', priceId);
-    console.log('SUBSCRIPTION: ', stripeSubscription);
+    if (stripeSubscription.status === 'canceled')
+      throw new ConflictException('Subscription already canceled');
 
     const updatedSubscription = await this.stripe.subscriptions
       .update(subscription.subscriptionId, {
@@ -307,13 +307,12 @@ export class PaymentService {
           { id: stripeSubscription.items.data[0].id, price: priceId.price },
         ],
         proration_behavior: 'create_prorations',
+        cancel_at_period_end: false,
       })
       .catch((error) => {
         console.log(error);
         throw new ConflictException('Error updating subscription');
       });
-
-    console.log('UPDATED SUBSCRIPTION: ', updatedSubscription);
 
     await handleSubscription(
       this.prisma,
