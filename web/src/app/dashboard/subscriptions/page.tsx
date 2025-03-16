@@ -1,176 +1,34 @@
 "use client";
 
-import ApiClient from "@/api";
-import type { StripeResponse } from "@/types/payment";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
+import { Card, CardFooter, Button, Chip } from "@heroui/react";
+import { useFormat } from "@/hooks/use-format";
 import {
-  Card,
-  CardBody,
-  CardFooter,
-  Button,
-  Chip,
-  Spinner,
-  Progress,
-} from "@heroui/react";
-import { useFormat } from "@/hooks/useFormat";
-
-const apiClient = new ApiClient();
+  containerVariants,
+  itemVariants,
+  tabVariants,
+} from "@/components/Dashboard/Subscriptions/animations";
+import { useSubscription } from "@/hooks/use-subscription";
+import DetailsTab from "@/components/Dashboard/Subscriptions/DetailsTab";
+import BillingTab from "@/components/Dashboard/Subscriptions/BillingTab";
+import LoadingState from "@/components/Dashboard/Subscriptions/LoadingState";
+import EmptyState from "@/components/Dashboard/Subscriptions/EmptyState";
 
 const Subscriptions = () => {
-  const [currentSubscription, setCurrentSubscription] =
-    useState<StripeResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
+  const {
+    currentSubscription,
+    isLoading,
+    getDaysRemaining,
+    getProgressPercentage,
+    getStatusColor,
+  } = useSubscription();
   const { formatDate, formatAmount } = useFormat();
 
-  useEffect(() => {
-    fetchSubscription();
-  }, []);
-
-  const fetchSubscription = () => {
-    apiClient.payment.helper
-      .getCurrentSubscription()
-      .then((response) => {
-        if (response.status) {
-          setCurrentSubscription(response.data);
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "success";
-      case "trialing":
-        return "primary";
-      case "past_due":
-        return "warning";
-      case "canceled":
-        return "danger";
-      default:
-        return "default";
-    }
-  };
-
-  // Calculate days remaining in subscription
-  const getDaysRemaining = (endTimestamp: number) => {
-    const now = new Date();
-    const end = new Date(endTimestamp * 1000);
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  // Calculate percentage of subscription period completed
-  const getProgressPercentage = (
-    startTimestamp: number,
-    endTimestamp: number
-  ) => {
-    const now = new Date().getTime();
-    const start = startTimestamp * 1000;
-    const end = endTimestamp * 1000;
-    const total = end - start;
-    const elapsed = now - start;
-    return Math.min(Math.max(Math.floor((elapsed / total) * 100), 0), 100);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <Spinner size="lg" color="primary" />
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mt-4 text-primary font-medium"
-          >
-            Deine Abonnementdaten werden geladen...
-          </motion.p>
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (!currentSubscription) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="max-w-md overflow-hidden border-none bg-white shadow-xl">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 1 }}
-            />
-            <CardBody className="flex flex-col items-center gap-6 py-10 relative z-10">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 260,
-                  damping: 20,
-                  delay: 0.3,
-                }}
-                className="relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-30" />
-                <Icon
-                  icon="solar:sad-circle-bold"
-                  className="w-24 h-24 text-purple-500 relative z-10"
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-center"
-              >
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  Kein aktives Abonnement
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Du hast derzeit kein aktives Abonnement. Entdecke unsere Pläne
-                  und genieße alle Premium-Funktionen.
-                </p>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    color="primary"
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 font-medium text-white shadow-lg"
-                    startContent={
-                      <Icon icon="solar:star-bold" className="w-5 h-5" />
-                    }
-                  >
-                    Pläne entdecken
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </CardBody>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingState />;
+  if (!currentSubscription) return <EmptyState />;
 
   const { subscription, product, paymentMethod } = currentSubscription;
   const daysRemaining = getDaysRemaining(subscription.current_period_end);
@@ -178,30 +36,6 @@ const Subscriptions = () => {
     subscription.current_period_start,
     subscription.current_period_end
   );
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 24 },
-    },
-  };
-
-  const tabVariants = {
-    inactive: { opacity: 0.7, y: 0 },
-    active: { opacity: 1, y: 0, scale: 1.05 },
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -313,237 +147,16 @@ const Subscriptions = () => {
 
               <AnimatePresence mode="wait">
                 {activeTab === "details" && (
-                  <motion.div
-                    key="details"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
-                      <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm text-gray-500">
-                            Subscription period
-                          </span>
-                          <span className="text-sm font-medium">
-                            {daysRemaining} days remaining
-                          </span>
-                        </div>
-                        <Progress
-                          value={progressPercentage}
-                          size="md"
-                          radius="full"
-                          classNames={{
-                            indicator:
-                              "bg-gradient-to-r from-purple-500 to-blue-500",
-                          }}
-                        />
-                        <div className="flex justify-between mt-1 text-xs text-gray-500">
-                          <span>
-                            {formatDate(subscription.current_period_start)}
-                          </span>
-                          <span>
-                            {formatDate(subscription.current_period_end)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <motion.div
-                          variants={itemVariants}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="bg-blue-500/10 p-2 rounded-lg">
-                              <Icon
-                                icon="solar:calendar-linear"
-                                className="w-6 h-6 text-purple-500"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                Next settlement
-                              </p>
-                              <p className="font-semibold">
-                                {formatDate(subscription.current_period_end)}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        <motion.div
-                          variants={itemVariants}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="bg-blue-500/10 p-2 rounded-lg">
-                              <Icon
-                                icon="solar:calendar-mark-linear"
-                                className="w-6 h-6 text-blue-500"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                Subscribed since
-                              </p>
-                              <p className="font-semibold">
-                                {formatDate(subscription.current_period_start)}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        <motion.div
-                          variants={itemVariants}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="bg-blue-500/10 p-2 rounded-lg">
-                              <Icon
-                                icon="solar:refresh-bold"
-                                className="w-6 h-6 text-green-500"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                Billing cycle
-                              </p>
-                              <p className="font-semibold capitalize">
-                                {subscription.plan.interval_count === 1
-                                  ? ""
-                                  : subscription.plan.interval_count}{" "}
-                                {subscription.plan.interval === "month"
-                                  ? "Monthly"
-                                  : "Yearly"}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        <motion.div
-                          variants={itemVariants}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="bg-blue-500/10 p-2 rounded-lg">
-                              <Icon
-                                icon="solar:card-recive-linear"
-                                className="w-6 h-6 text-orange-500"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                Payment method
-                              </p>
-                              <p className="font-semibold">
-                                {paymentMethod.type === "card"
-                                  ? `•••• •••• •••• ${paymentMethod.card.last4}`
-                                  : "PayPal"}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <DetailsTab
+                    subscription={subscription}
+                    paymentMethod={paymentMethod}
+                    daysRemaining={daysRemaining}
+                    progressPercentage={progressPercentage}
+                  />
                 )}
 
                 {activeTab === "billing" && (
-                  <motion.div
-                    key="billing"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
-                      <div className="mb-6">
-                        <h3 className="text-lg font-semibold mb-4">
-                          Payment overview
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                          {paymentMethod && (
-                            <motion.div
-                              variants={itemVariants}
-                              className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="bg-blue-500/10 p-2 rounded-lg">
-                                  <Icon
-                                    icon="solar:card-linear"
-                                    className="w-6 h-6 text-purple-500"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <p className="text-sm text-gray-500">
-                                    Card details
-                                  </p>
-
-                                  <Icon
-                                    icon={`logos:${paymentMethod.card.brand}`}
-                                    fontSize={12}
-                                  />
-
-                                  <p className="text-sm">
-                                    •••• •••• •••• {paymentMethod.card.last4}
-                                  </p>
-                                  <p className="text-sm">
-                                    Valid until: {paymentMethod.card.exp_month}/
-                                    {paymentMethod.card.exp_year}
-                                  </p>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-
-                          {paymentMethod && paymentMethod.billing_details && (
-                            <motion.div
-                              variants={itemVariants}
-                              className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="bg-blue-500/10 p-2 rounded-lg">
-                                  <Icon
-                                    icon="solar:user-id-linear"
-                                    className="w-6 h-6 text-blue-500"
-                                  />
-                                </div>
-                                <div className="space-y-1 text-sm">
-                                  <p className="text-gray-500">
-                                    Billing address
-                                  </p>
-                                  <p className="font-semibold">
-                                    {paymentMethod.billing_details.name}
-                                  </p>
-                                  <p>{paymentMethod.billing_details.email}</p>
-                                  <p>
-                                    {
-                                      paymentMethod.billing_details.address
-                                        .line1
-                                    }
-                                  </p>
-                                  <p>
-                                    {
-                                      paymentMethod.billing_details.address
-                                        .postal_code
-                                    }{" "}
-                                    {paymentMethod.billing_details.address.city}
-                                  </p>
-                                  <p>
-                                    {
-                                      paymentMethod.billing_details.address
-                                        .country
-                                    }
-                                  </p>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <BillingTab paymentMethod={paymentMethod} />
                 )}
               </AnimatePresence>
             </div>

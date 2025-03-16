@@ -12,7 +12,7 @@ import {
 import { userStore } from "@/data/userStore";
 import ApiClient from "@/api";
 import { toast } from "sonner";
-import { useHandleDeleteAccount } from "@/hooks/user";
+import { useHandleDeleteAccount } from "@/hooks/use-user";
 import { useState } from "react";
 import ConfirmActionModal from "@/components/Common/ConfirmActionModal";
 

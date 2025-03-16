@@ -18,9 +18,9 @@ import {
   headerVariants,
   itemVariants,
 } from "@/components/Dashboard/Billing/animations";
-import { useBillingHelpers } from "@/hooks/useBillingHelpers";
+import { useBillingHelpers } from "@/hooks/use-billing";
 import { BillingProps, Filter } from "@/types/payment";
-import { useFormat } from "@/hooks/useFormat";
+import { useFormat } from "@/hooks/use-format";
 
 const apiClient = new ApiClient();
 

@@ -13,7 +13,7 @@ import {
   DropdownSection,
 } from "@heroui/react";
 import { userStore } from "@/data/userStore";
-import { useHandleLogout } from "@/hooks/user";
+import { useHandleLogout } from "@/hooks/use-user";
 import { useRouter } from "next/navigation";
 
 const Navbar = () => {
