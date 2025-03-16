@@ -57,28 +57,6 @@ export const changeRole = async (
   });
 };
 
-export const deleteSubscription = async (
-  prisma: PrismaService,
-  userId: number,
-  role: Role,
-) => {
-  const subscription = await prisma.subscription.findUnique({
-    where: {
-      userId: userId,
-    },
-  });
-
-  if (!subscription) throw new NotFoundException('Subscription not found');
-
-  await prisma.subscription.delete({
-    where: {
-      userId: userId,
-    },
-  });
-
-  await changeRole(prisma, userId, role);
-};
-
 export const getPlanAndPrice = async (stripe: Stripe, planName: Role) => {
   const planId = await stripe.products.search({
     query: `name:'${planName}'`,

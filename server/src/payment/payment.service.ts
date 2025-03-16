@@ -7,9 +7,9 @@ import {
 import { Role } from '@prisma/client';
 import { Request } from 'express';
 import {
+  changeRole,
   checkForExistingCustomer,
   checkForExistingSubscription,
-  deleteSubscription,
   getPlanAndPrice,
   handleSubscription,
   restClientList,
@@ -246,6 +246,20 @@ export class PaymentService {
     if (!subscription)
       throw new NotFoundException('This user has no subscription');
 
+    const stripeSubscription = await this.stripe.subscriptions
+      .retrieve(subscription.subscriptionId)
+      .catch((error) => {
+        throw new ConflictException(
+          'There was an error while fetching subscription',
+        );
+      });
+
+    if (
+      stripeSubscription.status === 'canceled' ||
+      stripeSubscription.cancel_at_period_end
+    )
+      throw new ConflictException('Subscription already canceled');
+
     await this.stripe.subscriptions
       .update(subscription.subscriptionId, {
         cancel_at_period_end: true,
@@ -254,7 +268,7 @@ export class PaymentService {
         throw new ConflictException('Error canceling subscription');
       });
 
-    // await deleteSubscription(this.prisma, userId, Role.USER);
+    await changeRole(this.prisma, userId, Role.USER);
     await restClientList(this.prisma, userId, 'CANCEL');
 
     return { message: 'Subscription canceled' };
