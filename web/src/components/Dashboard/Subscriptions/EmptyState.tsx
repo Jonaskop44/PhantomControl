@@ -20,12 +20,12 @@ const EmptyState = () => {
             </div>
 
             <h2 className="text-lg font-medium text-gray-900 mb-2">
-              Kein aktives Abonnement
+              No active subscription
             </h2>
 
             <p className="text-gray-600 text-sm mb-6">
-              Du hast derzeit kein aktives Abonnement. Entdecke unsere Pläne für
-              mehr Funktionen.
+              You don&apos;t currently have an active subscription. Discover our
+              plans for more features.
             </p>
 
             <Button
@@ -36,7 +36,7 @@ const EmptyState = () => {
               }
               onPress={() => router.push("/pricing")}
             >
-              Pläne entdecken
+              Discover plans
             </Button>
           </div>
         </CardBody>
