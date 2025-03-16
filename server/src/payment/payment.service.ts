@@ -5,14 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { sub } from 'date-fns';
 import { Request } from 'express';
 import {
   checkForExistingCustomer,
   checkForExistingSubscription,
+  deleteSubscription,
   getPlanAndPrice,
   handleSubscription,
-} from 'src/lib/helper';
+  restClientList,
+} from 'src/payment/payment.helper';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -233,5 +234,71 @@ export class PaymentService {
       product: productRest,
       paymentMethod: { ...paymentMethodRest, card: filteredCard },
     };
+  }
+
+  async cancelSubscription(userId: number) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription)
+      throw new NotFoundException('This user has no subscription');
+
+    await this.stripe.subscriptions
+      .update(subscription.subscriptionId, {
+        cancel_at_period_end: true,
+      })
+      .catch(() => {
+        throw new ConflictException('Error canceling subscription');
+      });
+
+    // await deleteSubscription(this.prisma, userId, Role.USER);
+    await restClientList(this.prisma, userId, 'CANCEL');
+
+    return { message: 'Subscription canceled' };
+  }
+
+  async updateSubscription(userId: number, planName: Role) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!subscription)
+      throw new NotFoundException('This user has no subscription');
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (user.role === planName)
+      throw new ConflictException('User already has this subscription');
+
+    const priceId = await getPlanAndPrice(this.stripe, planName);
+    const stripeSubscription = await this.stripe.subscriptions
+      .update(subscription.subscriptionId, {
+        items: [{ id: subscription.subscriptionId, price: priceId.price }],
+        proration_behavior: 'create_prorations',
+      })
+      .catch((error) => {
+        console.log(error);
+        throw new ConflictException('Error updating subscription');
+      });
+
+    await handleSubscription(
+      this.prisma,
+      userId,
+      subscription.customerId,
+      stripeSubscription.id,
+      planName.toLocaleUpperCase() as Role,
+    );
+    await restClientList(this.prisma, userId, 'CHANGE');
+
+    return { message: 'Subscription updated' };
   }
 }

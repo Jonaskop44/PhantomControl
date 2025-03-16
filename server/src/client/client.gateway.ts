@@ -197,7 +197,10 @@ export class ClientGateway
             );
 
             //Check if the file is bigger than the max file size
-            if (data.fileBuffer.length > this.clientService.maxFileSize) {
+            if (
+              data.fileBuffer.length >
+              this.clientService.maxFileUploadSize(client.hwid)
+            ) {
               reject(new ConflictException('File is too large.'));
               return;
             }

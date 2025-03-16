@@ -11,6 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import { Role } from '@prisma/client';
+import { getMaxClientsByRole } from './client.helper';
 
 @Injectable()
 export class ClientService {
@@ -21,18 +22,29 @@ export class ClientService {
 
   public readonly uploadPath = path.join(__dirname, '../../uploads');
   public readonly downloadPath = path.join(__dirname, '../../downloads');
-  public readonly maxFileSize = 2 * 1024 * 1024 * 1024;
   public readonly massDownloadZipName = 'download.zip';
 
-  private getMaxClientsByRole(role: Role): number {
-    switch (role) {
+  public async maxFileUploadSize(hwid: string): Promise<number> {
+    const client = await this.prisma.client.findUnique({
+      where: {
+        hwid: hwid,
+      },
+    });
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: client.userId,
+      },
+    });
+
+    switch (user.role) {
       case Role.PREMIUM:
-        return 20;
+        return 5 * 1024 * 1024 * 1024;
       case Role.VIP:
-        return 50;
+        return 10 * 1024 * 1024 * 1024;
       case Role.USER:
       default:
-        return 1;
+        return 2 * 1024 * 1024 * 1024;
     }
   }
 
@@ -81,7 +93,7 @@ export class ClientService {
 
     if (!existingClient) {
       const clientCount = user.user.clients.length;
-      const maxClients = this.getMaxClientsByRole(user.user.role);
+      const maxClients = getMaxClientsByRole(user.user.role);
 
       if (clientCount >= maxClients) return null;
     }
@@ -194,8 +206,8 @@ export class ClientService {
 
     if (!files || files.length === 0)
       throw new ConflictException('No files uploaded');
-    files.forEach((file) => {
-      if (file.size > this.maxFileSize) {
+    files.forEach(async (file) => {
+      if (file.size > (await this.maxFileUploadSize(client.hwid))) {
         throw new ConflictException('One or more files are too large');
       }
     });

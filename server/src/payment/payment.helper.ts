@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Role, Subscription } from '@prisma/client';
+import { getMaxClientsByRole } from 'src/client/client.helper';
+import { Action } from 'src/payment/entities/payment.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 
@@ -33,6 +35,18 @@ export const handleSubscription = async (
     },
   });
 
+  await changeRole(prisma, userId, role);
+};
+
+export const changeRole = async (
+  prisma: PrismaService,
+  userId: number,
+  role: Role,
+) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) throw new NotFoundException('User not found');
+
   await prisma.user.update({
     where: {
       id: userId,
@@ -41,6 +55,28 @@ export const handleSubscription = async (
       role: role,
     },
   });
+};
+
+export const deleteSubscription = async (
+  prisma: PrismaService,
+  userId: number,
+  role: Role,
+) => {
+  const subscription = await prisma.subscription.findUnique({
+    where: {
+      userId: userId,
+    },
+  });
+
+  if (!subscription) throw new NotFoundException('Subscription not found');
+
+  await prisma.subscription.delete({
+    where: {
+      userId: userId,
+    },
+  });
+
+  await changeRole(prisma, userId, role);
 };
 
 export const getPlanAndPrice = async (stripe: Stripe, planName: Role) => {
@@ -133,5 +169,49 @@ export const checkForExistingSubscription = async (
         'You already have an active subscription. Please cancel it before subscribing to a new plan.',
       );
     }
+  }
+};
+
+export const restClientList = async (
+  prisma: PrismaService,
+  userId: number,
+  action: Action,
+) => {
+  if (action === 'CANCEL') {
+    const oldestClient = await prisma.client.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!oldestClient) return;
+
+    await prisma.client.deleteMany({
+      where: {
+        userId: userId,
+        id: { not: oldestClient.id },
+      },
+    });
+  } else {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const maxClients = getMaxClientsByRole(user.role);
+
+    const userClients = await prisma.client.findMany({
+      where: { userId: userId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (userClients.length <= maxClients) return;
+
+    const clientsToDelete = userClients.length - maxClients;
+
+    const clientsToDeleteIds = userClients
+      .slice(-clientsToDelete)
+      .map((client) => client.id);
+
+    await prisma.client.deleteMany({
+      where: {
+        id: { in: clientsToDeleteIds },
+      },
+    });
   }
 };
