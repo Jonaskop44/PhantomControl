@@ -69,5 +69,6 @@ export function useSubscription() {
     getDaysRemaining,
     getProgressPercentage,
     getStatusColor,
+    fetchSubscription,
   };
 }
