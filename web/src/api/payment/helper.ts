@@ -76,4 +76,27 @@ export class Helper {
         return { data: null, status: false };
       });
   }
+
+  async updateSubscription(plan: Role) {
+    return axios
+      .post(`payment/update-subscription?plan=${plan}`)
+      .then((response) => {
+        if (response.status !== 201)
+          return {
+            data: null,
+            status: false,
+            message: "Error updating subscription",
+          };
+
+        const data = response.data;
+        return { data: data, status: true, message: "Subscription updated" };
+      })
+      .catch((error) => {
+        return {
+          data: null,
+          status: false,
+          message: error.response.data.message,
+        };
+      });
+  }
 }

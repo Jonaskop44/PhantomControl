@@ -18,11 +18,15 @@ import EmptyState from "@/components/Dashboard/Subscriptions/EmptyState";
 import ConfirmActionModal from "@/components/Common/ConfirmActionModal";
 import ApiClient from "@/api";
 import { toast } from "sonner";
+import { Role } from "@/types/user";
+import ChangePlanModal from "@/components/Dashboard/Subscriptions/ChangePlanModal";
+import { userStore } from "@/data/userStore";
 
 const apiClient = new ApiClient();
 
 const Subscriptions = () => {
   const [activeTab, setActiveTab] = useState("details");
+  const [isModalLoading, setIsModalLoading] = useState(false);
   const {
     currentSubscription,
     isLoading,
@@ -31,8 +35,18 @@ const Subscriptions = () => {
     getStatusColor,
     fetchSubscription,
   } = useSubscription();
+  const { user, fetchUser } = userStore();
   const { formatDate, formatAmount } = useFormat();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenCancel,
+    onOpen: onOpenCancel,
+    onClose: onCloseCancel,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenChange,
+    onOpen: onOpenChange,
+    onClose: onCloseChange,
+  } = useDisclosure();
 
   if (isLoading) return <LoadingState />;
   if (!currentSubscription) return <EmptyState />;
@@ -45,15 +59,39 @@ const Subscriptions = () => {
   );
 
   const handleCancelSubscription = async () => {
-    apiClient.payment.helper.cancelSubscription().then((response) => {
-      if (response.status) {
-        onClose();
-        fetchSubscription();
-        toast.success("Subscription canceled successfully");
-      } else {
-        toast.error("Failed to cancel subscription");
-      }
-    });
+    apiClient.payment.helper
+      .cancelSubscription()
+      .then((response) => {
+        if (response.status) {
+          fetchSubscription();
+          toast.success("Subscription canceled successfully");
+        } else {
+          toast.error("Failed to cancel subscription");
+        }
+      })
+      .finally(() => {
+        onCloseCancel();
+      });
+  };
+
+  const handleUpdateSubscription = async (planName: Role) => {
+    setIsModalLoading(true);
+    apiClient.payment.helper
+      .updateSubscription(planName)
+      .then((response) => {
+        if (response.status) {
+          fetchSubscription();
+          fetchUser();
+          setIsModalLoading(false);
+          toast.success("Subscription updated successfully");
+        } else {
+          setIsModalLoading(false);
+          toast.error(response.message);
+        }
+      })
+      .finally(() => {
+        onCloseChange();
+      });
   };
 
   return (
@@ -198,6 +236,7 @@ const Subscriptions = () => {
                         className="w-5 h-5"
                       />
                     }
+                    onPress={onOpenChange}
                   >
                     Change Plan
                   </Button>
@@ -220,7 +259,7 @@ const Subscriptions = () => {
                       subscription.status === "canceled" ||
                       subscription.cancel_at_period_end
                     }
-                    onPress={onOpen}
+                    onPress={onOpenCancel}
                     id="cancel-subscription-button"
                   >
                     Cancel subscription
@@ -232,9 +271,9 @@ const Subscriptions = () => {
         </motion.div>
       </div>
       <ConfirmActionModal
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onClose={onClose}
+        isOpen={isOpenCancel}
+        onOpen={onOpenCancel}
+        onClose={onCloseCancel}
         header="Are you sure you want to cancel your subscription?"
         body={`If you cancel your subscription, you will lose access to all ${
           product.name
@@ -243,6 +282,14 @@ const Subscriptions = () => {
         )}.`}
         buttonText="Yes, cancel subscription"
         useHandleConfirmAction={handleCancelSubscription}
+      />
+      <ChangePlanModal
+        isOpen={isOpenChange}
+        onOpen={onOpenChange}
+        onClose={onCloseChange}
+        currentPlan={user.role as Role}
+        onPlanChange={handleUpdateSubscription}
+        isLoading={isModalLoading}
       />
     </>
   );
