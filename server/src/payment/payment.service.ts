@@ -280,9 +280,18 @@ export class PaymentService {
       throw new ConflictException('User already has this subscription');
 
     const priceId = await getPlanAndPrice(this.stripe, planName);
-    const stripeSubscription = await this.stripe.subscriptions
+    const stripeSubscription = await this.stripe.subscriptions.retrieve(
+      subscription.subscriptionId,
+    );
+
+    console.log('PRICE: ', priceId);
+    console.log('SUBSCRIPTION: ', stripeSubscription);
+
+    const updatedSubscription = await this.stripe.subscriptions
       .update(subscription.subscriptionId, {
-        items: [{ id: subscription.subscriptionId, price: priceId.price }],
+        items: [
+          { id: stripeSubscription.items.data[0].id, price: priceId.price },
+        ],
         proration_behavior: 'create_prorations',
       })
       .catch((error) => {
@@ -290,11 +299,13 @@ export class PaymentService {
         throw new ConflictException('Error updating subscription');
       });
 
+    console.log('UPDATED SUBSCRIPTION: ', updatedSubscription);
+
     await handleSubscription(
       this.prisma,
       userId,
       subscription.customerId,
-      stripeSubscription.id,
+      updatedSubscription.id,
       planName.toLocaleUpperCase() as Role,
     );
     await restClientList(this.prisma, userId, 'CHANGE');
