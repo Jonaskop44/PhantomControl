@@ -170,10 +170,13 @@ const Subscriptions = () => {
                   color="primary"
                   variant="flat"
                   startContent={
-                    <Icon icon="solar:star-bold" className="w-4 h-4" />
+                    <Icon
+                      icon="solar:round-arrow-left-linear"
+                      className="w-5 h-5"
+                    />
                   }
                 >
-                  Upgrade Plan
+                  Change Plan
                 </Button>
               </motion.div>
 
@@ -187,7 +190,7 @@ const Subscriptions = () => {
                   startContent={
                     <Icon
                       icon="solar:close-circle-linear"
-                      className="w-4 h-4"
+                      className="w-5 h-5"
                     />
                   }
                   isDisabled={
