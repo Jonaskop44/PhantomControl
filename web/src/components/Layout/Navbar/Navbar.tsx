@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { useSidebarContext } from "@/context/SidebarProvider";
 import { Icon } from "@iconify/react";
 import {
@@ -15,11 +16,28 @@ import {
 import { userStore } from "@/data/userStore";
 import { useHandleLogout } from "@/hooks/use-user";
 import { useRouter } from "next/navigation";
+import ApiClient from "@/api";
+
+const apiClient = new ApiClient();
 
 const Navbar = () => {
   const { toggleSidebar, isMobile } = useSidebarContext();
   const { user } = userStore();
   const router = useRouter();
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    apiClient.clients.helper
+      .downloadClientFile((progress: number) => setDownloadProgress(progress))
+      .finally(() => {
+        setIsDownloading(false);
+        setDownloadProgress(null);
+      });
+  };
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 md:px-5 2xl:px-10">
@@ -108,6 +126,21 @@ const Navbar = () => {
                   onPress={() => router.push("/pricing")}
                 >
                   Plans
+                </DropdownItem>
+                <DropdownItem
+                  key="Download Client"
+                  startContent={
+                    <Icon
+                      icon="solar:download-minimalistic-bold"
+                      fontSize={16}
+                    />
+                  }
+                  textValue="Download Client"
+                  onPress={handleDownload}
+                >
+                  {isDownloading
+                    ? `Downloading... ${downloadProgress ?? 0}%`
+                    : "Download Client"}
                 </DropdownItem>
               </DropdownSection>
               <DropdownSection>

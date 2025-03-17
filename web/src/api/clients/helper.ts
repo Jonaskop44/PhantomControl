@@ -55,6 +55,42 @@ export class Helper {
       });
   }
 
+  async downloadClientFile(onProgress: (progress: number) => void) {
+    return axios
+      .get("clients/download", {
+        responseType: "blob",
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            onProgress(progress);
+          }
+        },
+      })
+      .then((response) => {
+        if (response.status !== 200) return { status: false };
+
+        const blob = new Blob([response.data], {
+          type: "application/octet-stream",
+        });
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "PhantomController.exe");
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
+        return { status: true };
+      })
+      .catch(() => {
+        return { status: false };
+      });
+  }
+
   initSocket(callback: (data: { hwid: string; online: boolean }) => void) {
     if (typeof window !== "undefined" && !this.socket && io) {
       this.socket = io("http://localhost:3001");

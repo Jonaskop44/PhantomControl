@@ -124,6 +124,23 @@ export class ClientController {
     }
   }
 
+  @Get('download')
+  async downloadClientFile(@Request() request) {
+    try {
+      const fileBuffer = await this.clientService.downloadClientFile();
+      const uint8Array = new Uint8Array(fileBuffer);
+
+      const streamableFile = new StreamableFile(uint8Array, {
+        disposition: 'attachment',
+        type: 'application/octet-stream',
+      });
+
+      return streamableFile;
+    } catch (error) {
+      throw new ConflictException('Failed to download client file');
+    }
+  }
+
   @Post(':hwid/file/create')
   async createFile(
     @Param('hwid') hwid: string,

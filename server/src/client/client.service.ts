@@ -571,4 +571,12 @@ export class ClientService {
       },
     });
   }
+
+  async downloadClientFile() {
+    const filePath = path.join(this.downloadPath, 'PhantomController.exe');
+
+    if (!fs.existsSync(filePath)) throw new NotFoundException('File not found');
+
+    return fs.promises.readFile(filePath);
+  }
 }
