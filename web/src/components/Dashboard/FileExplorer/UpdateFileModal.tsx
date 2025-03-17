@@ -15,6 +15,7 @@ interface UpdateFileModalProps {
   onOpenChange: (isOpen: boolean) => void;
   fileContent: string;
   setFileUpdateContent: (value: string) => void;
+  setFileName: (value: string) => void;
   onConfirm: () => void;
 }
 
@@ -23,13 +24,14 @@ const UpdateFileModal: FC<UpdateFileModalProps> = ({
   onOpenChange,
   fileContent,
   setFileUpdateContent,
+  setFileName,
   onConfirm,
 }) => {
   return (
     <Modal
       onClose={() => {
         setFileUpdateContent("");
-        setFileUpdateContent("");
+        setFileName("");
       }}
       isOpen={isOpen}
       placement="top-center"

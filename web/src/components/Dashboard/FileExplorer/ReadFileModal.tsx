@@ -7,6 +7,7 @@ interface ReadFileModalProps {
   onOpen: () => void;
   onClose: () => void;
   content: string | null;
+  setFileContent: (value: string) => void;
   fileType: string | null;
 }
 
@@ -15,6 +16,7 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
   onClose,
   content,
   fileType,
+  setFileContent,
 }) => {
   const fileExtension = fileType ? fileType.split("/").pop() : "";
 
@@ -33,7 +35,10 @@ const ReadFileModal: FC<ReadFileModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        setFileContent("");
+      }}
       size={isImage ? "5xl" : isVideo ? "5xl" : "md"}
     >
       <ModalContent>

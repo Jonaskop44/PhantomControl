@@ -35,6 +35,7 @@ const FileExplorerPage = () => {
   const [modalHeader, setModalHeader] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileContent, setFileContent] = useState("");
+  const [fileCreateContent, setFileCreateContent] = useState("");
   const [fileUpdateContent, setFileUpdateContent] = useState("");
   const [fileType, setFileType] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -153,10 +154,9 @@ const FileExplorerPage = () => {
 
               setFileName(name);
               setFileUpdateContent(content);
+              onOpenUpdateFile();
             }
           });
-
-        onOpenUpdateFile();
       },
     },
     {
@@ -247,8 +247,6 @@ const FileExplorerPage = () => {
   };
 
   const handleCreate = () => {
-    setFileContent("");
-
     if (!selectedHwid) return;
 
     const isFolder = modalHeader === "Create Folder";
@@ -256,7 +254,7 @@ const FileExplorerPage = () => {
     const fullPath = `${path}/${fileName}${isFolder ? "" : ".txt"}`;
 
     apiClient.clients.fileExplorer
-      .createFile(selectedHwid, fullPath, fileContent, fileType)
+      .createFile(selectedHwid, fullPath, fileCreateContent, fileType)
       .then((response) => {
         if (response.status) {
           toast.success(`${isFolder ? "Folder" : "File"} created successfully`);
@@ -271,7 +269,7 @@ const FileExplorerPage = () => {
 
     onOpenChangeCreateFile();
     setFileName("");
-    setFileContent("");
+    setFileCreateContent("");
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -758,8 +756,8 @@ const FileExplorerPage = () => {
         modalHeader={modalHeader}
         fileName={fileName}
         setFileName={setFileName}
-        fileContent={fileContent}
-        setFileContent={setFileContent}
+        fileContent={fileCreateContent}
+        setFileContent={setFileCreateContent}
         onConfirm={handleCreate}
       />
       <ReadFileModal
@@ -767,6 +765,7 @@ const FileExplorerPage = () => {
         onOpen={onOpenReadFile}
         onClose={onOpenChangeReadFile}
         content={fileContent}
+        setFileContent={setFileContent}
         fileType={fileType}
       />
       <UpdateFileModal
@@ -775,6 +774,7 @@ const FileExplorerPage = () => {
         onOpenChange={onOpenChangeUpdateFile}
         fileContent={fileUpdateContent}
         setFileUpdateContent={setFileUpdateContent}
+        setFileName={setFileName}
         onConfirm={handleUpdateFile}
       />
     </>
