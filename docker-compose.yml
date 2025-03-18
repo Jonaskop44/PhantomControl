@@ -9,6 +9,8 @@ services:
     restart: always
     networks:
       - proxy
+    ports:
+      - "3000:3000"
     env_file:
       - ./web/.env
   phantomcontrol-server:
@@ -22,6 +24,8 @@ services:
       - ./server/.env
     networks:
       - proxy
+    ports:
+      - "3001:3001"
     depends_on:
       - phantomcontrol-db
   phantomcontrol-db:
