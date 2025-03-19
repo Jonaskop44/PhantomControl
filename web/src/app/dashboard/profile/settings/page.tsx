@@ -154,7 +154,7 @@ const ProfileSettings = () => {
                   "font-mono [&:not(:focus)]:blur-sm transition-all duration-300",
               }}
               endContent={
-                <Button isIconOnly variant="light" onClick={copyClientKey}>
+                <Button isIconOnly variant="light" onPress={copyClientKey}>
                   <Icon icon="mdi:content-copy" className="h-4 w-4" />
                 </Button>
               }

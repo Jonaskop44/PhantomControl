@@ -106,6 +106,7 @@ const Sidebar = () => {
                 <Image
                   src={"/images/banner.png"}
                   fill
+                  sizes="100%"
                   alt="PhantomControl"
                   role="presentation"
                   quality={100}

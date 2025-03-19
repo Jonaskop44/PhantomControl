@@ -170,6 +170,7 @@ const Subscriptions = () => {
                 <div className="flex justify-center mb-6">
                   <div className="flex space-x-4 bg-gray-100 rounded-full p-1">
                     <motion.button
+                      aria-label="Show subscription details"
                       variants={tabVariants}
                       animate={activeTab === "details" ? "active" : "inactive"}
                       whileHover={{ scale: 1.05 }}
@@ -189,6 +190,7 @@ const Subscriptions = () => {
                     </motion.button>
 
                     <motion.button
+                      aria-label="Show billing details"
                       variants={tabVariants}
                       animate={activeTab === "billing" ? "active" : "inactive"}
                       whileHover={{ scale: 1.05 }}
@@ -236,6 +238,7 @@ const Subscriptions = () => {
                         className="w-5 h-5"
                       />
                     }
+                    aria-label="Change subscription plan"
                     onPress={onOpenChange}
                   >
                     Change Plan
@@ -261,6 +264,7 @@ const Subscriptions = () => {
                     }
                     onPress={onOpenCancel}
                     id="cancel-subscription-button"
+                    aria-label="Cancel subscription"
                   >
                     Cancel subscription
                   </Button>

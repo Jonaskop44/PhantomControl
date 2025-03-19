@@ -27,12 +27,17 @@ const BillingTab: FC<BillingTabProps> = ({ paymentMethod }) => {
               <motion.div
                 variants={itemVariants}
                 className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                aria-label="Payment method"
               >
                 <div className="flex items-start gap-3">
-                  <div className="bg-blue-500/10 p-2 rounded-lg">
+                  <div
+                    className="bg-blue-500/10 p-2 rounded-lg"
+                    aria-label="Credit card icon"
+                  >
                     <Icon
                       icon="solar:card-linear"
                       className="w-6 h-6 text-purple-500"
+                      aria-hidden="true"
                     />
                   </div>
                   <div className="space-y-2">
@@ -41,6 +46,7 @@ const BillingTab: FC<BillingTabProps> = ({ paymentMethod }) => {
                     <Icon
                       icon={`logos:${paymentMethod.card.brand}`}
                       fontSize={12}
+                      aria-label={`Credit card brand: ${paymentMethod.card.brand}`}
                     />
 
                     <p className="text-sm">
@@ -59,12 +65,17 @@ const BillingTab: FC<BillingTabProps> = ({ paymentMethod }) => {
               <motion.div
                 variants={itemVariants}
                 className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
+                aria-label="Billing address"
               >
                 <div className="flex items-start gap-3">
-                  <div className="bg-blue-500/10 p-2 rounded-lg">
+                  <div
+                    className="bg-blue-500/10 p-2 rounded-lg"
+                    aria-label="User ID icon"
+                  >
                     <Icon
                       icon="solar:user-id-linear"
                       className="w-6 h-6 text-blue-500"
+                      aria-hidden="true"
                     />
                   </div>
                   <div className="space-y-1 text-sm">
