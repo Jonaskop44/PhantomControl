@@ -58,18 +58,49 @@ This project requires NodeJS (version 20 or later), Yarn VScode. Node, Yarn and 
    npm run dev
    ```
 
-3. Generate RSA key for the server
+### Server Development
+
+1. install packages
 
    ```sh
-   openssl genpkey -algorithm RSA -out server_private.pem
-   openssl rsa -pubout -in server_private.pem -out server_public.pem
+   npm install
    ```
 
-4. Generate RSA key for the client
+2. start dev server
 
    ```sh
-   openssl genpkey -algorithm RSA -out client_private.pem
-   openssl rsa -pubout -in client_private.pem -out client_public.pem
+   npm run start:dev
+   ```
+
+### Client Development
+
+1. Create virtual environment
+
+   ```sh
+   python -m venv venv
+   ```
+
+2. Activate virtual environment
+
+   - **Windows:**
+     ```sh
+     venv\Scripts\activate
+     ```
+   - **Mac/Linux:**
+     ```sh
+     source venv/bin/activate
+     ```
+
+3. Install dependencies
+
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+4. Start project
+
+   ```sh
+   python src/main.py
    ```
 
 <!-- ROADMAP -->
