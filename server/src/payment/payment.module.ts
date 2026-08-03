@@ -11,7 +11,7 @@ export class PaymentModule {
     return {
       module: PaymentModule,
       controllers: [PaymentController],
-      imports: [ConfigModule.forRoot()],
+      imports: [ConfigModule.forRoot({ expandVariables: true })],
       providers: [
         PaymentService,
         PrismaService,

@@ -1,10 +1,12 @@
 "use client";
 
+import type { AnimationGeneratorType, Variants } from "framer-motion";
+
 // Types
 export type AnimationState = "open" | "closed";
 
 export interface TransitionSettings {
-  type: string;
+  type: AnimationGeneratorType;
   stiffness: number;
   damping: number;
 }
@@ -20,7 +22,7 @@ export const defaultTransitionSettings: TransitionSettings = {
 export const sidebarVariants = (
   isMobile: boolean,
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   open: {
     width: isMobile ? "100%" : "290px",
     transition: {
@@ -43,7 +45,7 @@ export const sidebarVariants = (
 // Content animations
 export const contentVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   open: {
     opacity: 1,
     x: 0,
@@ -65,7 +67,7 @@ export const contentVariants = (
 // Section animations
 export const sectionVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   open: {
     opacity: 1,
     y: 0,
@@ -87,7 +89,7 @@ export const sectionVariants = (
 // Dropdown animations
 export const dropdownVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   open: {
     height: "auto",
     opacity: 1,
@@ -108,7 +110,7 @@ export const dropdownVariants = (
 });
 
 // Overlay animations
-export const overlayVariants = {
+export const overlayVariants: Variants = {
   open: {
     opacity: 1,
     transition: {
@@ -126,7 +128,7 @@ export const overlayVariants = {
 // Item animations
 export const itemVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   hidden: {
     opacity: 0,
     x: -20,
@@ -148,7 +150,7 @@ export const itemVariants = (
 // Chevron animations
 export const chevronVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   open: {
     rotate: 0,
     transition: settings,
@@ -162,7 +164,7 @@ export const chevronVariants = (
 // Logo animations
 export const logoVariants = (
   settings: TransitionSettings = defaultTransitionSettings
-) => ({
+): Variants => ({
   hover: {
     scale: 1.05,
     transition: settings,

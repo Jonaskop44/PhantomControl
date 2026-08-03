@@ -10,7 +10,10 @@ import {
   useState,
   useRef,
 } from "react";
-import { type AnimationControls, useAnimationControls } from "framer-motion";
+import {
+  type LegacyAnimationControls,
+  useAnimationControls,
+} from "framer-motion";
 import {
   type AnimationState,
   type TransitionSettings,
@@ -25,7 +28,7 @@ interface SidebarContextProps {
   setIsOpen: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
-  animationControls: AnimationControls;
+  animationControls: LegacyAnimationControls;
   animationState: AnimationState;
   transitionSettings: TransitionSettings;
   animateIcon: (icon: string) => void;

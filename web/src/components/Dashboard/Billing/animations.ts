@@ -1,4 +1,6 @@
-export const containerVariants = {
+import type { Variants } from "framer-motion";
+
+export const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -8,7 +10,7 @@ export const containerVariants = {
   },
 };
 
-export const itemVariants = {
+export const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: {
     y: 0,
@@ -21,7 +23,7 @@ export const itemVariants = {
   },
 };
 
-export const headerVariants = {
+export const headerVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
   visible: {
     opacity: 1,
@@ -33,7 +35,7 @@ export const headerVariants = {
   },
 };
 
-export const fadeInVariants = {
+export const fadeInVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -43,7 +45,7 @@ export const fadeInVariants = {
   },
 };
 
-export const scaleInVariants = {
+export const scaleInVariants: Variants = {
   hidden: { scale: 0.95, opacity: 0 },
   visible: {
     scale: 1,
@@ -56,7 +58,7 @@ export const scaleInVariants = {
   },
 };
 
-export const slideInFromRightVariants = {
+export const slideInFromRightVariants: Variants = {
   hidden: { x: 20, opacity: 0 },
   visible: {
     x: 0,
@@ -69,7 +71,7 @@ export const slideInFromRightVariants = {
   },
 };
 
-export const slideInFromLeftVariants = {
+export const slideInFromLeftVariants: Variants = {
   hidden: { x: -20, opacity: 0 },
   visible: {
     x: 0,

@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   Modal,
   ModalContent,
@@ -43,7 +43,7 @@ const ChangePlanModal: FC<ChangePlanModalProps> = ({
     onClose();
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -53,7 +53,7 @@ const ChangePlanModal: FC<ChangePlanModalProps> = ({
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 200, opacity: 0 },
     visible: {
       y: 0,

@@ -9,7 +9,7 @@ import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ expandVariables: true }),
     UserModule,
     AuthModule,
     ClientModule,

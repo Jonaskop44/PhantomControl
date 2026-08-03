@@ -33,7 +33,9 @@ services:
     image: postgres:latest
     restart: always
     volumes:
-      - phantomcontrol-db-data:/var/lib/postgresql/data
+      - phantomcontrol-db-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
     networks:
       - proxy
     env_file:
